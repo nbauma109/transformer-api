@@ -73,6 +73,7 @@
 		    <groupId>com.github.nbauma109.nb-javac</groupId>
 		    <artifactId>nb-javac-api</artifactId>
 		    <version>${version.nb-javac}</version>
+		    <scope>runtime</scope>
 		</dependency>
 		<dependency>
 		    <groupId>com.github.nbauma109.nb-javac</groupId>
