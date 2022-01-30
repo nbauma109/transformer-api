@@ -16,6 +16,9 @@
 
 package com.heliosdecompiler.transformerapi.assemblers.krakatau;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+
 import com.heliosdecompiler.transformerapi.ClassData;
 import com.heliosdecompiler.transformerapi.PackagedLibraryHelper;
 import com.heliosdecompiler.transformerapi.TransformationException;
@@ -23,20 +26,27 @@ import com.heliosdecompiler.transformerapi.TransformationResult;
 import com.heliosdecompiler.transformerapi.assemblers.Assembler;
 import com.heliosdecompiler.transformerapi.common.krakatau.KrakatauConstants;
 import com.heliosdecompiler.transformerapi.common.krakatau.KrakatauException;
-import net.sf.jazzlib.ZipEntry;
-import net.sf.jazzlib.ZipFile;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import static com.heliosdecompiler.transformerapi.common.krakatau.KrakatauConstants.NAME;
 import static com.heliosdecompiler.transformerapi.common.krakatau.KrakatauConstants.VERSION;
 
-// We use jazzlib because there's like one particular combination of unicode characters where Java's ZIP impl just barfs
 public class KrakatauAssembler extends Assembler<KrakatauAssemblerSettings, String> {
 
     @Override
@@ -112,8 +122,7 @@ public class KrakatauAssembler extends Assembler<KrakatauAssemblerSettings, Stri
 
             Map<String, byte[]> results = new HashMap<>();
 
-            try {
-                ZipFile zipFile = new ZipFile(outputFile);
+            try (ZipFile zipFile = new ZipFile(outputFile)) {
                 Enumeration<? extends ZipEntry> e = zipFile.entries();
                 while (e.hasMoreElements()) {
                     ZipEntry next = e.nextElement();

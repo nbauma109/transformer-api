@@ -12,16 +12,10 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <version.asm>6.0</version.asm>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <version.asm>9.2</version.asm>
     </properties>
-
-    <distributionManagement>
-        <repository>
-            <id>helios-decompiler-repo</id>
-            <name>Official Helios Repository</name>
-            <url>https://repo.samczsun.com/repository/helios-decompiler/</url>
-        </repository>
-    </distributionManagement>
 
     <build>
         <finalName>transformer-api</finalName>
@@ -33,14 +27,6 @@
             </resource>
         </resources>
         <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
             <plugin>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.0.0</version>
@@ -69,52 +55,38 @@
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-            <id>helios-decompiler-repo</id>
-            <name>Official Helios Repository</name>
-            <url>https://repo.samczsun.com/repository/helios-decompiler/</url>
-        </repository>
-        <repository>
-            <id>dcm4che-repo</id>
-            <url>http://www.dcm4che.org/maven2/</url>
-        </repository>
-    </repositories>
+	<repositories>
+		<repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>
+	</repositories>
 
     <dependencies>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.6</version>
-            <!--Apache 2.0-->
+            <version>2.11.0</version>
         </dependency>
-        <dependency>
-            <groupId>jazzlib</groupId>
-            <artifactId>jazzlib</artifactId>
-            <version>0.0.7</version>
-            <!--GPL with exception-->
-        </dependency>
-
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>java-decompiler</artifactId>
-            <version>05086be</version>
-            <!--Apache 2.0-->
-            <!--helios-->
-        </dependency>
+		<dependency>
+		    <groupId>com.github.nbauma109</groupId>
+		    <artifactId>nb-javac</artifactId>
+		    <version>17.0.0.0-custom-javap</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.github.nbauma109</groupId>
+		    <artifactId>fernflower</artifactId>
+		    <version>1.0.1</version>
+		</dependency>
         <dependency>
             <groupId>org.benf</groupId>
             <artifactId>cfr</artifactId>
-            <version>0.124-APPIFIED</version>
-            <!--MIT-->
-            <!--helios-->
+            <version>0.152</version>
         </dependency>
         <dependency>
-            <groupId>com.strobel</groupId>
-            <artifactId>procyon</artifactId>
-            <version>1aa0bd2</version>
-            <!--Apache 2.0-->
-            <!--helios-->
+            <groupId>com.github.mstrobel.procyon</groupId>
+            <artifactId>procyon-compilertools</artifactId>
+            <version>0.6-prerelease</version>
         </dependency>
 
         <!-- ASM related dependencies (BSD) -->

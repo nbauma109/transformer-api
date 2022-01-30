@@ -16,13 +16,13 @@
 
 package com.heliosdecompiler.transformerapi.decompilers.cfr;
 
-import com.heliosdecompiler.appifier.SystemHook;
+import org.benf.cfr.reader.PluginRunner;
+
 import com.heliosdecompiler.transformerapi.ClassData;
 import com.heliosdecompiler.transformerapi.TransformationResult;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 
 import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
@@ -46,9 +46,6 @@ public class CFRDecompiler extends Decompiler<CFRSettings> {
         ByteArrayOutputStream redirOut = new ByteArrayOutputStream();
         ByteArrayOutputStream redirErr = new ByteArrayOutputStream();
 
-        SystemHook.out.set(new PrintStream(redirOut));
-        SystemHook.err.set(new PrintStream(redirErr));
-
         Map<String, String> results = new HashMap<>();
 
         for (ClassData classData: data) {
@@ -58,13 +55,9 @@ public class CFRDecompiler extends Decompiler<CFRSettings> {
                     results.put(classData.getInternalName(), decomp);
                 }
             } catch (Throwable t) {
-                SystemHook.err.get().println("An exception occurred while decompiling " + classData.getInternalName());
-                t.printStackTrace(SystemHook.err.get());
+                t.printStackTrace();
             }
         }
-
-        SystemHook.out.set(System.out);
-        SystemHook.err.set(System.err);
 
         return new TransformationResult<>(results, new String(redirOut.toByteArray(), StandardCharsets.UTF_8), new String(redirErr.toByteArray(), StandardCharsets.UTF_8));
     }

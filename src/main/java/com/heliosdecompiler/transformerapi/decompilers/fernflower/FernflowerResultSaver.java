@@ -18,10 +18,8 @@ package com.heliosdecompiler.transformerapi.decompilers.fernflower;
 
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.StringJoiner;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;

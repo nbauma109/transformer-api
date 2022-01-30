@@ -17,13 +17,12 @@
 package com.heliosdecompiler.transformerapi.disassemblers.javap;
 
 import com.heliosdecompiler.transformerapi.ClassData;
-import com.heliosdecompiler.transformerapi.TransformationResult;
 import com.heliosdecompiler.transformerapi.TransformationException;
+import com.heliosdecompiler.transformerapi.TransformationResult;
 import com.heliosdecompiler.transformerapi.disassemblers.Disassembler;
 import com.sun.tools.javap.JavapTask;
 import com.sun.tools.javap.Options;
 
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,12 +35,7 @@ public class JavapDisassembler extends Disassembler<Options> {
 
         for (ClassData classData : data) {
             StringWriter stringWriter = new StringWriter();
-            JavapTask task = new JavapTask();
-            task.logToUse = new PrintWriter(stringWriter);
-            task.classData = classData.getData();
-            task.className = classData.getInternalName();
-            task.options = settings;
-            task.context.put(Options.class, settings);
+            JavapTask task = new JavapTask(stringWriter, settings, classData.getInternalName(), classData.getData());
             task.run();
 
             result.put(classData.getInternalName(), stringWriter.toString());

@@ -21,8 +21,6 @@ import com.heliosdecompiler.transformerapi.TransformationException;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 public abstract class Assembler<SettingType, AssemblyType> {
 

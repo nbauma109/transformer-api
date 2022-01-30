@@ -16,9 +16,6 @@
 
 package com.heliosdecompiler.transformerapi.decompilers.fernflower;
 
-import com.heliosdecompiler.transformerapi.ClassData;
-import com.heliosdecompiler.transformerapi.TransformationResult;
-import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.Fernflower;
 import org.jetbrains.java.decompiler.main.decompiler.PrintStreamLogger;
@@ -32,9 +29,12 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InnerClassNode;
 
+import com.heliosdecompiler.transformerapi.ClassData;
+import com.heliosdecompiler.transformerapi.TransformationResult;
+import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
@@ -43,21 +43,7 @@ import java.util.Map;
 /**
  * Provides a gateway to the Fernflower decompiler
  */
-@SuppressWarnings("unchecked")
 public class FernflowerDecompiler extends Decompiler<FernflowerSettings> {
-    private static Field UNITS_FIELD;
-    private static Field LOADER_FIELD;
-
-    static {
-        try {
-            UNITS_FIELD = StructContext.class.getDeclaredField("units");
-            UNITS_FIELD.setAccessible(true);
-            LOADER_FIELD = StructContext.class.getDeclaredField("loader");
-            LOADER_FIELD.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException("Could not initialize Fernflower decompiler", e);
-        }
-    }
 
     @Override
     public TransformationResult<String> decompile(Collection<ClassData> data, FernflowerSettings settings, Map<String, ClassData> classpath) {
@@ -95,17 +81,17 @@ public class FernflowerDecompiler extends Decompiler<FernflowerSettings> {
 
         try {
             StructContext context = baseDecompiler.getStructContext();
-            Map<String, ContextUnit> units = (Map<String, ContextUnit>) UNITS_FIELD.get(context);
-            LazyLoader loader = (LazyLoader) LOADER_FIELD.get(context);
+            Map<String, ContextUnit> units = context.getUnits();
+            LazyLoader loader = context.getLoader();
 
             ContextUnit defaultUnit = units.get("");
 
             for (Map.Entry<String, byte[]> ent : importantData.entrySet()) {
                 try {
-                    StructClass structClass = new StructClass(new DataInputFullStream(ent.getValue()), true, loader);
+                    StructClass structClass = StructClass.create(new DataInputFullStream(ent.getValue()), true, loader);
                     context.getClasses().put(structClass.qualifiedName, structClass);
                     defaultUnit.addClass(structClass, ent.getKey() + ".class"); // Fernflower will .substring(".class") to replace the extension
-                    loader.addClassLink(structClass.qualifiedName, new LazyLoader.Link(1, ent.getKey(), (String) null));
+                    loader.addClassLink(structClass.qualifiedName, new LazyLoader.Link(ent.getKey(), (String) null));
                 } catch (Throwable e) {
                     DecompilerContext.getLogger().writeMessage("Corrupted class file: " + ent.getKey(), e);
                 }

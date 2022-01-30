@@ -18,12 +18,10 @@ package com.heliosdecompiler.transformerapi.decompilers.krakatau;
 
 import com.heliosdecompiler.transformerapi.ExceptionalFunction;
 import com.heliosdecompiler.transformerapi.common.krakatau.KrakatauSettings;
-import com.heliosdecompiler.transformerapi.disassemblers.krakatau.KrakatauDisassemblerSettings;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class KrakatauDecompilerSettings extends KrakatauSettings {
