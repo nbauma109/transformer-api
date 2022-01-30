@@ -71,7 +71,7 @@
 		<dependency>
 		    <groupId>com.github.nbauma109</groupId>
 		    <artifactId>nb-javac</artifactId>
-		    <version>17.0.0.0-custom-javap</version>
+		    <version>17.0.0.0-custom-javap-with-sources</version>
 		</dependency>
 		<dependency>
 		    <groupId>com.github.nbauma109</groupId>
