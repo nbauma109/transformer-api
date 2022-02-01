@@ -88,6 +88,7 @@ public class FernflowerDecompiler extends Decompiler<FernflowerSettings> {
 
             for (Map.Entry<String, byte[]> ent : importantData.entrySet()) {
                 try {
+                    @SuppressWarnings("resource") // because close() has no effect on ByteArrayInputStream
                     StructClass structClass = StructClass.create(new DataInputFullStream(ent.getValue()), true, loader);
                     context.getClasses().put(structClass.qualifiedName, structClass);
                     defaultUnit.addClass(structClass, ent.getKey() + ".class"); // Fernflower will .substring(".class") to replace the extension
