@@ -23,12 +23,14 @@ import com.heliosdecompiler.transformerapi.TransformationResult;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 
 import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 public class CFRDecompiler extends Decompiler<CFRSettings> {
+    
     @Override
     public TransformationResult<String> decompile(Collection<ClassData> data, CFRSettings settings, Map<String, ClassData> classpath) {
         Map<String, byte[]> dataToLoad = new HashMap<>();
@@ -46,6 +48,9 @@ public class CFRDecompiler extends Decompiler<CFRSettings> {
         ByteArrayOutputStream redirOut = new ByteArrayOutputStream();
         ByteArrayOutputStream redirErr = new ByteArrayOutputStream();
 
+        SystemHook.out.set(new PrintStream(redirOut));
+        SystemHook.err.set(new PrintStream(redirErr));
+
         Map<String, String> results = new HashMap<>();
 
         for (ClassData classData: data) {
@@ -55,9 +60,13 @@ public class CFRDecompiler extends Decompiler<CFRSettings> {
                     results.put(classData.getInternalName(), decomp);
                 }
             } catch (Throwable t) {
-                t.printStackTrace();
+                SystemHook.err.get().println("An exception occurred while decompiling " + classData.getInternalName());
+                t.printStackTrace(SystemHook.err.get());
             }
         }
+
+        SystemHook.out.set(System.out);
+        SystemHook.err.set(System.err);
 
         return new TransformationResult<>(results, new String(redirOut.toByteArray(), StandardCharsets.UTF_8), new String(redirErr.toByteArray(), StandardCharsets.UTF_8));
     }
@@ -65,5 +74,12 @@ public class CFRDecompiler extends Decompiler<CFRSettings> {
     @Override
     public CFRSettings defaultSettings() {
         return new CFRSettings();
+    }
+
+    private static final class SystemHook {
+        public static final ThreadLocal<PrintStream> out = ThreadLocal.withInitial(() -> System.out);
+        public static final ThreadLocal<PrintStream> err = ThreadLocal.withInitial(() -> System.err);
+        
+        private SystemHook() {}
     }
 }
