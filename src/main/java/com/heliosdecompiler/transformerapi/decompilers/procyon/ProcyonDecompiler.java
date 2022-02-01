@@ -38,8 +38,10 @@ public class ProcyonDecompiler extends Decompiler<DecompilerSettings> {
         for (ClassData classData : data) {
             importantClasses.put(classData.getInternalName(), classData.getData());
         }
-
-        settings.setTypeLoader(new ProcyonTypeLoader(importantClasses));
+        
+        if (settings.getTypeLoader() == null) {
+            settings.setTypeLoader(new ProcyonTypeLoader(importantClasses));
+        }
 
         Map<String, String> result = new HashMap<>();
 
