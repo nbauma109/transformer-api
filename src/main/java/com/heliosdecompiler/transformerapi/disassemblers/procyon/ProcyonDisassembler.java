@@ -16,57 +16,25 @@
 
 package com.heliosdecompiler.transformerapi.disassemblers.procyon;
 
-import com.heliosdecompiler.transformerapi.ClassData;
-import com.heliosdecompiler.transformerapi.TransformationResult;
 import com.heliosdecompiler.transformerapi.TransformationException;
-import com.heliosdecompiler.transformerapi.common.procyon.ProcyonTypeLoader;
+import com.heliosdecompiler.transformerapi.common.Loader;
+import com.heliosdecompiler.transformerapi.common.ProcyonTask;
 import com.heliosdecompiler.transformerapi.disassemblers.Disassembler;
-import com.strobel.decompiler.Decompiler;
 import com.strobel.decompiler.DecompilerSettings;
-import com.strobel.decompiler.PlainTextOutput;
+import com.strobel.decompiler.languages.Language;
 import com.strobel.decompiler.languages.Languages;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
 
-public class ProcyonDisassembler extends Disassembler<DecompilerSettings> {
+public class ProcyonDisassembler extends ProcyonTask implements Disassembler<DecompilerSettings> {
+
     @Override
-    public TransformationResult<String> disassemble(Collection<ClassData> data, DecompilerSettings settings, Map<String, ClassData> classpath) throws TransformationException {
-        Map<String, byte[]> importantClasses = new HashMap<>();
-        for (ClassData classData : data) {
-            importantClasses.put(classData.getInternalName(), classData.getData());
-        }
-
-        settings.setTypeLoader(new ProcyonTypeLoader(importantClasses));
-
-        Map<String, String> result = new HashMap<>();
-
-        ByteArrayOutputStream redirErr = new ByteArrayOutputStream();
-        PrintStream printErr = new PrintStream(redirErr);
-
-        for (ClassData classData : data) {
-            StringWriter stringwriter = new StringWriter();
-            try {
-                Decompiler.decompile(classData.getInternalName(), new PlainTextOutput(stringwriter), settings);
-                result.put(classData.getInternalName(), stringwriter.toString());
-            } catch (Throwable t) {
-                printErr.println("An exception occurred while disassembling: " + classData.getInternalName());
-                t.printStackTrace(printErr);
-            }
-        }
-
-        return new TransformationResult<>(result, null, new String(redirErr.toByteArray(), StandardCharsets.UTF_8));
+    public String disassemble(String internalName, DecompilerSettings settings, Loader loader) throws TransformationException, IOException {
+        return process(internalName, settings, loader);
     }
 
     @Override
-    public DecompilerSettings defaultSettings() {
-        DecompilerSettings decompilerSettings = new DecompilerSettings();
-        decompilerSettings.setLanguage(Languages.bytecode());
-        return decompilerSettings;
+    public Language language() {
+        return Languages.bytecode();
     }
 }

@@ -16,36 +16,30 @@
 
 package com.heliosdecompiler.transformerapi.disassemblers.javap;
 
-import com.heliosdecompiler.transformerapi.ClassData;
 import com.heliosdecompiler.transformerapi.TransformationException;
-import com.heliosdecompiler.transformerapi.TransformationResult;
+import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.disassemblers.Disassembler;
 import com.sun.tools.javap.JavapTask;
 import com.sun.tools.javap.Options;
 
+import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
-public class JavapDisassembler extends Disassembler<Options> {
+public class JavapDisassembler implements Disassembler<Options> {
+
     @Override
-    public TransformationResult<String> disassemble(Collection<ClassData> data, Options settings, Map<String, ClassData> classpath) throws TransformationException {
-        Map<String, String> result = new HashMap<>();
-
-        for (ClassData classData : data) {
-            StringWriter stringWriter = new StringWriter();
-            JavapTask task = new JavapTask(stringWriter, settings, classData.getInternalName(), classData.getData());
+    public String disassemble(String internalName, Options settings, Loader loader) throws TransformationException, IOException {
+        StringWriter stringWriter = new StringWriter();
+        if (loader.canLoad(internalName)) {
+            JavapTask task = new JavapTask(stringWriter, settings, internalName, loader.load(internalName));
             task.run();
-
-            result.put(classData.getInternalName(), stringWriter.toString());
         }
-
-        return new TransformationResult<>(result, null, null);
+        return stringWriter.toString();
     }
 
     @Override
     public Options defaultSettings() {
         return new Options();
     }
+
 }

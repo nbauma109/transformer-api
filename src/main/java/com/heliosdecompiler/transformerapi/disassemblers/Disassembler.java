@@ -16,79 +16,29 @@
 
 package com.heliosdecompiler.transformerapi.disassemblers;
 
-import com.heliosdecompiler.transformerapi.ClassData;
-import com.heliosdecompiler.transformerapi.TransformationResult;
 import com.heliosdecompiler.transformerapi.TransformationException;
+import com.heliosdecompiler.transformerapi.common.Loader;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
 
 /**
- * Represents a particular Decompiler.
- * Note that decompiler implementations should be stateless, and thus can be reused (and are thread safe)
+ * Represents a particular Disassembler.
+ * Note that disassembler implementations should be stateless, and thus can be reused (and are thread safe)
  */
-public abstract class Disassembler<SettingType> {
-
+public interface Disassembler<S> {
+    
     /**
-     * Decompile the given class file using the default settings
-     *
-     * @param data The data of the class to decompile
-     * @return The result
+     * Disassemble the given class with a loader
+     * 
+     * @param internalName The internal name of the class to disassemble
+     * @param settings The settings to use with this disassembler
+     * @param loader   The loader implementation used to load the class
+     * @return The disassembled class
+     * @throws TransformationException
+     * @throws IOException 
      */
-    public final TransformationResult<String> disassemble(ClassData data) throws TransformationException {
-        return disassemble(Collections.singleton(data), defaultSettings(), Collections.emptyMap());
-    }
+    String disassemble(String internalName, S settings, Loader loader) throws TransformationException, IOException;
+    
 
-    /**
-     * Decompile the given class file
-     *
-     * @param data     The data of the class to decompile
-     * @param settings The settings to use with this decompiler
-     * @return The result
-     */
-    public final TransformationResult<String> disassemble(ClassData data, SettingType settings) throws TransformationException {
-        return disassemble(Collections.singleton(data), settings, Collections.emptyMap());
-    }
-
-    /**
-     * Decompile the given class file. If any classes are needed to provide additional information, they should be provided in the classpath parameter
-     *
-     * @param data      The data of the class to decompile
-     * @param settings  The settings to use with this decompiler
-     * @param classpath The additional files which may be required for metadata. Keys should also be internal names
-     * @return The result
-     */
-    public final TransformationResult<String> disassemble(ClassData data, SettingType settings, Collection<ClassData> classpath) throws TransformationException {
-        Map<String, ClassData> map = new HashMap<>();
-        classpath.forEach(classData -> map.put(classData.getInternalName(), classData));
-        return disassemble(Collections.singleton(data), settings, map);
-    }
-
-    /**
-     * Decompile the given class file. If any classes are needed to provide additional information, they should be provided in the classpath parameter
-     *
-     * @param data      The data of the class to decompile
-     * @param settings  The settings to use with this decompiler
-     * @param classpath The additional files which may be required for metadata. Keys should also be internal names
-     * @return The result
-     */
-    public final TransformationResult<String> disassemble(Collection<ClassData> data, SettingType settings, Collection<ClassData> classpath) throws TransformationException {
-        Map<String, ClassData> map = new HashMap<>();
-        classpath.forEach(classData -> map.put(classData.getInternalName(), classData));
-        return disassemble(data, settings, map);
-    }
-
-    /**
-     * Decompile the given class file. If any classes are needed to provide additional information, they should be provided in the classpath parameter
-     *
-     * @param data      The data of the class to decompile
-     * @param settings  The settings to use with this decompiler
-     * @param classpath The additional files which may be required for metadata. Keys should also be internal names
-     * @return The result
-     */
-    public abstract TransformationResult<String> disassemble(Collection<ClassData> data, SettingType settings, Map<String, ClassData> classpath) throws TransformationException;
-
-    public abstract SettingType defaultSettings();
+    S defaultSettings();
 }

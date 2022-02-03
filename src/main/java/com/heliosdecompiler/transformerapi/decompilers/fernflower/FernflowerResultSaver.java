@@ -25,6 +25,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class FernflowerResultSaver implements IResultSaver {
+
+    private static final String UNEXPECTED = "Unexpected";
+
     private final Map<String, String> results = new HashMap<>();
 
     public Map<String, String> getResults() {
@@ -32,7 +35,7 @@ public class FernflowerResultSaver implements IResultSaver {
     }
 
     public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content) {
-        throw new IllegalArgumentException("Unexpected");
+        throw new IllegalArgumentException(UNEXPECTED);
     }
 
     public void saveFolder(String path) {
@@ -57,18 +60,18 @@ public class FernflowerResultSaver implements IResultSaver {
     }
 
     public void createArchive(String path, String archiveName, Manifest manifest) {
-        throw new IllegalArgumentException("Unexpected");
+        throw new IllegalArgumentException(UNEXPECTED);
     }
 
     public void saveDirEntry(String path, String archiveName, String entryName) {
-        throw new IllegalArgumentException("Unexpected");
+        throw new IllegalArgumentException(UNEXPECTED);
     }
 
     public void copyEntry(String source, String path, String archiveName, String entry) {
-        throw new IllegalArgumentException("Unexpected");
+        throw new IllegalArgumentException(UNEXPECTED);
     }
 
     public void closeArchive(String path, String archiveName) {
-        throw new IllegalArgumentException("Unexpected");
+        throw new IllegalArgumentException(UNEXPECTED);
     }
 }

@@ -16,70 +16,31 @@
 
 package com.heliosdecompiler.transformerapi.decompilers.cfr;
 
-import org.benf.cfr.reader.PluginRunner;
+import org.benf.cfr.reader.api.CfrDriver;
 
-import com.heliosdecompiler.transformerapi.ClassData;
-import com.heliosdecompiler.transformerapi.TransformationResult;
+import com.heliosdecompiler.transformerapi.TransformationException;
+import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.util.Arrays;
 
-public class CFRDecompiler extends Decompiler<CFRSettings> {
-    
+public class CFRDecompiler implements Decompiler<CFRSettings> {
+
     @Override
-    public TransformationResult<String> decompile(Collection<ClassData> data, CFRSettings settings, Map<String, ClassData> classpath) {
-        Map<String, byte[]> dataToLoad = new HashMap<>();
-
-        for (ClassData classData : classpath.values()) {
-            dataToLoad.put(classData.getInternalName(), classData.getData());
-        }
-
-        for (ClassData classData : data) {
-            dataToLoad.put(classData.getInternalName(), classData.getData());
-        }
-
-        PluginRunner pluginRunner = new PluginRunner(settings.getSettings(), new CFRCFS(dataToLoad));
-
-        ByteArrayOutputStream redirOut = new ByteArrayOutputStream();
-        ByteArrayOutputStream redirErr = new ByteArrayOutputStream();
-
-        SystemHook.out.set(new PrintStream(redirOut));
-        SystemHook.err.set(new PrintStream(redirErr));
-
-        Map<String, String> results = new HashMap<>();
-
-        for (ClassData classData: data) {
-            try {
-                String decomp = pluginRunner.getDecompilationFor(classData.getInternalName());
-                if (!decomp.isEmpty()) {
-                    results.put(classData.getInternalName(), decomp);
-                }
-            } catch (Throwable t) {
-                SystemHook.err.get().println("An exception occurred while decompiling " + classData.getInternalName());
-                t.printStackTrace(SystemHook.err.get());
-            }
-        }
-
-        SystemHook.out.set(System.out);
-        SystemHook.err.set(System.err);
-
-        return new TransformationResult<>(results, new String(redirOut.toByteArray(), StandardCharsets.UTF_8), new String(redirErr.toByteArray(), StandardCharsets.UTF_8));
+    public String decompile(Loader loader, String internalName, CFRSettings settings) throws TransformationException, IOException {
+        CFROutputStreamFactory sink = new CFROutputStreamFactory();
+        String entryPath = internalName + ".class";
+        CfrDriver driver = new CfrDriver.Builder()
+            .withClassFileSource(new CFRDataSource(loader, loader.load(internalName), entryPath))
+            .withOutputSink(sink)
+            .build();
+            driver.analyse(Arrays.asList(entryPath));
+        return sink.getGeneratedSource();
     }
 
     @Override
     public CFRSettings defaultSettings() {
         return new CFRSettings();
-    }
-
-    private static final class SystemHook {
-        public static final ThreadLocal<PrintStream> out = ThreadLocal.withInitial(() -> System.out);
-        public static final ThreadLocal<PrintStream> err = ThreadLocal.withInitial(() -> System.err);
-        
-        private SystemHook() {}
     }
 }

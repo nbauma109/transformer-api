@@ -32,7 +32,7 @@ public class CFRSettings {
      *
      * @return The same instance, for chaining
      */
-    public <T> CFRSettings set(String key, String value) {
+    public CFRSettings set(String key, String value) {
         this.internalSettings.put(key, value);
         return this;
     }

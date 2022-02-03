@@ -29,83 +29,78 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InnerClassNode;
 
-import com.heliosdecompiler.transformerapi.ClassData;
-import com.heliosdecompiler.transformerapi.TransformationResult;
+import com.heliosdecompiler.transformerapi.TransformationException;
+import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Provides a gateway to the Fernflower decompiler
  */
-public class FernflowerDecompiler extends Decompiler<FernflowerSettings> {
+public class FernflowerDecompiler implements Decompiler<FernflowerSettings> {
 
     @Override
-    public TransformationResult<String> decompile(Collection<ClassData> data, FernflowerSettings settings, Map<String, ClassData> classpath) {
+    public String decompile(Loader loader, String internalName, FernflowerSettings settings) throws TransformationException, IOException {
         Map<String, byte[]> importantData = new HashMap<>();
-
-        for (ClassData classData : data) {
-            importantData.put(classData.getInternalName(), classData.getData());
-
-            ClassReader reader = new ClassReader(classData.getData());
+        if (loader.canLoad(internalName)) {
+            byte[] data = loader.load(internalName);
+            importantData.put(internalName, data);
+            ClassReader reader = new ClassReader(data);
             ClassNode classNode = new ClassNode();
             reader.accept(classNode, ClassReader.SKIP_FRAMES | ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG);
-
+    
             if (classNode.innerClasses != null) {
                 for (InnerClassNode icn : classNode.innerClasses) {
-                    if (classpath.containsKey(icn.name)) {
-                        byte[] innerClassData = classpath.get(icn.name).getData();
-                        if (innerClassData != null) {
-                            ClassReader sanityCheck = new ClassReader(innerClassData);
-                            if (!sanityCheck.getClassName().equals(icn.name)) {
-                                throw new IllegalArgumentException("sanity");
-                            }
-
-                            importantData.put(icn.name, innerClassData);
+                    byte[] innerClassData = loader.load(icn.name);
+                    if (innerClassData != null) {
+                        ClassReader sanityCheck = new ClassReader(innerClassData);
+                        if (!sanityCheck.getClassName().equals(icn.name)) {
+                            throw new IllegalArgumentException("sanity");
                         }
+                        importantData.put(icn.name, innerClassData);
                     }
                 }
             }
-        }
-
-        ByteArrayOutputStream log = new ByteArrayOutputStream();
-
-        IBytecodeProvider provider = new FernflowerBytecodeProvider(importantData);
-        FernflowerResultSaver saver = new FernflowerResultSaver();
-        Fernflower baseDecompiler = new Fernflower(provider, saver, settings.getSettings(), new PrintStreamLogger(new PrintStream(log)));
-
-        try {
-            StructContext context = baseDecompiler.getStructContext();
-            Map<String, ContextUnit> units = context.getUnits();
-            LazyLoader loader = context.getLoader();
-
-            ContextUnit defaultUnit = units.get("");
-
-            for (Map.Entry<String, byte[]> ent : importantData.entrySet()) {
-                try {
-                    @SuppressWarnings("resource") // because close() has no effect on ByteArrayInputStream
-                    StructClass structClass = StructClass.create(new DataInputFullStream(ent.getValue()), true, loader);
-                    context.getClasses().put(structClass.qualifiedName, structClass);
-                    defaultUnit.addClass(structClass, ent.getKey() + ".class"); // Fernflower will .substring(".class") to replace the extension
-                    loader.addClassLink(structClass.qualifiedName, new LazyLoader.Link(ent.getKey(), (String) null));
-                } catch (Throwable e) {
-                    DecompilerContext.getLogger().writeMessage("Corrupted class file: " + ent.getKey(), e);
+    
+            ByteArrayOutputStream log = new ByteArrayOutputStream();
+    
+            IBytecodeProvider provider = new FernflowerBytecodeProvider(importantData);
+            FernflowerResultSaver saver = new FernflowerResultSaver();
+            Fernflower baseDecompiler = new Fernflower(provider, saver, settings.getSettings(), new PrintStreamLogger(new PrintStream(log)));
+    
+            try {
+                StructContext context = baseDecompiler.getStructContext();
+                Map<String, ContextUnit> units = context.getUnits();
+                LazyLoader lazyLoader = context.getLoader();
+    
+                ContextUnit defaultUnit = units.get("");
+    
+                for (Map.Entry<String, byte[]> ent : importantData.entrySet()) {
+                    try {
+                        @SuppressWarnings("resource") // because close() has no effect on ByteArrayInputStream
+                        StructClass structClass = StructClass.create(new DataInputFullStream(ent.getValue()), true, lazyLoader);
+                        context.getClasses().put(structClass.qualifiedName, structClass);
+                        defaultUnit.addClass(structClass, ent.getKey() + ".class"); // Fernflower will .substring(".class") to replace the extension
+                        lazyLoader.addClassLink(structClass.qualifiedName, new LazyLoader.Link(ent.getKey(), (String) null));
+                    } catch (Exception e) {
+                        DecompilerContext.getLogger().writeMessage("Corrupted class file: " + ent.getKey(), e);
+                    }
                 }
+    
+                baseDecompiler.decompileContext();
+            } catch (Exception t) {
+                DecompilerContext.getLogger().writeMessage("Error while decompiling", t);
+            } finally {
+                baseDecompiler.clearContext();
             }
-
-            baseDecompiler.decompileContext();
-        } catch (Throwable t) {
-            DecompilerContext.getLogger().writeMessage("Error while decompiling", t);
-        } finally {
-            baseDecompiler.clearContext();
+            return saver.getResults().get(internalName);
         }
-
-        return new TransformationResult<>(saver.getResults(), new String(log.toByteArray(), StandardCharsets.UTF_8), null);
+        return null;
     }
 
     @Override
