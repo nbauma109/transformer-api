@@ -8,7 +8,7 @@ API. The API is still subject to major changes, but only with a major version bu
 
 ## Usage
 
-Currently, this API supports four decompilers. They are:
+Currently, this API supports 3 decompilers. They are:
 
 - Fernflower
 - Procyon
