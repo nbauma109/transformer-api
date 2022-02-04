@@ -37,9 +37,7 @@ public class JDCoreV1Decompiler implements Decompiler<Map<String, String>> {
 
         LineNumberStringBuilderPrinter printer = new LineNumberStringBuilderPrinter();
 
-        printer.buildDecompiledOutput(preferences, new JDLoader(loader), internalName + StringConstants.CLASS_FILE_SUFFIX, DECOMPILER);
-
-        return printer.toString();
+        return printer.buildDecompiledOutput(preferences, new JDLoader(loader), internalName + StringConstants.CLASS_FILE_SUFFIX, DECOMPILER);
     }
 
     @Override
