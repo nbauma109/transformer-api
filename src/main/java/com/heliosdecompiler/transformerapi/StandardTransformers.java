@@ -16,33 +16,66 @@
 
 package com.heliosdecompiler.transformerapi;
 
+import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.cfr.CFRDecompiler;
 import com.heliosdecompiler.transformerapi.decompilers.fernflower.FernflowerDecompiler;
+import com.heliosdecompiler.transformerapi.decompilers.jd.JDCoreV0Decompiler;
+import com.heliosdecompiler.transformerapi.decompilers.jd.JDCoreV1Decompiler;
 import com.heliosdecompiler.transformerapi.decompilers.procyon.ProcyonDecompiler;
 import com.heliosdecompiler.transformerapi.disassemblers.javap.JavapDisassembler;
 import com.heliosdecompiler.transformerapi.disassemblers.procyon.ProcyonDisassembler;
 
+import java.io.IOException;
+import java.util.Map;
+
+import jd.core.preferences.Preferences;
+
 public final class StandardTransformers {
-    
+
     private StandardTransformers() {
     }
-    
+
+    public static String decompile(Loader apiLoader, String entryInternalName, Map<String, String> preferences, String engineName) throws TransformationException, IOException {
+        return Decompilers.decompile(apiLoader, entryInternalName, preferences, engineName);
+    }
+
     public static final class Decompilers {
-        
+
         private Decompilers() {
         }
-        
+
+        public static final String ENGINE_JD_CORE_V0 = "JD-Core v0";
+        public static final String ENGINE_JD_CORE_V1 = "JD-Core v1";
+        public static final String ENGINE_CFR = "CFR";
+        public static final String ENGINE_PROCYON = "Procyon";
+        public static final String ENGINE_FERNFLOWER = "Fernflower";
+        public static final String ENGINE_JADX = "JADX";
+
         public static final ProcyonDecompiler PROCYON = new ProcyonDecompiler();
         public static final CFRDecompiler CFR = new CFRDecompiler();
         public static final FernflowerDecompiler FERNFLOWER = new FernflowerDecompiler();
+        public static final JDCoreV0Decompiler JD_CORE_V0 = new JDCoreV0Decompiler();
+        public static final JDCoreV1Decompiler JD_CORE_V1 = new JDCoreV1Decompiler();
+
+        public static String decompile(Loader apiLoader, String entryInternalName, Map<String, String> preferences, String engineName) throws TransformationException, IOException {
+            return switch (engineName) {
+                case ENGINE_JD_CORE_V0 -> JD_CORE_V0.decompile(apiLoader, entryInternalName, new Preferences(preferences));
+                case ENGINE_JD_CORE_V1 -> JD_CORE_V1.decompile(apiLoader, entryInternalName, preferences);
+                case ENGINE_CFR -> CFR.decompile(apiLoader, entryInternalName);
+                case ENGINE_FERNFLOWER -> FERNFLOWER.decompile(apiLoader, entryInternalName);
+                case ENGINE_PROCYON -> PROCYON.decompile(apiLoader, entryInternalName);
+                default -> throw new IllegalArgumentException("Unexpected decompiler engine: " + engineName);
+            };
+        }
     }
 
     public static final class Disassemblers {
-        
+
         private Disassemblers() {
         }
-        
+
         public static final JavapDisassembler JAVAP = new JavapDisassembler();
         public static final ProcyonDisassembler PROCYON = new ProcyonDisassembler();
     }
+
 }
