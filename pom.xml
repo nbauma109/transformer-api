@@ -15,7 +15,6 @@
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
 		<version.asm>9.2</version.asm>
-		<version.nb-javac>17.0.0.0-custom-javap-separate-jars</version.nb-javac>
 	</properties>
 
 	<scm>
