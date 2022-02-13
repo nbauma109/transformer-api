@@ -21,7 +21,7 @@ public abstract class ProcyonTask {
         return decompilerSettings;
     }
     
-    protected String process(String internalName, DecompilerSettings settings, Loader loader) throws IOException {
+    protected String process(Loader loader, String internalName, DecompilerSettings settings) throws IOException {
         Map<String, byte[]> importantClasses = new HashMap<>();
         importantClasses.put(internalName, loader.load(internalName));
         if (settings.getTypeLoader() == null) {

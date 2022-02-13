@@ -30,7 +30,7 @@ public class ProcyonDecompiler extends ProcyonTask implements Decompiler<Decompi
 
     @Override
     public String decompile(Loader loader, String internalName, DecompilerSettings settings) throws TransformationException, IOException {
-        return process(internalName, settings, loader);
+        return process(loader, internalName, settings);
     }
 
     @Override

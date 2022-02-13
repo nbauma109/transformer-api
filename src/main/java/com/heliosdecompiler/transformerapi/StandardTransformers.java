@@ -22,7 +22,6 @@ import com.heliosdecompiler.transformerapi.decompilers.fernflower.FernflowerDeco
 import com.heliosdecompiler.transformerapi.decompilers.jd.JDCoreV0Decompiler;
 import com.heliosdecompiler.transformerapi.decompilers.jd.JDCoreV1Decompiler;
 import com.heliosdecompiler.transformerapi.decompilers.procyon.ProcyonDecompiler;
-import com.heliosdecompiler.transformerapi.disassemblers.javap.JavapDisassembler;
 import com.heliosdecompiler.transformerapi.disassemblers.procyon.ProcyonDisassembler;
 
 import java.io.IOException;
@@ -36,6 +35,9 @@ public final class StandardTransformers {
     }
 
     public static String decompile(Loader apiLoader, String entryInternalName, Map<String, String> preferences, String engineName) throws TransformationException, IOException {
+        if (engineName.endsWith("Disassembler")) {
+            return Disassemblers.disassemble(apiLoader, entryInternalName, engineName);
+        }
         return Decompilers.decompile(apiLoader, entryInternalName, preferences, engineName);
     }
 
@@ -50,6 +52,7 @@ public final class StandardTransformers {
         public static final String ENGINE_PROCYON = "Procyon";
         public static final String ENGINE_FERNFLOWER = "Fernflower";
         public static final String ENGINE_JADX = "JADX";
+        
 
         public static final ProcyonDecompiler PROCYON = new ProcyonDecompiler();
         public static final CFRDecompiler CFR = new CFRDecompiler();
@@ -74,7 +77,15 @@ public final class StandardTransformers {
         private Disassemblers() {
         }
 
-        public static final JavapDisassembler JAVAP = new JavapDisassembler();
+        public static final String ENGINE_PROCYON_DISASSEMBLER = "Procyon Disassembler";
+
+        public static String disassemble(Loader apiLoader, String entryInternalName, String engineName) throws TransformationException, IOException {
+            return switch (engineName) {
+                case ENGINE_PROCYON_DISASSEMBLER -> PROCYON.disassemble(apiLoader, entryInternalName);
+                default -> throw new IllegalArgumentException("Unexpected disassembler engine: " + engineName);
+            };
+        }
+
         public static final ProcyonDisassembler PROCYON = new ProcyonDisassembler();
     }
 

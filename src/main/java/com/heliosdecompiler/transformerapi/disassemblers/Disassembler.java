@@ -30,15 +30,19 @@ public interface Disassembler<S> {
     /**
      * Disassemble the given class with a loader
      * 
+     * @param loader   The loader implementation used to load the class
      * @param internalName The internal name of the class to disassemble
      * @param settings The settings to use with this disassembler
-     * @param loader   The loader implementation used to load the class
      * @return The disassembled class
      * @throws TransformationException
      * @throws IOException 
      */
-    String disassemble(String internalName, S settings, Loader loader) throws TransformationException, IOException;
+    String disassemble(Loader loader, String internalName, S settings) throws TransformationException, IOException;
     
 
     S defaultSettings();
+    
+    default String disassemble(Loader loader, String internalName) throws TransformationException, IOException {
+        return disassemble(loader, internalName, defaultSettings());
+    }
 }

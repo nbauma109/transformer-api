@@ -29,8 +29,8 @@ import java.io.IOException;
 public class ProcyonDisassembler extends ProcyonTask implements Disassembler<DecompilerSettings> {
 
     @Override
-    public String disassemble(String internalName, DecompilerSettings settings, Loader loader) throws TransformationException, IOException {
-        return process(internalName, settings, loader);
+    public String disassemble(Loader loader, String internalName, DecompilerSettings settings) throws TransformationException, IOException {
+        return process(loader, internalName, settings);
     }
 
     @Override
