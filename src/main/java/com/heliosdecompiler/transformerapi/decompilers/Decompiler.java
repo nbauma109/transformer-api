@@ -16,32 +16,63 @@
 
 package com.heliosdecompiler.transformerapi.decompilers;
 
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.InnerClassNode;
+
 import com.heliosdecompiler.transformerapi.TransformationException;
 import com.heliosdecompiler.transformerapi.common.Loader;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Represents a particular Decompiler.
- * Note that decompiler implementations should be stateless, and thus can be reused (and are thread safe)
+ * Represents a particular Decompiler. Note that decompiler implementations
+ * should be stateless, and thus can be reused (and are thread safe)
  */
 public interface Decompiler<S> {
 
     /**
      * Decompile the given class with a loader
      * 
-     * @param loader   The loader implementation used to load the class
+     * @param loader       The loader implementation used to load the class
      * @param internalName The internal name of the class to decompile
-     * @param settings The settings to use with this decompiler
+     * @param settings     The settings to use with this decompiler
      * @return The decompiled class
      * @throws TransformationException
-     * @throws IOException 
+     * @throws IOException
      */
     String decompile(Loader loader, String internalName, S settings) throws TransformationException, IOException;
-    
+
     S defaultSettings();
-    
+
     default String decompile(Loader loader, String internalName) throws TransformationException, IOException {
         return decompile(loader, internalName, defaultSettings());
+    }
+
+    default Map<String, byte[]> readClassAndInnerClasses(Loader loader, String internalName) throws IOException {
+        Map<String, byte[]> importantData = new HashMap<>();
+        if (loader.canLoad(internalName)) {
+            byte[] data = loader.load(internalName);
+            importantData.put(internalName, data);
+            ClassReader reader = new ClassReader(data);
+            ClassNode classNode = new ClassNode();
+            reader.accept(classNode, ClassReader.SKIP_FRAMES | ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG);
+
+            if (classNode.innerClasses != null) {
+                for (InnerClassNode icn : classNode.innerClasses) {
+                    byte[] innerClassData = loader.load(icn.name);
+                    if (innerClassData != null) {
+                        ClassReader sanityCheck = new ClassReader(innerClassData);
+                        if (!sanityCheck.getClassName().equals(icn.name)) {
+                            throw new IllegalArgumentException("sanity");
+                        }
+                        importantData.put(icn.name, innerClassData);
+                    }
+                }
+            }
+        }
+        return importantData;
     }
 }

@@ -19,6 +19,7 @@ package com.heliosdecompiler.transformerapi;
 import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.cfr.CFRDecompiler;
 import com.heliosdecompiler.transformerapi.decompilers.fernflower.FernflowerDecompiler;
+import com.heliosdecompiler.transformerapi.decompilers.jadx.JADXDecompiler;
 import com.heliosdecompiler.transformerapi.decompilers.jd.JDCoreV0Decompiler;
 import com.heliosdecompiler.transformerapi.decompilers.jd.JDCoreV1Decompiler;
 import com.heliosdecompiler.transformerapi.decompilers.procyon.ProcyonDecompiler;
@@ -52,13 +53,13 @@ public final class StandardTransformers {
         public static final String ENGINE_PROCYON = "Procyon";
         public static final String ENGINE_FERNFLOWER = "Fernflower";
         public static final String ENGINE_JADX = "JADX";
-        
 
         public static final ProcyonDecompiler PROCYON = new ProcyonDecompiler();
         public static final CFRDecompiler CFR = new CFRDecompiler();
         public static final FernflowerDecompiler FERNFLOWER = new FernflowerDecompiler();
         public static final JDCoreV0Decompiler JD_CORE_V0 = new JDCoreV0Decompiler();
         public static final JDCoreV1Decompiler JD_CORE_V1 = new JDCoreV1Decompiler();
+        public static final JADXDecompiler JADX = new JADXDecompiler();
 
         public static String decompile(Loader apiLoader, String entryInternalName, Map<String, String> preferences, String engineName) throws TransformationException, IOException {
             return switch (engineName) {
@@ -67,6 +68,7 @@ public final class StandardTransformers {
                 case ENGINE_CFR -> CFR.decompile(apiLoader, entryInternalName);
                 case ENGINE_FERNFLOWER -> FERNFLOWER.decompile(apiLoader, entryInternalName);
                 case ENGINE_PROCYON -> PROCYON.decompile(apiLoader, entryInternalName);
+                case ENGINE_JADX -> JADX.decompile(apiLoader, entryInternalName);
                 default -> throw new IllegalArgumentException("Unexpected decompiler engine: " + engineName);
             };
         }

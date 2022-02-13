@@ -25,9 +25,6 @@ import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.InnerClassNode;
 
 import com.heliosdecompiler.transformerapi.TransformationException;
 import com.heliosdecompiler.transformerapi.common.Loader;
@@ -36,7 +33,6 @@ import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -46,27 +42,8 @@ public class FernflowerDecompiler implements Decompiler<FernflowerSettings> {
 
     @Override
     public String decompile(Loader loader, String internalName, FernflowerSettings settings) throws TransformationException, IOException {
-        Map<String, byte[]> importantData = new HashMap<>();
-        if (loader.canLoad(internalName)) {
-            byte[] data = loader.load(internalName);
-            importantData.put(internalName, data);
-            ClassReader reader = new ClassReader(data);
-            ClassNode classNode = new ClassNode();
-            reader.accept(classNode, ClassReader.SKIP_FRAMES | ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG);
-    
-            if (classNode.innerClasses != null) {
-                for (InnerClassNode icn : classNode.innerClasses) {
-                    byte[] innerClassData = loader.load(icn.name);
-                    if (innerClassData != null) {
-                        ClassReader sanityCheck = new ClassReader(innerClassData);
-                        if (!sanityCheck.getClassName().equals(icn.name)) {
-                            throw new IllegalArgumentException("sanity");
-                        }
-                        importantData.put(icn.name, innerClassData);
-                    }
-                }
-            }
-    
+        Map<String, byte[]> importantData = readClassAndInnerClasses(loader, internalName);
+        if (!importantData.isEmpty()) {
             ByteArrayOutputStream log = new ByteArrayOutputStream();
     
             IBytecodeProvider provider = new FernflowerBytecodeProvider(importantData);
