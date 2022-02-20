@@ -62,7 +62,7 @@ public interface Decompiler<S> {
 
             if (classNode.innerClasses != null) {
                 for (InnerClassNode icn : classNode.innerClasses) {
-                    if (loader.canLoad(internalName)) {
+                    if (loader.canLoad(icn.name)) {
                         byte[] innerClassData = loader.load(icn.name);
                         if (innerClassData != null) {
                             ClassReader sanityCheck = new ClassReader(innerClassData);
