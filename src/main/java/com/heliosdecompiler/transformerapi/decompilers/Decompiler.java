@@ -62,13 +62,15 @@ public interface Decompiler<S> {
 
             if (classNode.innerClasses != null) {
                 for (InnerClassNode icn : classNode.innerClasses) {
-                    byte[] innerClassData = loader.load(icn.name);
-                    if (innerClassData != null) {
-                        ClassReader sanityCheck = new ClassReader(innerClassData);
-                        if (!sanityCheck.getClassName().equals(icn.name)) {
-                            throw new IllegalArgumentException("sanity");
+                    if (loader.canLoad(internalName)) {
+                        byte[] innerClassData = loader.load(icn.name);
+                        if (innerClassData != null) {
+                            ClassReader sanityCheck = new ClassReader(innerClassData);
+                            if (!sanityCheck.getClassName().equals(icn.name)) {
+                                throw new IllegalArgumentException("sanity");
+                            }
+                            importantData.put(icn.name, innerClassData);
                         }
-                        importantData.put(icn.name, innerClassData);
                     }
                 }
             }

@@ -1,6 +1,7 @@
 package com.heliosdecompiler.transformerapi.common;
 
 import com.heliosdecompiler.transformerapi.decompilers.procyon.ProcyonFastTypeLoader;
+import com.strobel.Procyon;
 import com.strobel.decompiler.DecompilerSettings;
 import com.strobel.decompiler.PlainTextOutput;
 import com.strobel.decompiler.languages.Language;
@@ -18,6 +19,7 @@ public abstract class ProcyonTask {
         DecompilerSettings decompilerSettings = new DecompilerSettings();
         decompilerSettings.setLanguage(language());
         decompilerSettings.setForceExplicitImports(true);
+        decompilerSettings.setOutputFileHeaderText("\nDecompiled by Procyon v" + Procyon.version() + "\n");
         return decompilerSettings;
     }
     
