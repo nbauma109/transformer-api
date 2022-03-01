@@ -102,7 +102,7 @@
 		<dependency>
 			<groupId>com.github.nbauma109</groupId>
 			<artifactId>jd-core</artifactId>
-			<version>1.2.6</version>
+			<version>1.2.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.benf</groupId>
