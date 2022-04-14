@@ -35,13 +35,15 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Map;
 
+import jd.core.DecompilationResult;
+
 /**
  * Provides a gateway to the Fernflower decompiler
  */
 public class FernflowerDecompiler implements Decompiler<FernflowerSettings> {
 
     @Override
-    public String decompile(Loader loader, String internalName, FernflowerSettings settings) throws TransformationException, IOException {
+    public DecompilationResult decompile(Loader loader, String internalName, FernflowerSettings settings) throws TransformationException, IOException {
         Map<String, byte[]> importantData = readClassAndInnerClasses(loader, internalName);
         if (!importantData.isEmpty()) {
             ByteArrayOutputStream log = new ByteArrayOutputStream();
@@ -75,7 +77,9 @@ public class FernflowerDecompiler implements Decompiler<FernflowerSettings> {
             } finally {
                 baseDecompiler.clearContext();
             }
-            return saver.getResults().get(internalName);
+            DecompilationResult decompilationResult = new DecompilationResult();
+            decompilationResult.setDecompiledOutput(saver.getResults().get(internalName));
+            return decompilationResult;
         }
         return null;
     }

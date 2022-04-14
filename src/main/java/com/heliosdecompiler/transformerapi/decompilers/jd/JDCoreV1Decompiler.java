@@ -17,7 +17,7 @@
 package com.heliosdecompiler.transformerapi.decompilers.jd;
 
 import org.jd.core.v1.ClassFileToJavaSourceDecompiler;
-import org.jd.core.v1.printer.LineNumberStringBuilderPrinter;
+import org.jd.core.v1.printer.ClassFilePrinter;
 import org.jd.core.v1.util.StringConstants;
 
 import com.heliosdecompiler.transformerapi.TransformationException;
@@ -28,16 +28,20 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import jd.core.DecompilationResult;
+
 public class JDCoreV1Decompiler implements Decompiler<Map<String, String>> {
 
     private static final ClassFileToJavaSourceDecompiler DECOMPILER = new ClassFileToJavaSourceDecompiler();
 
     @Override
-    public String decompile(Loader loader, String internalName, Map<String, String> preferences) throws TransformationException, IOException {
+    public DecompilationResult decompile(Loader loader, String internalName, Map<String, String> preferences) throws TransformationException, IOException {
 
-        LineNumberStringBuilderPrinter printer = new LineNumberStringBuilderPrinter();
+        ClassFilePrinter printer = new ClassFilePrinter();
 
-        return printer.buildDecompiledOutput(preferences, new JDLoader(loader), internalName + StringConstants.CLASS_FILE_SUFFIX, DECOMPILER);
+        String decompiledOutput = printer.buildDecompiledOutput(preferences, new JDLoader(loader), internalName + StringConstants.CLASS_FILE_SUFFIX, DECOMPILER);
+        printer.getResult().setDecompiledOutput(decompiledOutput);
+        return printer.getResult();
     }
 
     @Override

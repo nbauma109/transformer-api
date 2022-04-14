@@ -28,6 +28,7 @@ import com.heliosdecompiler.transformerapi.disassemblers.procyon.ProcyonDisassem
 import java.io.IOException;
 import java.util.Map;
 
+import jd.core.DecompilationResult;
 import jd.core.preferences.Preferences;
 
 public final class StandardTransformers {
@@ -35,7 +36,7 @@ public final class StandardTransformers {
     private StandardTransformers() {
     }
 
-    public static String decompile(Loader apiLoader, String entryInternalName, Map<String, String> preferences, String engineName) throws TransformationException, IOException {
+    public static DecompilationResult decompile(Loader apiLoader, String entryInternalName, Map<String, String> preferences, String engineName) throws TransformationException, IOException {
         if (engineName.endsWith("Disassembler")) {
             return Disassemblers.disassemble(apiLoader, entryInternalName, engineName);
         }
@@ -61,7 +62,7 @@ public final class StandardTransformers {
         public static final JDCoreV1Decompiler JD_CORE_V1 = new JDCoreV1Decompiler();
         public static final JADXDecompiler JADX = new JADXDecompiler();
 
-        public static String decompile(Loader apiLoader, String entryInternalName, Map<String, String> preferences, String engineName) throws TransformationException, IOException {
+        public static DecompilationResult decompile(Loader apiLoader, String entryInternalName, Map<String, String> preferences, String engineName) throws TransformationException, IOException {
             return switch (engineName) {
                 case ENGINE_JD_CORE_V0 -> JD_CORE_V0.decompile(apiLoader, entryInternalName, new Preferences(preferences));
                 case ENGINE_JD_CORE_V1 -> JD_CORE_V1.decompile(apiLoader, entryInternalName, preferences);
@@ -81,7 +82,7 @@ public final class StandardTransformers {
 
         public static final String ENGINE_PROCYON_DISASSEMBLER = "Procyon Disassembler";
 
-        public static String disassemble(Loader apiLoader, String entryInternalName, String engineName) throws TransformationException, IOException {
+        public static DecompilationResult disassemble(Loader apiLoader, String entryInternalName, String engineName) throws TransformationException, IOException {
             return switch (engineName) {
                 case ENGINE_PROCYON_DISASSEMBLER -> PROCYON.disassemble(apiLoader, entryInternalName);
                 default -> throw new IllegalArgumentException("Unexpected disassembler engine: " + engineName);

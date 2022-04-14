@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import jd.core.DecompilationResult;
+
 /**
  * Represents a particular Decompiler. Note that decompiler implementations
  * should be stateless, and thus can be reused (and are thread safe)
@@ -39,15 +41,15 @@ public interface Decompiler<S> {
      * @param loader       The loader implementation used to load the class
      * @param internalName The internal name of the class to decompile
      * @param settings     The settings to use with this decompiler
-     * @return The decompiled class
+     * @return The decompilation result
      * @throws TransformationException
      * @throws IOException
      */
-    String decompile(Loader loader, String internalName, S settings) throws TransformationException, IOException;
+    DecompilationResult decompile(Loader loader, String internalName, S settings) throws TransformationException, IOException;
 
     S defaultSettings();
 
-    default String decompile(Loader loader, String internalName) throws TransformationException, IOException {
+    default DecompilationResult decompile(Loader loader, String internalName) throws TransformationException, IOException {
         return decompile(loader, internalName, defaultSettings());
     }
 

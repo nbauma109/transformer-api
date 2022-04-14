@@ -21,6 +21,8 @@ import com.heliosdecompiler.transformerapi.common.Loader;
 
 import java.io.IOException;
 
+import jd.core.DecompilationResult;
+
 /**
  * Represents a particular Disassembler.
  * Note that disassembler implementations should be stateless, and thus can be reused (and are thread safe)
@@ -33,16 +35,16 @@ public interface Disassembler<S> {
      * @param loader   The loader implementation used to load the class
      * @param internalName The internal name of the class to disassemble
      * @param settings The settings to use with this disassembler
-     * @return The disassembled class
+     * @return The disassembled result
      * @throws TransformationException
      * @throws IOException 
      */
-    String disassemble(Loader loader, String internalName, S settings) throws TransformationException, IOException;
+    DecompilationResult disassemble(Loader loader, String internalName, S settings) throws TransformationException, IOException;
     
 
     S defaultSettings();
     
-    default String disassemble(Loader loader, String internalName) throws TransformationException, IOException {
+    default DecompilationResult disassemble(Loader loader, String internalName) throws TransformationException, IOException {
         return disassemble(loader, internalName, defaultSettings());
     }
 }

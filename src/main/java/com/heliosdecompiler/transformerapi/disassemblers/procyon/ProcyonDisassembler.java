@@ -26,10 +26,12 @@ import com.strobel.decompiler.languages.Languages;
 
 import java.io.IOException;
 
+import jd.core.DecompilationResult;
+
 public class ProcyonDisassembler extends ProcyonTask implements Disassembler<DecompilerSettings> {
 
     @Override
-    public String disassemble(Loader loader, String internalName, DecompilerSettings settings) throws TransformationException, IOException {
+    public DecompilationResult disassemble(Loader loader, String internalName, DecompilerSettings settings) throws TransformationException, IOException {
         return process(loader, internalName, settings);
     }
 

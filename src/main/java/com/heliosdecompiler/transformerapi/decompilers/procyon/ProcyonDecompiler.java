@@ -26,10 +26,12 @@ import com.strobel.decompiler.languages.Languages;
 
 import java.io.IOException;
 
+import jd.core.DecompilationResult;
+
 public class ProcyonDecompiler extends ProcyonTask implements Decompiler<DecompilerSettings> {
 
     @Override
-    public String decompile(Loader loader, String internalName, DecompilerSettings settings) throws TransformationException, IOException {
+    public DecompilationResult decompile(Loader loader, String internalName, DecompilerSettings settings) throws TransformationException, IOException {
         return process(loader, internalName, settings);
     }
 

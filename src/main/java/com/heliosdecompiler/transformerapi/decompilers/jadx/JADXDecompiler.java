@@ -27,11 +27,12 @@ import jadx.api.CommentsLevel;
 import jadx.api.JadxArgs;
 import jadx.api.JadxDecompiler;
 import jadx.api.JavaClass;
+import jd.core.DecompilationResult;
 
 public class JADXDecompiler implements Decompiler<JadxArgs> {
 
     @Override
-    public String decompile(Loader loader, String internalName, JadxArgs args) throws TransformationException, IOException {
+    public DecompilationResult decompile(Loader loader, String internalName, JadxArgs args) throws TransformationException, IOException {
         Map<String, byte[]> importantData = readClassAndInnerClasses(loader, internalName);
         if (!importantData.isEmpty()) {
             for (Map.Entry<String, byte[]> ent : importantData.entrySet()) {
@@ -41,7 +42,9 @@ public class JADXDecompiler implements Decompiler<JadxArgs> {
                 jadx.load();
                 for (JavaClass cls : jadx.getClasses()) {
                     if (cls.getClassNode().getClsData().getInputFileName().equals(internalName)) {
-                        return cls.getCode();
+                        DecompilationResult decompilationResult = new DecompilationResult();
+                        decompilationResult.setDecompiledOutput(cls.getCode());
+                        return decompilationResult;
                     }
                 }
             }

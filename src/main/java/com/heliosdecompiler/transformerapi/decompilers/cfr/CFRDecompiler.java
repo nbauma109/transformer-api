@@ -25,10 +25,12 @@ import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 import java.io.IOException;
 import java.util.Arrays;
 
+import jd.core.DecompilationResult;
+
 public class CFRDecompiler implements Decompiler<CFRSettings> {
 
     @Override
-    public String decompile(Loader loader, String internalName, CFRSettings settings) throws TransformationException, IOException {
+    public DecompilationResult decompile(Loader loader, String internalName, CFRSettings settings) throws TransformationException, IOException {
         CFROutputStreamFactory sink = new CFROutputStreamFactory();
         String entryPath = internalName + ".class";
         CfrDriver driver = new CfrDriver.Builder()
@@ -36,7 +38,9 @@ public class CFRDecompiler implements Decompiler<CFRSettings> {
             .withOutputSink(sink)
             .build();
             driver.analyse(Arrays.asList(entryPath));
-        return sink.getGeneratedSource();
+        DecompilationResult decompilationResult = new DecompilationResult();
+        decompilationResult.setDecompiledOutput(sink.getGeneratedSource());
+        return decompilationResult;
     }
 
     @Override

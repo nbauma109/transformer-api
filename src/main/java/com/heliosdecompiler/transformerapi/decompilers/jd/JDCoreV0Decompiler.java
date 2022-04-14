@@ -22,8 +22,9 @@ import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 
 import java.io.IOException;
 
+import jd.core.DecompilationResult;
 import jd.core.preferences.Preferences;
-import jd.core.printer.PlainTextPrinter;
+import jd.core.printer.PrinterImpl;
 import jd.core.process.DecompilerImpl;
 
 public class JDCoreV0Decompiler implements Decompiler<Preferences> {
@@ -31,13 +32,14 @@ public class JDCoreV0Decompiler implements Decompiler<Preferences> {
     private static final DecompilerImpl DECOMPILER = new DecompilerImpl();
 
     @Override
-    public String decompile(Loader loader, String internalName, Preferences preferences) throws TransformationException, IOException {
+    public DecompilationResult decompile(Loader loader, String internalName, Preferences preferences) throws TransformationException, IOException {
 
         // Init printer
-        PlainTextPrinter printer = new PlainTextPrinter();
-        return printer.buildDecompiledOutput(new JDLoader(loader), internalName, preferences, DECOMPILER);
+        PrinterImpl printer = new PrinterImpl(preferences);
+        String decompiledOutput = printer.buildDecompiledOutput(new JDLoader(loader), internalName, preferences, DECOMPILER);
+        printer.getResult().setDecompiledOutput(decompiledOutput);
+        return printer.getResult();
     }
-
 
     @Override
     public Preferences defaultSettings() {
