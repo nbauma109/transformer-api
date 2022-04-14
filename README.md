@@ -41,18 +41,17 @@ public class Sample {
 
         if (is == null) {
             return null;
-        } else {
-            try (InputStream in=is; ByteArrayOutputStream out=new ByteArrayOutputStream()) {
-                byte[] buffer = new byte[1024];
-                int read = in.read(buffer);
+        }
+        try (InputStream in=is; ByteArrayOutputStream out=new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[1024];
+            int read = in.read(buffer);
 
-                while (read > 0) {
-                    out.write(buffer, 0, read);
-                    read = in.read(buffer);
-                }
-
-                return out.toByteArray();
+            while (read > 0) {
+                out.write(buffer, 0, read);
+                read = in.read(buffer);
             }
+
+            return out.toByteArray();
         }
     }
 
@@ -66,8 +65,9 @@ public class Sample {
         Loader loader = new Loader(sample::canLoad, sample::load);
         Map<String, String> preferences = new HashMap<>();
         try {
-            String out = StandardTransformers.decompile(loader, "java/lang/String", preferences, StandardTransformers.Decompilers.ENGINE_FERNFLOWER);
-            System.out.println(out);
+            String ff = StandardTransformers.Decompilers.ENGINE_FERNFLOWER;
+            DecompilationResult result = StandardTransformers.decompile(loader, "java/lang/String", preferences, ff);
+            System.out.println(result.getDecompiledOutput());
         } catch (TransformationException | IOException e) {
             System.err.println(e);
         }
