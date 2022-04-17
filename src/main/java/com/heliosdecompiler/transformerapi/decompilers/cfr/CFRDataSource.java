@@ -16,22 +16,23 @@
  ******************************************************************************/
 package com.heliosdecompiler.transformerapi.decompilers.cfr;
 
-import org.benf.cfr.reader.api.ClassFileSource;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
+import org.benf.cfr.reader.state.ClassFileSourceImpl;
+import org.benf.cfr.reader.util.getopt.Options;
 
 import com.heliosdecompiler.transformerapi.common.Loader;
 
 import java.io.IOException;
-import java.util.Collection;
 
 import jd.core.ClassUtil;
 
-public class CFRDataSource implements ClassFileSource {
+public class CFRDataSource extends ClassFileSourceImpl {
     private Loader loader;
     private byte[] data;
     private String name;
 
-    public CFRDataSource(Loader loader, byte[] data, String name) {
+    public CFRDataSource(Loader loader, byte[] data, String name, Options options) {
+        super(options);
         this.loader = loader;
         this.data = data;
         this.name = name;
@@ -39,11 +40,6 @@ public class CFRDataSource implements ClassFileSource {
 
     @Override
     public void informAnalysisRelativePathDetail(String usePath, String classFilePath) {
-    }
-
-    @Override
-    public Collection<String> addJar(String jarPath) {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -57,6 +53,9 @@ public class CFRDataSource implements ClassFileSource {
             return Pair.make(data, name);
         }
         String internalName = ClassUtil.getInternalName(s);
-        return Pair.make(loader.load(internalName), internalName);
+        if (loader.canLoad(internalName)) {
+            return Pair.make(loader.load(internalName), internalName);
+        }
+        return super.getClassFileContent(s);
     }
 }

@@ -25,19 +25,18 @@ public class ProcyonFastTypeLoader implements ITypeLoader {
             buffer.putByteArray(data, 0, data.length);
             buffer.position(0);
             return true;
-        } else {
-            if (loader.canLoad(s)) {
-                try {
-                    byte[] data = loader.load(s);
-                    buffer.putByteArray(data, 0, data.length);
-                    buffer.position(0);
-                    return true;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return false;
-                }
-            }
-            return false;
         }
+        if (loader.canLoad(s)) {
+            try {
+                byte[] data = loader.load(s);
+                buffer.putByteArray(data, 0, data.length);
+                buffer.position(0);
+                return true;
+            } catch (IOException e) {
+                System.err.println(e);
+                return false;
+            }
+        }
+        return false;
     }
 }

@@ -17,6 +17,7 @@
 package com.heliosdecompiler.transformerapi.decompilers.cfr;
 
 import org.benf.cfr.reader.api.CfrDriver;
+import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
 import com.heliosdecompiler.transformerapi.TransformationException;
 import com.heliosdecompiler.transformerapi.common.Loader;
@@ -33,11 +34,13 @@ public class CFRDecompiler implements Decompiler<CFRSettings> {
     public DecompilationResult decompile(Loader loader, String internalName, CFRSettings settings) throws TransformationException, IOException {
         CFROutputStreamFactory sink = new CFROutputStreamFactory();
         String entryPath = internalName + ".class";
+        OptionsImpl options = new OptionsImpl(settings.getSettings());
         CfrDriver driver = new CfrDriver.Builder()
-            .withClassFileSource(new CFRDataSource(loader, loader.load(internalName), entryPath))
+            .withBuiltOptions(options)
+            .withClassFileSource(new CFRDataSource(loader, loader.load(internalName), entryPath, options))
             .withOutputSink(sink)
             .build();
-            driver.analyse(Arrays.asList(entryPath));
+        driver.analyse(Arrays.asList(entryPath));
         DecompilationResult decompilationResult = new DecompilationResult();
         decompilationResult.setDecompiledOutput(sink.getGeneratedSource());
         return decompilationResult;
