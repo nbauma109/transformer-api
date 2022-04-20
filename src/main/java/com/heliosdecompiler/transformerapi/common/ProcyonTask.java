@@ -46,6 +46,8 @@ public abstract class ProcyonTask {
         DecompilerSettings decompilerSettings = new DecompilerSettings();
         decompilerSettings.setLanguage(language());
         decompilerSettings.setForceExplicitImports(true);
+        decompilerSettings.setFlattenSwitchBlocks(true);
+        decompilerSettings.setRetainRedundantCasts(true);
         decompilerSettings.setOutputFileHeaderText("\nDecompiled by Procyon v" + Procyon.version() + "\n");
         return decompilerSettings;
     }
