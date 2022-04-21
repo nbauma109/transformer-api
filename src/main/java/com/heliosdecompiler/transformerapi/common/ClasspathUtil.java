@@ -31,7 +31,7 @@ public final class ClasspathUtil {
 
     public static String[] createClasspathEntries(URI jarURI, List<String> jdkClasspath) {
         List<String> cpEntries = new ArrayList<>(jdkClasspath);
-        File[] files = new File(jarURI).getParentFile().listFiles((dir, name) -> name.endsWith(".jar"));
+        File[] files = new File(jarURI).getParentFile().listFiles((dir, name) -> name.matches(".*(?<!-sources)\\.jar$"));
         for (File file : files) {
             cpEntries.add(file.getAbsolutePath());
         }
