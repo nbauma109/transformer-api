@@ -74,14 +74,14 @@
 			<version>2.11.0</version>
 		</dependency>
 		<dependency>
-			<groupId>com.github.nbauma109</groupId>
-			<artifactId>fernflower</artifactId>
-			<version>1.0.7</version>
+		    <groupId>com.github.nbauma109.fernflower</groupId>
+		    <artifactId>fernflower</artifactId>
+		    <version>1.0.9</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.nbauma109</groupId>
 			<artifactId>jd-core-v0</artifactId>
-			<version>0.8.5</version>
+			<version>0.8.7</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.nbauma109</groupId>
