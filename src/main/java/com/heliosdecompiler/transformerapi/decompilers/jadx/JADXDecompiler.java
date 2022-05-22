@@ -21,12 +21,16 @@ import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import jadx.api.CommentsLevel;
 import jadx.api.JadxArgs;
 import jadx.api.JadxDecompiler;
 import jadx.api.JavaClass;
+import jadx.plugins.input.java.JavaClassReader;
+import jadx.plugins.input.java.JavaLoadResult;
 import jd.core.DecompilationResult;
 
 public class JADXDecompiler implements Decompiler<JadxArgs> {
@@ -35,10 +39,13 @@ public class JADXDecompiler implements Decompiler<JadxArgs> {
     public DecompilationResult decompile(Loader loader, String internalName, JadxArgs args) throws TransformationException, IOException {
         Map<String, byte[]> importantData = readClassAndInnerClasses(loader, internalName);
         if (!importantData.isEmpty()) {
+            int i = 0;
+            List<JavaClassReader> readers = new ArrayList<>();
             for (Map.Entry<String, byte[]> ent : importantData.entrySet()) {
-                args.getInputFiles().add(new JADXInMemoryFile(ent.getKey(), ent.getValue()));
+                readers.add(new JavaClassReader(i++, ent.getKey(), ent.getValue()));
             }
-            try (JadxDecompiler jadx = new JadxDecompiler(args)) {
+            try (JadxDecompiler jadx = new JadxDecompiler(args); JavaLoadResult javaLoadResult = new JavaLoadResult(readers, null)) {
+                jadx.addCustomLoad(javaLoadResult);
                 jadx.load();
                 for (JavaClass cls : jadx.getClasses()) {
                     if (cls.getClassNode().getClsData().getInputFileName().equals(internalName)) {
