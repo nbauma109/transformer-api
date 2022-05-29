@@ -25,7 +25,15 @@ import java.util.Map;
  * Since CFR has its own internal settings layout, that will be used here. See {@link org.benf.cfr.reader.util.getopt.OptionsImpl}
  */
 public class CFRSettings {
-    private Map<String, String> internalSettings = new HashMap<>();
+    private Map<String, String> internalSettings;
+
+    public CFRSettings() {
+        this(new HashMap<>());
+    }
+
+    public CFRSettings(Map<String, String> internalSettings) {
+        this.internalSettings = internalSettings;
+    }
 
     /**
      * Set the given key to the given value. Keys can be found in {@link org.benf.cfr.reader.util.getopt.OptionsImpl}

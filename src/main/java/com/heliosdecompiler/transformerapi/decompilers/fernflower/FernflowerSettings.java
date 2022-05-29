@@ -25,7 +25,15 @@ import java.util.Map;
  * Since Fernflower has its own internal settings layout, that will be used here. See {@link org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences}
  */
 public class FernflowerSettings {
-    private Map<String, Object> internalSettings = new HashMap<>();
+    private Map<String, Object> internalSettings;
+
+    public FernflowerSettings() {
+        this.internalSettings = new HashMap<>();
+    }
+
+    public FernflowerSettings(Map<String, String> internalSettings) {
+        this.internalSettings = new HashMap<>(internalSettings);
+    }
 
     /**
      * Set the given key to the given value. Keys can be found in {@link org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences}

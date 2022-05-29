@@ -60,7 +60,7 @@ public class Sample {
             String ff = StandardTransformers.Decompilers.ENGINE_FERNFLOWER;
             DecompilationResult result = StandardTransformers.decompile(loader, "java/lang/String", preferences, ff);
             System.out.println(result.getDecompiledOutput());
-        } catch (TransformationException | IOException e) {
+        } catch (Exception e) {
             System.err.println(e);
         }
     }

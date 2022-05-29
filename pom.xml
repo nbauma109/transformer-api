@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.github.nbauma109</groupId>
@@ -14,6 +15,7 @@
 		<maven.compiler.target>17</maven.compiler.target>
 		<version.asm>9.3</version.asm>
 		<version.jadx>1.4.0</version.jadx>
+		<version.procyon>v0.6.0</version.procyon>
 	</properties>
 
 	<scm>
@@ -94,9 +96,19 @@
 			<version>0.152</version>
 		</dependency>
 		<dependency>
-			<groupId>org.bitbucket.mstrobel</groupId>
+			<groupId>com.github.mstrobel.procyon</groupId>
+			<artifactId>procyon-decompiler</artifactId>
+			<version>${version.procyon}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.mstrobel.procyon</groupId>
 			<artifactId>procyon-compilertools</artifactId>
-			<version>0.6.0</version>
+			<version>${version.procyon}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.mstrobel.procyon</groupId>
+			<artifactId>procyon-reflection</artifactId>
+			<version>${version.procyon}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.github.skylot</groupId>

@@ -30,9 +30,7 @@ import com.heliosdecompiler.transformerapi.TransformationException;
 import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.Map;
 
 import jd.core.DecompilationResult;
@@ -46,19 +44,17 @@ public class FernflowerDecompiler implements Decompiler<FernflowerSettings> {
     public DecompilationResult decompile(Loader loader, String internalName, FernflowerSettings settings) throws TransformationException, IOException {
         Map<String, byte[]> importantData = readClassAndInnerClasses(loader, internalName);
         if (!importantData.isEmpty()) {
-            ByteArrayOutputStream log = new ByteArrayOutputStream();
-    
             IBytecodeProvider provider = new FernflowerBytecodeProvider(importantData);
             FernflowerResultSaver saver = new FernflowerResultSaver();
-            Fernflower baseDecompiler = new Fernflower(provider, saver, settings.getSettings(), new PrintStreamLogger(new PrintStream(log)));
-    
+            Fernflower baseDecompiler = new Fernflower(provider, saver, settings.getSettings(), new PrintStreamLogger(System.out));
+
             try {
                 StructContext context = baseDecompiler.getStructContext();
                 Map<String, ContextUnit> units = context.getUnits();
                 LazyLoader lazyLoader = context.getLoader();
-    
+
                 ContextUnit defaultUnit = units.get("");
-    
+
                 for (Map.Entry<String, byte[]> ent : importantData.entrySet()) {
                     try {
                         @SuppressWarnings("resource") // because close() has no effect on ByteArrayInputStream
@@ -70,7 +66,7 @@ public class FernflowerDecompiler implements Decompiler<FernflowerSettings> {
                         DecompilerContext.getLogger().writeMessage("Corrupted class file: " + ent.getKey(), e);
                     }
                 }
-    
+
                 baseDecompiler.decompileContext();
             } catch (Exception t) {
                 DecompilerContext.getLogger().writeMessage("Error while decompiling", t);
