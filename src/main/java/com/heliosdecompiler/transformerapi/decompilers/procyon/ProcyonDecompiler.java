@@ -40,6 +40,7 @@ import jd.core.DecompilationResult;
 import jd.core.links.DeclarationData;
 import jd.core.links.HyperlinkReferenceData;
 import jd.core.links.ReferenceData;
+import jd.core.links.StringData;
 
 public class ProcyonDecompiler implements Decompiler<CommandLineOptions> {
 
@@ -67,7 +68,7 @@ public class ProcyonDecompiler implements Decompiler<CommandLineOptions> {
 
         return bytecodeOptions;
     }
-    
+
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, CommandLineOptions options) throws IOException {
         Map<String, byte[]> importantClasses = new HashMap<>();
@@ -101,12 +102,8 @@ public class ProcyonDecompiler implements Decompiler<CommandLineOptions> {
         if (options.isRawBytecode()) {
             settings.setLanguage(Languages.bytecode());
             settings.setBytecodeOutputOptions(createBytecodeFormattingOptions(options));
-        }
-        else if (options.isBytecodeAst()) {
-            settings.setLanguage(
-                options.isUnoptimized() ? Languages.bytecodeAstUnoptimized()
-                                        : Languages.bytecodeAst()
-            );
+        } else if (options.isBytecodeAst()) {
+            settings.setLanguage(options.isUnoptimized() ? Languages.bytecodeAstUnoptimized() : Languages.bytecodeAst());
         }
 
         StringWriter stringwriter = new StringWriter();
@@ -114,6 +111,12 @@ public class ProcyonDecompiler implements Decompiler<CommandLineOptions> {
         Map<String, ReferenceData> referencesCache = new HashMap<>();
 
         PlainTextOutput plainTextOutput = new PlainTextOutput(stringwriter) {
+
+            private void addDeclaration(String text, int from, String descriptor, String internalTypeName, String name) {
+                String key = internalTypeName + '-' + name + '-' + descriptor;
+                result.addDeclaration(key, new DeclarationData(from, text.length(), internalTypeName, name, descriptor));
+            }
+
             @Override
             public void writeDefinition(String text, Object definition, boolean isLocal) {
                 super.writeDefinition(text, definition, isLocal);
@@ -132,14 +135,14 @@ public class ProcyonDecompiler implements Decompiler<CommandLineOptions> {
                             TypeReference type = method.getDeclaringType();
                             String internalTypeName = type.getInternalName();
                             String name = method.getName();
-                            result.addDeclaration(internalTypeName + '-' + name + '-' + descriptor, new DeclarationData(from, text.length(), internalTypeName, name, descriptor));
+                            addDeclaration(text, from, descriptor, internalTypeName, name);
                         } else if (definition instanceof FieldDefinition) {
                             FieldDefinition field = (FieldDefinition) definition;
                             String descriptor = field.getErasedSignature();
                             TypeReference type = field.getDeclaringType();
                             String internalTypeName = type.getInternalName();
                             String name = field.getName();
-                            result.addDeclaration(internalTypeName + '-' + name + '-' + descriptor, new DeclarationData(from, text.length(), internalTypeName, name, descriptor));
+                            addDeclaration(text, from, descriptor, internalTypeName, name);
                         }
                     }
                 } catch (Exception e) {
@@ -179,6 +182,14 @@ public class ProcyonDecompiler implements Decompiler<CommandLineOptions> {
                 } catch (Exception e) {
                     System.err.println(e);
                 }
+            }
+
+            @Override
+            public void writeTextLiteral(Object value) {
+                super.writeTextLiteral(value);
+                String text = value.toString();
+                int from = stringwriter.getBuffer().length() - text.length();
+                result.addString(new StringData(from, text, internalName));
             }
 
             // --- Add references --- //

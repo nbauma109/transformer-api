@@ -98,16 +98,27 @@
 			<groupId>com.github.mstrobel.procyon</groupId>
 			<artifactId>procyon-decompiler</artifactId>
 			<version>${version.procyon}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.github.mstrobel.procyon</groupId>
-			<artifactId>procyon-compilertools</artifactId>
-			<version>${version.procyon}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.github.mstrobel.procyon</groupId>
+					<artifactId>procyon-compilertools</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.github.mstrobel.procyon</groupId>
+					<artifactId>procyon-core</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.github.mstrobel.procyon</groupId>
 			<artifactId>procyon-reflection</artifactId>
 			<version>${version.procyon}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.github.mstrobel.procyon</groupId>
+					<artifactId>procyon-core</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>io.github.skylot</groupId>
