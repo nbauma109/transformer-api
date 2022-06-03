@@ -60,7 +60,7 @@ public class FernflowerResultSaver implements IResultSaver {
     }
 
     public void createArchive(String path, String archiveName, Manifest manifest) {
-        throw new IllegalArgumentException(UNEXPECTED);
+        // nothing to do
     }
 
     public void saveDirEntry(String path, String archiveName, String entryName) {
@@ -72,6 +72,6 @@ public class FernflowerResultSaver implements IResultSaver {
     }
 
     public void closeArchive(String path, String archiveName) {
-        throw new IllegalArgumentException(UNEXPECTED);
+        // nothing to do
     }
 }

@@ -43,16 +43,11 @@ public class FernflowerDecompiler implements Decompiler<FernflowerSettings> {
             IBytecodeProvider provider = new FernflowerBytecodeProvider(importantData);
             FernflowerResultSaver saver = new FernflowerResultSaver();
             Fernflower baseDecompiler = new Fernflower(provider, saver, settings.getSettings(), new PrintStreamLogger(System.out));
-            
-            try {
-                StructContext context = DecompilerContext.getStructContext();
+
+            try (StructContext context = DecompilerContext.getStructContext()) {
 
                 for (Map.Entry<String, byte[]> ent : importantData.entrySet()) {
-                    try {
-                        context.addData("", ent.getKey() + ".class", ent.getValue(), true); // Fernflower will .substring(".class") to replace the extension
-                    } catch (Exception e) {
-                        DecompilerContext.getLogger().writeMessage("Corrupted class file: " + ent.getKey(), e);
-                    }
+                    context.addData("", ent.getKey() + ".class", ent.getValue(), true); // Fernflower will .substring(".class") to replace the extension
                 }
 
                 baseDecompiler.decompileContext();
