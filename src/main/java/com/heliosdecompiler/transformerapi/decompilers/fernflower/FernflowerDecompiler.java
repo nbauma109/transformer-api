@@ -20,11 +20,7 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.Fernflower;
 import org.jetbrains.java.decompiler.main.decompiler.PrintStreamLogger;
 import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
-import org.jetbrains.java.decompiler.struct.ContextUnit;
-import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
-import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
-import org.jetbrains.java.decompiler.util.DataInputFullStream;
 
 import com.heliosdecompiler.transformerapi.TransformationException;
 import com.heliosdecompiler.transformerapi.common.Loader;
@@ -47,21 +43,13 @@ public class FernflowerDecompiler implements Decompiler<FernflowerSettings> {
             IBytecodeProvider provider = new FernflowerBytecodeProvider(importantData);
             FernflowerResultSaver saver = new FernflowerResultSaver();
             Fernflower baseDecompiler = new Fernflower(provider, saver, settings.getSettings(), new PrintStreamLogger(System.out));
-
+            
             try {
-                StructContext context = baseDecompiler.getStructContext();
-                Map<String, ContextUnit> units = context.getUnits();
-                LazyLoader lazyLoader = context.getLoader();
-
-                ContextUnit defaultUnit = units.get("");
+                StructContext context = DecompilerContext.getStructContext();
 
                 for (Map.Entry<String, byte[]> ent : importantData.entrySet()) {
                     try {
-                        @SuppressWarnings("resource") // because close() has no effect on ByteArrayInputStream
-                        StructClass structClass = StructClass.create(new DataInputFullStream(ent.getValue()), true, lazyLoader);
-                        context.getClasses().put(structClass.qualifiedName, structClass);
-                        defaultUnit.addClass(structClass, ent.getKey() + ".class"); // Fernflower will .substring(".class") to replace the extension
-                        lazyLoader.addClassLink(structClass.qualifiedName, new LazyLoader.Link(ent.getKey(), (String) null));
+                        context.addData("", ent.getKey() + ".class", ent.getValue(), true); // Fernflower will .substring(".class") to replace the extension
                     } catch (Exception e) {
                         DecompilerContext.getLogger().writeMessage("Corrupted class file: " + ent.getKey(), e);
                     }

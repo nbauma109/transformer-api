@@ -55,7 +55,11 @@ public interface Decompiler<S> {
 
     default Map<String, byte[]> readClassAndInnerClasses(Loader loader, String internalName) throws IOException {
         Map<String, byte[]> importantData = new HashMap<>();
-        if (loader.canLoad(internalName)) {
+        return readClassAndInnerClasses(importantData, loader, internalName);
+    }
+
+    default Map<String, byte[]> readClassAndInnerClasses(Map<String, byte[]> importantData, Loader loader, String internalName) throws IOException {
+        if (!importantData.containsKey(internalName) && loader.canLoad(internalName)) {
             byte[] data = loader.load(internalName);
             importantData.put(internalName, data);
             ClassReader reader = new ClassReader(data);
@@ -64,15 +68,8 @@ public interface Decompiler<S> {
 
             if (classNode.innerClasses != null) {
                 for (InnerClassNode icn : classNode.innerClasses) {
-                    if (loader.canLoad(icn.name)) {
-                        byte[] innerClassData = loader.load(icn.name);
-                        if (innerClassData != null) {
-                            ClassReader sanityCheck = new ClassReader(innerClassData);
-                            if (!sanityCheck.getClassName().equals(icn.name)) {
-                                throw new IllegalArgumentException("sanity");
-                            }
-                            importantData.put(icn.name, innerClassData);
-                        }
+                    if (icn.name.startsWith(internalName + '$')) {
+                        importantData.putAll(readClassAndInnerClasses(importantData, loader, icn.name));
                     }
                 }
             }
