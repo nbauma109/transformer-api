@@ -57,7 +57,8 @@ public class FernflowerDecompiler implements Decompiler<FernflowerSettings> {
                 baseDecompiler.clearContext();
             }
             DecompilationResult decompilationResult = new DecompilationResult();
-            decompilationResult.setDecompiledOutput(saver.getResults().get(internalName));
+            String key = internalName.replace("WEB-INF/classes/", "");
+            decompilationResult.setDecompiledOutput(saver.getResults().get(key));
             return decompilationResult;
         }
         return null;
