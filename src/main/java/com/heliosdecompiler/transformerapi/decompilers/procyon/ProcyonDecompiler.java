@@ -27,13 +27,19 @@ import com.strobel.assembler.metadata.TypeDefinition;
 import com.strobel.assembler.metadata.TypeReference;
 import com.strobel.decompiler.CommandLineOptions;
 import com.strobel.decompiler.DecompilerSettings;
+import com.strobel.decompiler.InMemoryLineNumberFormatter;
+import com.strobel.decompiler.LineNumberOption;
 import com.strobel.decompiler.PlainTextOutput;
 import com.strobel.decompiler.languages.BytecodeOutputOptions;
 import com.strobel.decompiler.languages.Languages;
+import com.strobel.decompiler.languages.LineNumberPosition;
+import com.strobel.decompiler.languages.TypeDecompilationResults;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import jd.core.DecompilationResult;
@@ -110,7 +116,8 @@ public class ProcyonDecompiler implements Decompiler<CommandLineOptions> {
         DecompilationResult result = new DecompilationResult();
         Map<String, ReferenceData> referencesCache = new HashMap<>();
 
-        PlainTextOutput plainTextOutput = new PlainTextOutput(stringwriter) {
+        PlainTextOutput plainTextOutput = (options.getIncludeLineNumbers() || options.getStretchLines()) ? new PlainTextOutput(stringwriter)
+                                                                                                         : new PlainTextOutput(stringwriter) {
 
             private void addDeclaration(String text, int from, String descriptor, String internalTypeName, String name) {
                 String key = internalTypeName + '-' + name + '-' + descriptor;
@@ -202,8 +209,33 @@ public class ProcyonDecompiler implements Decompiler<CommandLineOptions> {
                 });
             }
         };
-        com.strobel.decompiler.Decompiler.decompile(internalName, plainTextOutput, settings);
-        result.setDecompiledOutput(stringwriter.toString());
+        final TypeDecompilationResults results = com.strobel.decompiler.Decompiler.decompile(internalName, plainTextOutput, settings);
+        final List<LineNumberPosition> lineNumberPositions = results.getLineNumberPositions();
+        for (LineNumberPosition lineNumberPosition : lineNumberPositions) {
+            result.getLineNumbers().put(lineNumberPosition.getEmittedLine(), lineNumberPosition.getOriginalLine());
+        }
+        if (options.getIncludeLineNumbers() || options.getStretchLines()) {
+            final EnumSet<LineNumberOption> lineNumberOptions = EnumSet.noneOf(LineNumberOption.class);
+
+            if (options.getIncludeLineNumbers()) {
+                lineNumberOptions.add(LineNumberOption.LEADING_COMMENTS);
+            }
+
+            if (options.getStretchLines()) {
+                lineNumberOptions.add(LineNumberOption.STRETCHED);
+            }
+
+            final InMemoryLineNumberFormatter lineFormatter = new InMemoryLineNumberFormatter(
+                plainTextOutput.toString(),
+                lineNumberPositions,
+                lineNumberOptions
+            );
+
+            String reformattedOutput = lineFormatter.reformatFile();
+            result.setDecompiledOutput(reformattedOutput);
+        } else {
+            result.setDecompiledOutput(stringwriter.toString());
+        }
         return result;
     }
 }

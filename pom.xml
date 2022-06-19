@@ -14,7 +14,7 @@
 		<maven.compiler.target>17</maven.compiler.target>
 		<version.asm>9.3</version.asm>
 		<version.jadx>1.4.0</version.jadx>
-		<version.procyon>v0.6.0</version.procyon>
+		<version.procyon>develop-SNAPSHOT</version.procyon>
 	</properties>
 
 	<scm>
@@ -95,27 +95,27 @@
 			<version>0.152</version>
 		</dependency>
 		<dependency>
-			<groupId>com.github.mstrobel.procyon</groupId>
+			<groupId>com.github.nbauma109.procyon</groupId>
 			<artifactId>procyon-decompiler</artifactId>
 			<version>${version.procyon}</version>
 			<exclusions>
 				<exclusion>
-					<groupId>com.github.mstrobel.procyon</groupId>
+					<groupId>com.github.nbauma109.procyon</groupId>
 					<artifactId>procyon-compilertools</artifactId>
 				</exclusion>
 				<exclusion>
-					<groupId>com.github.mstrobel.procyon</groupId>
+					<groupId>com.github.nbauma109.procyon</groupId>
 					<artifactId>procyon-core</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>com.github.mstrobel.procyon</groupId>
+			<groupId>com.github.nbauma109.procyon</groupId>
 			<artifactId>procyon-reflection</artifactId>
 			<version>${version.procyon}</version>
 			<exclusions>
 				<exclusion>
-					<groupId>com.github.mstrobel.procyon</groupId>
+					<groupId>com.github.nbauma109.procyon</groupId>
 					<artifactId>procyon-core</artifactId>
 				</exclusion>
 			</exclusions>
