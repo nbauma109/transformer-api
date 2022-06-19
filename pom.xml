@@ -82,7 +82,7 @@
 		<dependency>
 			<groupId>com.github.nbauma109</groupId>
 			<artifactId>jd-core-v0</artifactId>
-			<version>0.8.8</version>
+			<version>0.8.9</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.nbauma109</groupId>
