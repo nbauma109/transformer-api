@@ -72,7 +72,10 @@ public class ProcyonDecompiler implements Decompiler<CommandLineOptions> {
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, CommandLineOptions options) throws IOException {
         Map<String, byte[]> importantClasses = new HashMap<>();
-        importantClasses.put(internalName, loader.load(internalName));
+ 
+        String key = readClassAndInnerClasses(loader, internalName).fullClassName();
+
+        importantClasses.put(key, loader.load(internalName));
 
         final DecompilerSettings settings = new DecompilerSettings();
 

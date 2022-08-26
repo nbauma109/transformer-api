@@ -82,12 +82,12 @@
 		<dependency>
 			<groupId>com.github.nbauma109</groupId>
 			<artifactId>jd-core-v0</artifactId>
-			<version>0.8.9</version>
+			<version>0.8.10</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.nbauma109</groupId>
 			<artifactId>jd-core</artifactId>
-			<version>1.2.10</version>
+			<version>1.2.11</version>
 		</dependency>
 		<dependency>
 			<groupId>org.benf</groupId>

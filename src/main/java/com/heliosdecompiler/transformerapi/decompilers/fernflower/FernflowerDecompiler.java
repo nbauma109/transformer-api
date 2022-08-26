@@ -38,15 +38,15 @@ public class FernflowerDecompiler implements Decompiler<FernflowerSettings> {
 
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, FernflowerSettings settings) throws TransformationException, IOException {
-        Map<String, byte[]> importantData = readClassAndInnerClasses(loader, internalName);
-        if (!importantData.isEmpty()) {
-            IBytecodeProvider provider = new FernflowerBytecodeProvider(importantData);
+        ClassStruct classStruct = readClassAndInnerClasses(loader, internalName);
+        if (!classStruct.importantData().isEmpty()) {
+            IBytecodeProvider provider = new FernflowerBytecodeProvider(classStruct.importantData());
             FernflowerResultSaver saver = new FernflowerResultSaver();
             Fernflower baseDecompiler = new Fernflower(provider, saver, settings.getSettings(), new PrintStreamLogger(System.out));
 
             try (StructContext context = DecompilerContext.getStructContext()) {
 
-                for (Map.Entry<String, byte[]> ent : importantData.entrySet()) {
+                for (Map.Entry<String, byte[]> ent : classStruct.importantData().entrySet()) {
                     context.addData("", ent.getKey() + ".class", ent.getValue(), true); // Fernflower will .substring(".class") to replace the extension
                 }
 
@@ -57,7 +57,7 @@ public class FernflowerDecompiler implements Decompiler<FernflowerSettings> {
                 baseDecompiler.clearContext();
             }
             DecompilationResult decompilationResult = new DecompilationResult();
-            String key = internalName.replace("WEB-INF/classes/", "");
+            String key = classStruct.fullClassName();
             decompilationResult.setDecompiledOutput(saver.getResults().get(key));
             return decompilationResult;
         }

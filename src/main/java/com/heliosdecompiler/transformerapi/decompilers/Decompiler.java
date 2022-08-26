@@ -53,27 +53,30 @@ public interface Decompiler<S> {
         return decompile(loader, internalName, defaultSettings());
     }
 
-    default Map<String, byte[]> readClassAndInnerClasses(Loader loader, String internalName) throws IOException {
-        Map<String, byte[]> importantData = new HashMap<>();
-        return readClassAndInnerClasses(importantData, loader, internalName);
+    default ClassStruct readClassAndInnerClasses(Loader loader, String internalName) throws IOException {
+        return readClassAndInnerClasses(new HashMap<>(), loader, internalName);
     }
 
-    default Map<String, byte[]> readClassAndInnerClasses(Map<String, byte[]> importantData, Loader loader, String internalName) throws IOException {
+    default ClassStruct readClassAndInnerClasses(Map<String, byte[]> importantData, Loader loader, String internalName) throws IOException {
+        String fullClassName = internalName.replace('/', '.');
         if (!importantData.containsKey(internalName) && loader.canLoad(internalName)) {
             byte[] data = loader.load(internalName);
             importantData.put(internalName, data);
             ClassReader reader = new ClassReader(data);
             ClassNode classNode = new ClassNode();
             reader.accept(classNode, ClassReader.SKIP_FRAMES | ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG);
-
+            fullClassName = classNode.name;
             if (classNode.innerClasses != null) {
                 for (InnerClassNode icn : classNode.innerClasses) {
                     if (icn.name.startsWith(internalName + '$')) {
-                        importantData.putAll(readClassAndInnerClasses(importantData, loader, icn.name));
+                        importantData.putAll(readClassAndInnerClasses(importantData, loader, icn.name).importantData);
                     }
                 }
             }
         }
-        return importantData;
+        return new ClassStruct(fullClassName, importantData);
+    }
+
+    record ClassStruct(String fullClassName, Map<String, byte[]> importantData) {
     }
 }

@@ -37,7 +37,7 @@ public class JADXDecompiler implements Decompiler<JadxArgs> {
 
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, JadxArgs args) throws TransformationException, IOException {
-        Map<String, byte[]> importantData = readClassAndInnerClasses(loader, internalName);
+        Map<String, byte[]> importantData = readClassAndInnerClasses(loader, internalName).importantData();
         if (!importantData.isEmpty()) {
             int i = 0;
             List<JavaClassReader> readers = new ArrayList<>();
