@@ -12,8 +12,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
-		<version.asm>9.3</version.asm>
-		<version.jadx>1.4.3</version.jadx>
+		<version.asm>9.4</version.asm>
+		<version.jadx>1.4.4</version.jadx>
 		<version.procyon>v0.6.0</version.procyon>
 	</properties>
 
@@ -29,7 +29,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>3.2.0</version>
+				<version>3.2.1</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -43,7 +43,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
-				<version>3.0.0-M5</version>
+				<version>3.0.0-M6</version>
 				<configuration>
 					<goals>install</goals>
 					<tagNameFormat>@{project.version}</tagNameFormat>
@@ -82,12 +82,12 @@
 		<dependency>
 			<groupId>com.github.nbauma109</groupId>
 			<artifactId>jd-core-v0</artifactId>
-			<version>0.8.10</version>
+			<version>0.8.11</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.nbauma109</groupId>
 			<artifactId>jd-core</artifactId>
-			<version>1.2.11</version>
+			<version>1.2.13</version>
 		</dependency>
 		<dependency>
 			<groupId>org.benf</groupId>
