@@ -3,7 +3,7 @@
 
 	<groupId>com.github.nbauma109</groupId>
 	<artifactId>transformer-api</artifactId>
-	<version>4.0.37-SNAPSHOT</version>
+	<version>4.0.37</version>
 	<packaging>jar</packaging>
 
 	<name>transformer-api</name>
@@ -21,7 +21,7 @@
 		<connection>scm:git:https://github.com/nbauma109/transformer-api.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/nbauma109/transformer-api.git</developerConnection>
 		<url>https://github.com/nbauma109/transformer-api</url>
-		<tag>HEAD</tag>
+		<tag>4.0.37</tag>
 	</scm>
 
 	<build>
