@@ -16,6 +16,8 @@
 
 package com.heliosdecompiler.transformerapi.decompilers;
 
+import org.jetbrains.java.decompiler.main.extern.IContextSource;
+import org.jetbrains.java.decompiler.main.extern.IResultSaver;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InnerClassNode;
@@ -23,8 +25,13 @@ import org.objectweb.asm.tree.InnerClassNode;
 import com.heliosdecompiler.transformerapi.TransformationException;
 import com.heliosdecompiler.transformerapi.common.Loader;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import jd.core.DecompilationResult;
@@ -77,6 +84,53 @@ public interface Decompiler<S> {
         return new ClassStruct(fullClassName, importantData);
     }
 
-    record ClassStruct(String fullClassName, Map<String, byte[]> importantData) {
+    record ClassStruct(String fullClassName, Map<String, byte[]> importantData) implements IContextSource {
+
+        @Override
+        public String getName() {
+            return fullClassName;
+        }
+
+        @Override
+        public Entries getEntries() {
+            List<Entry> classes = new ArrayList<>();
+            for (String key : importantData.keySet()) {
+                classes.add(Entry.parse(key));
+            }
+            return new Entries(classes, Collections.emptyList(), Collections.emptyList());
+        }
+
+        @Override
+        public InputStream getInputStream(String resource) throws IOException {
+            return new ByteArrayInputStream(importantData.get(resource.replaceFirst("\\.class$", "")));
+        }
+
+        @Override
+        public IOutputSink createOutputSink(IResultSaver saver) {
+            return new IOutputSink() {
+                @Override
+                public void close() throws IOException {
+                }
+
+                @Override
+                public void begin() {
+                }
+
+                @Override
+                public void acceptOther(String path) {
+                 // not used
+                }
+
+                @Override
+                public void acceptDirectory(String directory) {
+                    // not used
+                }
+
+                @Override
+                public void acceptClass(String qualifiedName, String fileName, String content, int[] mapping) {
+                    saver.saveClassFile("", qualifiedName, fileName, content, mapping);
+                }
+            };
+        }
     }
 }
