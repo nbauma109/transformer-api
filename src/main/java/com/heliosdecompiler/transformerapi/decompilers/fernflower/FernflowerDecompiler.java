@@ -27,7 +27,6 @@ import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 
 import java.io.IOException;
-import java.util.Map;
 
 import jd.core.DecompilationResult;
 
@@ -43,13 +42,10 @@ public class FernflowerDecompiler implements Decompiler<FernflowerSettings> {
             IBytecodeProvider provider = new FernflowerBytecodeProvider(classStruct.importantData());
             FernflowerResultSaver saver = new FernflowerResultSaver();
             Fernflower baseDecompiler = new Fernflower(provider, saver, settings.getSettings(), new PrintStreamLogger(System.out));
-
-            try (StructContext context = DecompilerContext.getStructContext()) {
-
-                for (Map.Entry<String, byte[]> ent : classStruct.importantData().entrySet()) {
-                    context.addData("", ent.getKey() + ".class", ent.getValue(), true); // Fernflower will .substring(".class") to replace the extension
-                }
-
+            StructContext context;
+            try {
+                context = DecompilerContext.getStructContext();
+                context.addSpace(classStruct, true);
                 baseDecompiler.decompileContext();
             } catch (Exception t) {
                 DecompilerContext.getLogger().writeMessage("Error while decompiling", t);
