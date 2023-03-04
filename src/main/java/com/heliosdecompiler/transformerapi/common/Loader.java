@@ -18,6 +18,7 @@ package com.heliosdecompiler.transformerapi.common;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.function.FailableFunction;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,8 +31,6 @@ import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import name.falgout.jeffrey.throwing.ThrowingFunction;
-
 /**
  * A loader which is agnostic of the decompiler implementation
  */
@@ -40,10 +39,10 @@ public class Loader {
     private static final Map<String, ZipFile> openedZipFiles = new ConcurrentHashMap<>();
     
     private final Predicate<String> canLoadFunction;
-    private final ThrowingFunction<String, byte[], IOException> loadFunction;
+    private final FailableFunction<String, byte[], IOException> loadFunction;
     private String[] classpathEntries;
 
-    public Loader(Predicate<String> canLoadFunction, ThrowingFunction<String, byte[], IOException> loadFunction, URI jarURI) {
+    public Loader(Predicate<String> canLoadFunction, FailableFunction<String, byte[], IOException> loadFunction, URI jarURI) {
         this.canLoadFunction = canLoadFunction;
         this.loadFunction = loadFunction;
         if (jarURI != null) {
@@ -52,7 +51,7 @@ public class Loader {
         }
     }
 
-    public Loader(Predicate<String> predicate, ThrowingFunction<String, byte[], IOException> throwingFunction) {
+    public Loader(Predicate<String> predicate, FailableFunction<String, byte[], IOException> throwingFunction) {
         this(predicate, throwingFunction, null);
     }
 
