@@ -32,7 +32,7 @@ import jd.core.DecompilationResult;
 
 public class JDCoreV1Decompiler implements Decompiler<Map<String, String>> {
 
-    private static final ClassFileToJavaSourceDecompiler DECOMPILER = new ClassFileToJavaSourceDecompiler();
+    public static final ClassFileToJavaSourceDecompiler DECOMPILER = new ClassFileToJavaSourceDecompiler();
 
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, Map<String, String> preferences) throws TransformationException, IOException {
