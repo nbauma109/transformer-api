@@ -12,7 +12,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
-		<version.asm>9.5</version.asm>
+		<version.asm>9.6</version.asm>
 		<version.jadx>1.4.7</version.jadx>
 		<version.procyon>v0.6.0</version.procyon>
 	</properties>
