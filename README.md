@@ -21,7 +21,7 @@ Currently, this API supports the following decompilers :
 Decompilers can be accessed either via `StandardTransformers.DECOMPILER` or by creating a new instance. They are also
 stateless, which means you can use the same instance across different threads.
 
-An example program decompiling a file using Fernflower is shown below:
+An example program decompiling a file using Vineflower (fork of Fernflower) is shown below:
 
 ```java
 package com.heliosdecompiler.transformerapi;
