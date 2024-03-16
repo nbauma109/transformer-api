@@ -53,7 +53,7 @@ public final class StandardTransformers {
         public static final String ENGINE_JD_CORE_V1 = "JD-Core v1";
         public static final String ENGINE_CFR = "CFR";
         public static final String ENGINE_PROCYON = "Procyon";
-        public static final String ENGINE_FERNFLOWER = "Fernflower";
+        public static final String ENGINE_VINEFLOWER = "Vineflower";
         public static final String ENGINE_JADX = "JADX";
 
         public static final ProcyonDecompiler PROCYON = new ProcyonDecompiler();
@@ -68,7 +68,7 @@ public final class StandardTransformers {
                 case ENGINE_JD_CORE_V0 -> JD_CORE_V0.decompile(apiLoader, entryInternalName, new Preferences(preferences));
                 case ENGINE_JD_CORE_V1 -> JD_CORE_V1.decompile(apiLoader, entryInternalName, preferences);
                 case ENGINE_CFR -> CFR.decompile(apiLoader, entryInternalName, new CFRSettings(preferences));
-                case ENGINE_FERNFLOWER -> FERNFLOWER.decompile(apiLoader, entryInternalName, new FernflowerSettings(preferences));
+                case ENGINE_VINEFLOWER -> FERNFLOWER.decompile(apiLoader, entryInternalName, new FernflowerSettings(preferences));
                 case ENGINE_PROCYON -> PROCYON.decompile(apiLoader, entryInternalName, new MapDecompilerSettings(preferences));
                 case ENGINE_JADX -> JADX.decompile(apiLoader, entryInternalName, new MapJadxArgs(preferences));
                 default -> throw new IllegalArgumentException("Unexpected decompiler engine: " + engineName);

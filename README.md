@@ -65,7 +65,7 @@ public class Sample {
         Loader loader = new Loader(sample::canLoad, sample::load);
         Map<String, String> preferences = new HashMap<>();
         try {
-            String ff = StandardTransformers.Decompilers.ENGINE_FERNFLOWER;
+            String ff = StandardTransformers.Decompilers.ENGINE_VINEFLOWER;
             DecompilationResult result = StandardTransformers.decompile(loader, "java/lang/String", preferences, ff);
             System.out.println(result.getDecompiledOutput());
         } catch (Exception e) {
