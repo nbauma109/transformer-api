@@ -45,7 +45,7 @@ public class JADXDecompiler implements Decompiler<JadxArgs> {
                 readers.add(new JavaClassReader(i++, ent.getKey(), ent.getValue()));
             }
             try (JadxDecompiler jadx = new JadxDecompiler(args); JavaLoadResult javaLoadResult = new JavaLoadResult(readers, null)) {
-                jadx.addCustomLoad(javaLoadResult);
+                jadx.addCustomCodeLoader(javaLoadResult);
                 jadx.load();
                 for (JavaClass cls : jadx.getClasses()) {
                     if (cls.getClassNode().getClsData().getInputFileName().equals(internalName)) {
