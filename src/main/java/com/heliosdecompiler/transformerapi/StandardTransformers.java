@@ -19,14 +19,16 @@ package com.heliosdecompiler.transformerapi;
 import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.cfr.CFRDecompiler;
 import com.heliosdecompiler.transformerapi.decompilers.cfr.CFRSettings;
+import com.heliosdecompiler.transformerapi.decompilers.fernflower.FernflowerDecompiler;
+import com.heliosdecompiler.transformerapi.decompilers.fernflower.FernflowerSettings;
 import com.heliosdecompiler.transformerapi.decompilers.jadx.JADXDecompiler;
 import com.heliosdecompiler.transformerapi.decompilers.jadx.MapJadxArgs;
 import com.heliosdecompiler.transformerapi.decompilers.jd.JDCoreV0Decompiler;
 import com.heliosdecompiler.transformerapi.decompilers.jd.JDCoreV1Decompiler;
 import com.heliosdecompiler.transformerapi.decompilers.procyon.MapDecompilerSettings;
 import com.heliosdecompiler.transformerapi.decompilers.procyon.ProcyonDecompiler;
-import com.heliosdecompiler.transformerapi.decompilers.vineflower.FernflowerDecompiler;
-import com.heliosdecompiler.transformerapi.decompilers.vineflower.FernflowerSettings;
+import com.heliosdecompiler.transformerapi.decompilers.vineflower.VineflowerDecompiler;
+import com.heliosdecompiler.transformerapi.decompilers.vineflower.VineflowerSettings;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -53,12 +55,14 @@ public final class StandardTransformers {
         public static final String ENGINE_JD_CORE_V1 = "JD-Core v1";
         public static final String ENGINE_CFR = "CFR";
         public static final String ENGINE_PROCYON = "Procyon";
+        public static final String ENGINE_FERNFLOWER = "Fernflower";
         public static final String ENGINE_VINEFLOWER = "Vineflower";
         public static final String ENGINE_JADX = "JADX";
 
         public static final ProcyonDecompiler PROCYON = new ProcyonDecompiler();
         public static final CFRDecompiler CFR = new CFRDecompiler();
         public static final FernflowerDecompiler FERNFLOWER = new FernflowerDecompiler();
+        public static final VineflowerDecompiler VINEFLOWER = new VineflowerDecompiler();
         public static final JDCoreV0Decompiler JD_CORE_V0 = new JDCoreV0Decompiler();
         public static final JDCoreV1Decompiler JD_CORE_V1 = new JDCoreV1Decompiler();
         public static final JADXDecompiler JADX = new JADXDecompiler();
@@ -68,7 +72,8 @@ public final class StandardTransformers {
                 case ENGINE_JD_CORE_V0 -> JD_CORE_V0.decompile(apiLoader, entryInternalName, new Preferences(preferences));
                 case ENGINE_JD_CORE_V1 -> JD_CORE_V1.decompile(apiLoader, entryInternalName, preferences);
                 case ENGINE_CFR -> CFR.decompile(apiLoader, entryInternalName, new CFRSettings(preferences));
-                case ENGINE_VINEFLOWER -> FERNFLOWER.decompile(apiLoader, entryInternalName, new FernflowerSettings(preferences));
+                case ENGINE_FERNFLOWER -> FERNFLOWER.decompile(apiLoader, entryInternalName, new FernflowerSettings(preferences));
+                case ENGINE_VINEFLOWER -> VINEFLOWER.decompile(apiLoader, entryInternalName, new VineflowerSettings(preferences));
                 case ENGINE_PROCYON -> PROCYON.decompile(apiLoader, entryInternalName, new MapDecompilerSettings(preferences));
                 case ENGINE_JADX -> JADX.decompile(apiLoader, entryInternalName, new MapJadxArgs(preferences));
                 default -> throw new IllegalArgumentException("Unexpected decompiler engine: " + engineName);

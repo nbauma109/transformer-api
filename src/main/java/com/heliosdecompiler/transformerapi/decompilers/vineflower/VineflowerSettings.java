@@ -24,14 +24,14 @@ import java.util.Map;
  * <p>
  * Since Fernflower has its own internal settings layout, that will be used here. See {@link org.vineflower.java.decompiler.main.extern.IFernflowerPreferences}
  */
-public class FernflowerSettings {
+public class VineflowerSettings {
     private Map<String, Object> internalSettings;
 
-    public FernflowerSettings() {
+    public VineflowerSettings() {
         this.internalSettings = new HashMap<>();
     }
 
-    public FernflowerSettings(Map<String, String> internalSettings) {
+    public VineflowerSettings(Map<String, String> internalSettings) {
         this.internalSettings = new HashMap<>(internalSettings);
     }
 
@@ -40,7 +40,7 @@ public class FernflowerSettings {
      *
      * @return The same instance, for chaining
      */
-    public FernflowerSettings set(String key, Object value) {
+    public VineflowerSettings set(String key, Object value) {
         this.internalSettings.put(key, value);
         return this;
     }

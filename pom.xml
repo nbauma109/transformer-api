@@ -61,6 +61,10 @@
 			<id>google</id>
 			<url>https://maven.google.com</url>
 		</repository>
+		<repository>
+			<id>intellij</id>
+			<url>https://www.jetbrains.com/intellij-repository/releases/</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -73,6 +77,11 @@
 		    <groupId>com.github.nbauma109</groupId>
 		    <artifactId>vineflower-shaded</artifactId>
 		    <version>1.10.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jetbrains.intellij.java</groupId>
+			<artifactId>java-decompiler-engine</artifactId>
+			<version>241.15989.150</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.nbauma109</groupId>

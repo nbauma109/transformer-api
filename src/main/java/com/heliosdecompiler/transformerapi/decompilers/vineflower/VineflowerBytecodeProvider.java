@@ -23,11 +23,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FernflowerBytecodeProvider implements IBytecodeProvider {
+public class VineflowerBytecodeProvider implements IBytecodeProvider {
 
     private final Map<String, byte[]> byteData = new HashMap<>();
 
-    public FernflowerBytecodeProvider(Map<String, byte[]> data) {
+    public VineflowerBytecodeProvider(Map<String, byte[]> data) {
         byteData.putAll(data);
     }
 

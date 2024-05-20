@@ -33,14 +33,14 @@ import jd.core.DecompilationResult;
 /**
  * Provides a gateway to the Fernflower decompiler
  */
-public class FernflowerDecompiler implements Decompiler<FernflowerSettings> {
+public class VineflowerDecompiler implements Decompiler<VineflowerSettings> {
 
     @Override
-    public DecompilationResult decompile(Loader loader, String internalName, FernflowerSettings settings) throws TransformationException, IOException {
+    public DecompilationResult decompile(Loader loader, String internalName, VineflowerSettings settings) throws TransformationException, IOException {
         ClassStruct classStruct = readClassAndInnerClasses(loader, internalName);
         if (!classStruct.importantData().isEmpty()) {
-            IBytecodeProvider provider = new FernflowerBytecodeProvider(classStruct.importantData());
-            FernflowerResultSaver saver = new FernflowerResultSaver();
+            IBytecodeProvider provider = new VineflowerBytecodeProvider(classStruct.importantData());
+            VineflowerResultSaver saver = new VineflowerResultSaver();
             Fernflower baseDecompiler = new Fernflower(provider, saver, settings.getSettings(), new PrintStreamLogger(System.out));
             StructContext context;
             try {
@@ -61,7 +61,7 @@ public class FernflowerDecompiler implements Decompiler<FernflowerSettings> {
     }
 
     @Override
-    public FernflowerSettings defaultSettings() {
-        return new FernflowerSettings();
+    public VineflowerSettings defaultSettings() {
+        return new VineflowerSettings();
     }
 }
