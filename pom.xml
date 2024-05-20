@@ -70,8 +70,8 @@
 			<version>2.16.1</version>
 		</dependency>
 		<dependency>
-		    <groupId>org.vineflower</groupId>
-		    <artifactId>vineflower</artifactId>
+		    <groupId>com.github.nbauma109</groupId>
+		    <artifactId>vineflower-shaded</artifactId>
 		    <version>1.10.1</version>
 		</dependency>
 		<dependency>

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.heliosdecompiler.transformerapi.decompilers.fernflower;
+package com.heliosdecompiler.transformerapi.decompilers.vineflower;
 
-import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.Fernflower;
-import org.jetbrains.java.decompiler.main.decompiler.PrintStreamLogger;
-import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
-import org.jetbrains.java.decompiler.struct.StructContext;
+import org.vineflower.java.decompiler.main.DecompilerContext;
+import org.vineflower.java.decompiler.main.Fernflower;
+import org.vineflower.java.decompiler.main.decompiler.PrintStreamLogger;
+import org.vineflower.java.decompiler.main.extern.IBytecodeProvider;
+import org.vineflower.java.decompiler.struct.StructContext;
 
 import com.heliosdecompiler.transformerapi.TransformationException;
 import com.heliosdecompiler.transformerapi.common.Loader;

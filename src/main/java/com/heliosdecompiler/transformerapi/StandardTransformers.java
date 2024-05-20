@@ -19,14 +19,14 @@ package com.heliosdecompiler.transformerapi;
 import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.cfr.CFRDecompiler;
 import com.heliosdecompiler.transformerapi.decompilers.cfr.CFRSettings;
-import com.heliosdecompiler.transformerapi.decompilers.fernflower.FernflowerDecompiler;
-import com.heliosdecompiler.transformerapi.decompilers.fernflower.FernflowerSettings;
 import com.heliosdecompiler.transformerapi.decompilers.jadx.JADXDecompiler;
 import com.heliosdecompiler.transformerapi.decompilers.jadx.MapJadxArgs;
 import com.heliosdecompiler.transformerapi.decompilers.jd.JDCoreV0Decompiler;
 import com.heliosdecompiler.transformerapi.decompilers.jd.JDCoreV1Decompiler;
 import com.heliosdecompiler.transformerapi.decompilers.procyon.MapDecompilerSettings;
 import com.heliosdecompiler.transformerapi.decompilers.procyon.ProcyonDecompiler;
+import com.heliosdecompiler.transformerapi.decompilers.vineflower.FernflowerDecompiler;
+import com.heliosdecompiler.transformerapi.decompilers.vineflower.FernflowerSettings;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.heliosdecompiler.transformerapi.decompilers.fernflower;
+package com.heliosdecompiler.transformerapi.decompilers.vineflower;
 
-import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
+import org.vineflower.java.decompiler.main.extern.IBytecodeProvider;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -32,7 +32,7 @@ public class FernflowerBytecodeProvider implements IBytecodeProvider {
     }
 
     /**
-     * Notes: externalPath and internalPath are provided via {@link org.jetbrains.java.decompiler.struct.lazy.LazyLoader.Link}
+     * Notes: externalPath and internalPath are provided via {@link org.vineflower.java.decompiler.struct.lazy.LazyLoader.Link}
      * Since we create the links ourselves, we know that externalPath is the one to use
      */
     @Override

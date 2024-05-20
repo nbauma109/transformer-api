@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.heliosdecompiler.transformerapi.decompilers.fernflower;
+package com.heliosdecompiler.transformerapi.decompilers.vineflower;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * Represents settings which can be used to configure the particular decompiling session.
  * <p>
- * Since Fernflower has its own internal settings layout, that will be used here. See {@link org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences}
+ * Since Fernflower has its own internal settings layout, that will be used here. See {@link org.vineflower.java.decompiler.main.extern.IFernflowerPreferences}
  */
 public class FernflowerSettings {
     private Map<String, Object> internalSettings;
@@ -36,7 +36,7 @@ public class FernflowerSettings {
     }
 
     /**
-     * Set the given key to the given value. Keys can be found in {@link org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences}
+     * Set the given key to the given value. Keys can be found in {@link org.vineflower.java.decompiler.main.extern.IFernflowerPreferences}
      *
      * @return The same instance, for chaining
      */

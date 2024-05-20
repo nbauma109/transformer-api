@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.heliosdecompiler.transformerapi.decompilers.fernflower;
+package com.heliosdecompiler.transformerapi.decompilers.vineflower;
 
-import org.jetbrains.java.decompiler.main.extern.IResultSaver;
+import org.vineflower.java.decompiler.main.extern.IResultSaver;
 
 import java.util.HashMap;
 import java.util.Map;

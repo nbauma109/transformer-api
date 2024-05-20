@@ -16,11 +16,11 @@
 
 package com.heliosdecompiler.transformerapi.decompilers;
 
-import org.jetbrains.java.decompiler.main.extern.IContextSource;
-import org.jetbrains.java.decompiler.main.extern.IResultSaver;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InnerClassNode;
+import org.vineflower.java.decompiler.main.extern.IContextSource;
+import org.vineflower.java.decompiler.main.extern.IResultSaver;
 
 import com.heliosdecompiler.transformerapi.TransformationException;
 import com.heliosdecompiler.transformerapi.common.Loader;
