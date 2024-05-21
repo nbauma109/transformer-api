@@ -12,6 +12,7 @@ API. The API is still subject to major changes, but only with a major version bu
 
 Currently, this API supports the following decompilers :
 
+- Fernflower
 - Vineflower (fork of Fernflower)
 - Procyon
 - CFR
