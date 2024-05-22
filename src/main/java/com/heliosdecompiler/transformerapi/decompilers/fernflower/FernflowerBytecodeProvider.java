@@ -18,7 +18,10 @@ package com.heliosdecompiler.transformerapi.decompilers.fernflower;
 
 import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,11 +40,13 @@ public class FernflowerBytecodeProvider implements IBytecodeProvider {
      */
     @Override
     public byte[] getBytecode(String externalPath, String internalPath) throws IOException {
-        if (!byteData.containsKey(externalPath)) {
+        Path relativePath = new File(".").getAbsoluteFile().toPath().relativize(Paths.get(externalPath));
+        String internalName = relativePath.toString().replace(File.separatorChar, '/').replaceAll("\\.class$", "");
+        if (!byteData.containsKey(internalName)) {
             throw new IllegalStateException("Expected data to be present for " + externalPath);
         }
 
-        byte[] data = byteData.get(externalPath);
+        byte[] data = byteData.get(internalName);
         return Arrays.copyOf(data, data.length);
     }
 }
