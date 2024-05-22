@@ -35,8 +35,8 @@ public class FernflowerBytecodeProvider implements IBytecodeProvider {
     }
 
     /**
-     * Notes: externalPath and internalPath are provided via {@link org.jetbrains.java.decompiler.struct.lazy.LazyLoader.Link}
-     * Since we create the links ourselves, we know that externalPath is the one to use
+     * internalPath is null
+     * externalPath does not exist but internal class name can be extracted from it 
      */
     @Override
     public byte[] getBytecode(String externalPath, String internalPath) throws IOException {
