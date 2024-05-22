@@ -15,6 +15,11 @@
 		<version.asm>9.7</version.asm>
 		<version.jadx>1.5.0</version.jadx>
 		<version.procyon>v0.6.0</version.procyon>
+		<version.fernflower>241.15989.150</version.fernflower>
+		<version.vineflower>1.10.1</version.vineflower>
+		<version.jd-core-v0>0.8.18</version.jd-core-v0>
+		<version.jd-core-v1>1.2.26</version.jd-core-v1>
+		<version.cfr>0.152</version.cfr>
 	</properties>
 
 	<scm>
@@ -26,6 +31,26 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.3.0</version>
+				<configuration>
+					<archive>
+						<index>true</index>
+						<manifest>
+							<addClasspath>false</addClasspath>
+						</manifest>
+						<manifestEntries>
+							<transformer-api-version>${project.version}</transformer-api-version>
+							<fernflower-version>${version.fernflower}</fernflower-version>
+							<vineflower-version>${version.vineflower}</vineflower-version>
+							<jd-core-v0-version>${version.jd-core-v0}</jd-core-v0-version>
+							<jd-core-v1-version>${version.jd-core-v1}</jd-core-v1-version>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
@@ -76,27 +101,27 @@
 		<dependency>
 		    <groupId>com.github.nbauma109</groupId>
 		    <artifactId>vineflower-shaded</artifactId>
-		    <version>1.10.1</version>
+		    <version>${version.vineflower}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jetbrains.intellij.java</groupId>
 			<artifactId>java-decompiler-engine</artifactId>
-			<version>241.15989.150</version>
+			<version>${version.fernflower}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.nbauma109</groupId>
 			<artifactId>jd-core-v0</artifactId>
-			<version>0.8.18</version>
+			<version>${version.jd-core-v0}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.nbauma109</groupId>
 			<artifactId>jd-core</artifactId>
-			<version>1.2.26</version>
+			<version>${version.jd-core-v1}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.benf</groupId>
 			<artifactId>cfr</artifactId>
-			<version>0.152</version>
+			<version>${version.cfr}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.mstrobel.procyon</groupId>
