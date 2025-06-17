@@ -27,6 +27,7 @@ import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 
 import java.io.IOException;
+import java.util.Map;
 
 import jd.core.DecompilationResult;
 
@@ -39,13 +40,10 @@ public class VineflowerDecompiler implements Decompiler<VineflowerSettings> {
     public DecompilationResult decompile(Loader loader, String internalName, VineflowerSettings settings) throws TransformationException, IOException {
         ClassStruct classStruct = readClassAndInnerClasses(loader, internalName);
         if (!classStruct.importantData().isEmpty()) {
-            IBytecodeProvider provider = new VineflowerBytecodeProvider(classStruct.importantData());
             VineflowerResultSaver saver = new VineflowerResultSaver();
-            Fernflower baseDecompiler = new Fernflower(provider, saver, settings.getSettings(), new PrintStreamLogger(System.out));
-            StructContext context;
+            Fernflower baseDecompiler = new Fernflower(saver, settings.getSettings(), new PrintStreamLogger(System.out));
+            baseDecompiler.addSource(classStruct);
             try {
-                context = DecompilerContext.getStructContext();
-                context.addSpace(classStruct, true);
                 baseDecompiler.decompileContext();
             } catch (Exception t) {
                 DecompilerContext.getLogger().writeMessage("Error while decompiling", t);
