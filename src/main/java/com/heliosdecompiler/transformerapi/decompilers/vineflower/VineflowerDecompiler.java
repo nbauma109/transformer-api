@@ -19,15 +19,14 @@ package com.heliosdecompiler.transformerapi.decompilers.vineflower;
 import org.vineflower.java.decompiler.main.DecompilerContext;
 import org.vineflower.java.decompiler.main.Fernflower;
 import org.vineflower.java.decompiler.main.decompiler.PrintStreamLogger;
-import org.vineflower.java.decompiler.main.extern.IBytecodeProvider;
-import org.vineflower.java.decompiler.struct.StructContext;
+import org.vineflower.java.decompiler.main.extern.IFernflowerPreferences;
+import org.vineflower.java.decompiler.main.extern.TextTokenVisitor;
 
 import com.heliosdecompiler.transformerapi.TransformationException;
 import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 
 import java.io.IOException;
-import java.util.Map;
 
 import jd.core.DecompilationResult;
 
@@ -35,14 +34,18 @@ import jd.core.DecompilationResult;
  * Provides a gateway to the Fernflower decompiler
  */
 public class VineflowerDecompiler implements Decompiler<VineflowerSettings> {
-
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, VineflowerSettings settings) throws TransformationException, IOException {
         ClassStruct classStruct = readClassAndInnerClasses(loader, internalName);
         if (!classStruct.importantData().isEmpty()) {
-            VineflowerResultSaver saver = new VineflowerResultSaver();
+            DecompilationResult decompilationResult = new DecompilationResult();
+            VineflowerResultSaver saver = new VineflowerResultSaver(decompilationResult);
             Fernflower baseDecompiler = new Fernflower(saver, settings.getSettings(), new PrintStreamLogger(System.out));
+            if (!"1".equals(settings.getSettings().getOrDefault(IFernflowerPreferences.DUMP_ORIGINAL_LINES, "0"))) {
+                TextTokenVisitor.addVisitor(next -> new VineflowerTokenConsumer(decompilationResult, next));
+            }
             baseDecompiler.addSource(classStruct);
+            baseDecompiler.addLibrary(loader);
             try {
                 baseDecompiler.decompileContext();
             } catch (Exception t) {
@@ -50,9 +53,16 @@ public class VineflowerDecompiler implements Decompiler<VineflowerSettings> {
             } finally {
                 baseDecompiler.clearContext();
             }
-            DecompilationResult decompilationResult = new DecompilationResult();
             String key = classStruct.fullClassName();
-            decompilationResult.setDecompiledOutput(saver.getResults().get(key));
+            String decompiledOutput = saver.getResults().get(key);
+            decompilationResult.setDecompiledOutput(decompiledOutput);
+            if (!saver.hasLineRemapping()) {
+                int lineCount = decompiledOutput.split("\n").length;
+                decompilationResult.setMaxLineNumber(lineCount);
+                for (int i = 1; i <= lineCount; i++) {
+                    decompilationResult.putLineNumber(i, i);
+                }
+            }
             return decompilationResult;
         }
         return null;
