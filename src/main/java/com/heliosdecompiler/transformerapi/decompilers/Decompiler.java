@@ -88,7 +88,7 @@ public interface Decompiler<S> {
 
         @Override
         public String getName() {
-            return fullClassName;
+            return "TransformerAPI ClassStruct";
         }
 
         @Override

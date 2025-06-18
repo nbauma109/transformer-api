@@ -33,10 +33,19 @@ public class VineflowerSettings {
 
     public VineflowerSettings(Map<String, String> internalSettings) {
         this.internalSettings = new HashMap<>(internalSettings);
+        for (String key : internalSettings.keySet()) {
+            // Ignore options specified in legacy format.
+            // This both allows concurrent unique Fernflower and Vineflower options,
+            // and it fixes an issue where Fernflower options would override those of Vineflower's.
+            if (key.length() == 3) {
+                this.internalSettings.remove(key);
+            }
+        }
     }
 
     /**
-     * Set the given key to the given value. Keys can be found in {@link org.vineflower.java.decompiler.main.extern.IFernflowerPreferences}
+     * Set the given key to the given value. Built-in keys can be found in {@link org.vineflower.java.decompiler.main.extern.IFernflowerPreferences},
+     * and all options can be accessed with {@link org.vineflower.java.decompiler.api.DecompilerOption#getAll()}
      *
      * @return The same instance, for chaining
      */

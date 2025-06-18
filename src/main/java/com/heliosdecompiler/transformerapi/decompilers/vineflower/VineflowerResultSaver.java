@@ -16,6 +16,7 @@
 
 package com.heliosdecompiler.transformerapi.decompilers.vineflower;
 
+import jd.core.DecompilationResult;
 import org.vineflower.java.decompiler.main.extern.IResultSaver;
 
 import java.util.HashMap;
@@ -25,6 +26,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class VineflowerResultSaver implements IResultSaver {
+    private final DecompilationResult result;
+    private boolean lineNumbers;
+
+    public VineflowerResultSaver(DecompilationResult result) {
+        this.result = result;
+    }
 
     private static final String UNEXPECTED = "Unexpected";
 
@@ -32,6 +39,10 @@ public class VineflowerResultSaver implements IResultSaver {
 
     public Map<String, String> getResults() {
         return this.results;
+    }
+
+    public boolean hasLineRemapping() {
+        return lineNumbers;
     }
 
     public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content) {
@@ -46,15 +57,12 @@ public class VineflowerResultSaver implements IResultSaver {
 
     public void saveClassFile(String path, String qualifiedName, String entryName, String content, int[] mapping) {
         if (mapping != null) {
-            String[] splits = content.split("\r?\n");
-
+            lineNumbers = true;
             for (int i = 0; i < mapping.length; i += 2) {
-                int srcLine = mapping[i + 1] - 1; // line in decompiled source
-                int actualLine = mapping[i]; // actual source line
-                splits[srcLine] = splits[srcLine] + " /* " + actualLine + " */";
+                int line = mapping[i + 1];
+                int actualLine = mapping[i];
+                result.putLineNumber(line, actualLine);
             }
-
-            content = Stream.of(splits).collect(Collectors.joining("\r\n"));
         }
         results.put(qualifiedName, content);
     }

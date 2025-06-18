@@ -19,8 +19,8 @@ package com.heliosdecompiler.transformerapi.decompilers.vineflower;
 import org.vineflower.java.decompiler.main.DecompilerContext;
 import org.vineflower.java.decompiler.main.Fernflower;
 import org.vineflower.java.decompiler.main.decompiler.PrintStreamLogger;
-import org.vineflower.java.decompiler.main.extern.IBytecodeProvider;
-import org.vineflower.java.decompiler.struct.StructContext;
+import org.vineflower.java.decompiler.main.extern.IFernflowerPreferences;
+import org.vineflower.java.decompiler.main.extern.TextTokenVisitor;
 
 import com.heliosdecompiler.transformerapi.TransformationException;
 import com.heliosdecompiler.transformerapi.common.Loader;
@@ -34,27 +34,35 @@ import jd.core.DecompilationResult;
  * Provides a gateway to the Fernflower decompiler
  */
 public class VineflowerDecompiler implements Decompiler<VineflowerSettings> {
-
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, VineflowerSettings settings) throws TransformationException, IOException {
         ClassStruct classStruct = readClassAndInnerClasses(loader, internalName);
         if (!classStruct.importantData().isEmpty()) {
-            IBytecodeProvider provider = new VineflowerBytecodeProvider(classStruct.importantData());
-            VineflowerResultSaver saver = new VineflowerResultSaver();
-            Fernflower baseDecompiler = new Fernflower(provider, saver, settings.getSettings(), new PrintStreamLogger(System.out));
-            StructContext context;
+            DecompilationResult decompilationResult = new DecompilationResult();
+            VineflowerResultSaver saver = new VineflowerResultSaver(decompilationResult);
+            Fernflower baseDecompiler = new Fernflower(saver, settings.getSettings(), new PrintStreamLogger(System.out));
+            if (!"1".equals(settings.getSettings().getOrDefault(IFernflowerPreferences.DUMP_ORIGINAL_LINES, "0"))) {
+                TextTokenVisitor.addVisitor(next -> new VineflowerTokenConsumer(decompilationResult, next));
+            }
+            baseDecompiler.addSource(classStruct);
+            baseDecompiler.addLibrary(loader);
             try {
-                context = DecompilerContext.getStructContext();
-                context.addSpace(classStruct, true);
                 baseDecompiler.decompileContext();
             } catch (Exception t) {
                 DecompilerContext.getLogger().writeMessage("Error while decompiling", t);
             } finally {
                 baseDecompiler.clearContext();
             }
-            DecompilationResult decompilationResult = new DecompilationResult();
             String key = classStruct.fullClassName();
-            decompilationResult.setDecompiledOutput(saver.getResults().get(key));
+            String decompiledOutput = saver.getResults().get(key);
+            decompilationResult.setDecompiledOutput(decompiledOutput);
+            if (!saver.hasLineRemapping()) {
+                int lineCount = decompiledOutput.split("\n").length;
+                decompilationResult.setMaxLineNumber(lineCount);
+                for (int i = 1; i <= lineCount; i++) {
+                    decompilationResult.putLineNumber(i, i);
+                }
+            }
             return decompilationResult;
         }
         return null;

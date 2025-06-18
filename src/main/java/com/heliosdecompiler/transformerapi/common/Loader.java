@@ -19,13 +19,16 @@ package com.heliosdecompiler.transformerapi.common;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.function.FailableFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.vineflower.java.decompiler.main.extern.IContextSource;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
@@ -34,10 +37,11 @@ import java.util.zip.ZipFile;
 /**
  * A loader which is agnostic of the decompiler implementation
  */
-public class Loader {
+public class Loader implements IContextSource {
 
     private static final Map<String, ZipFile> openedZipFiles = new ConcurrentHashMap<>();
-    
+    private static final Logger log = LoggerFactory.getLogger(Loader.class);
+
     private final Predicate<String> canLoadFunction;
     private final FailableFunction<String, byte[], IOException> loadFunction;
     private String[] classpathEntries;
@@ -55,31 +59,36 @@ public class Loader {
         this(predicate, throwingFunction, null);
     }
 
-    @SuppressWarnings("resource")
+    private void loadClasspathEntries() {
+        for (String classpathEntry : classpathEntries) {
+            String extension = FilenameUtils.getExtension(classpathEntry);
+            if ("jar".equals(extension) || "jmod".equals(extension)) {
+                try {
+                    //noinspection resource
+                    Maps.computeIfAbsent(openedZipFiles, classpathEntry, Loader::openZipFile);
+                } catch (IOException e) {
+                    log.error("e: ", e);
+                }
+            }
+        }
+    }
+
     public boolean canLoad(String internalName) {
         if (canLoadFunction.test(internalName)) {
             return true;
         }
         if (classpathEntries != null) {
-            for (String classpathEntry : classpathEntries) {
-                String extension = FilenameUtils.getExtension(classpathEntry);
-                if ("jar".equals(extension) || "jmod".equals(extension)) {
-                    try {
-                        ZipFile zipFile = Maps.computeIfAbsent(openedZipFiles, classpathEntry, Loader::openZipFile);
-                        ZipEntry zipEntry = getZipEntry(internalName, classpathEntry, zipFile);
-                        if (zipEntry != null) {
-                            return true;
-                        }
-                    } catch (IOException e) {
-                        System.err.println(e);
-                        return false;
-                    }
+            loadClasspathEntries();
+            for (Map.Entry<String, ZipFile> entry : openedZipFiles.entrySet()) {
+                ZipFile zipFile = entry.getValue();
+                ZipEntry zipEntry = getZipEntry(internalName, entry.getKey(), zipFile);
+                if (zipEntry != null) {
+                    return true;
                 }
             }
         }
         return false;
     }
-
 
     public byte[] load(String internalName) throws IOException {
         byte[] classContents = loadFunction.apply(internalName);
@@ -87,20 +96,13 @@ public class Loader {
             return classContents;
         }
         if (classpathEntries != null) {
-            for (String classpathEntry : classpathEntries) {
-                String extension = FilenameUtils.getExtension(classpathEntry);
-                if ("jar".equals(extension) || "jmod".equals(extension)) {
-                    try {
-                        @SuppressWarnings("resource")
-                        ZipFile zipFile = Maps.computeIfAbsent(openedZipFiles, classpathEntry, Loader::openZipFile);
-                        ZipEntry zipEntry = getZipEntry(internalName, classpathEntry, zipFile);
-                        if (zipEntry != null) {
-                            try (InputStream in = zipFile.getInputStream(zipEntry)) {
-                                return IOUtils.toByteArray(in);
-                            }
-                        }
-                    } catch (IOException e) {
-                        System.err.println(e);
+            loadClasspathEntries();
+            for (Map.Entry<String, ZipFile> entry : openedZipFiles.entrySet()) {
+                ZipFile zipFile = entry.getValue();
+                ZipEntry zipEntry = getZipEntry(internalName, entry.getKey(), zipFile);
+                if (zipEntry != null) {
+                    try (InputStream in = zipFile.getInputStream(zipEntry)) {
+                        return IOUtils.toByteArray(in);
                     }
                 }
             }
@@ -122,5 +124,38 @@ public class Loader {
             entryName.append(".class");
         }
         return zipFile.getEntry(entryName.toString());
+    }
+
+    @Override
+    public String getName() {
+        return "TransformerApi Loader";
+    }
+
+    @Override
+    public Entries getEntries() {
+        if (classpathEntries == null) return Entries.EMPTY;
+        loadClasspathEntries();
+        List<Entry> classes = new ArrayList<>();
+        for (Map.Entry<String, ZipFile> entry : openedZipFiles.entrySet()) {
+            ZipFile zipFile = entry.getValue();
+            zipFile.stream().forEach(zipEntry -> {
+                String entryName = zipEntry.getName();
+                if (entryName.endsWith(".class")) {
+                    String internalName = entryName.substring(0, entryName.length() - 6);
+                    classes.add(Entry.parse(internalName));
+                }
+            });
+        }
+
+        return new Entries(
+                classes,
+                List.of(),
+                List.of()
+        );
+    }
+
+    @Override
+    public InputStream getInputStream(String resource) throws IOException {
+        return new ByteArrayInputStream(load(resource.replaceFirst("\\.class$", "")));
     }
 }
