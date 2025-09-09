@@ -13,7 +13,7 @@
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
 		<version.asm>9.8</version.asm>
-		<version.jadx>1.5.2</version.jadx>
+		<version.jadx>1.5.3</version.jadx>
 		<version.procyon>v0.6.0</version.procyon>
 		<version.fernflower>252.25557.131</version.fernflower>
 		<version.vineflower>1.11.1</version.vineflower>
