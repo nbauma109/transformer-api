@@ -126,21 +126,18 @@ public class ProcyonDecompiler implements Decompiler<CommandLineOptions> {
                 try {
                     if (text != null && definition != null) {
                         int from = stringwriter.getBuffer().length() - text.length();
-                        if (definition instanceof TypeDefinition) {
-                            TypeDefinition type = (TypeDefinition) definition;
+                        if (definition instanceof TypeDefinition type) {
                             String internalTypeName = type.getInternalName();
                             DeclarationData data = new DeclarationData(from, text.length(), internalTypeName, null, null);
                             result.addDeclaration(internalTypeName, data);
                             result.addTypeDeclaration(from, data);
-                        } else if (definition instanceof MethodDefinition) {
-                            MethodDefinition method = (MethodDefinition) definition;
+                        } else if (definition instanceof MethodDefinition method) {
                             String descriptor = method.getErasedSignature();
                             TypeReference type = method.getDeclaringType();
                             String internalTypeName = type.getInternalName();
                             String name = method.getName();
                             addDeclaration(text, from, descriptor, internalTypeName, name);
-                        } else if (definition instanceof FieldDefinition) {
-                            FieldDefinition field = (FieldDefinition) definition;
+                        } else if (definition instanceof FieldDefinition field) {
                             String descriptor = field.getErasedSignature();
                             TypeReference type = field.getDeclaringType();
                             String internalTypeName = type.getInternalName();
@@ -159,21 +156,18 @@ public class ProcyonDecompiler implements Decompiler<CommandLineOptions> {
                 try {
                     if (text != null && reference != null) {
                         int from = stringwriter.getBuffer().length() - text.length();
-                        if (reference instanceof TypeReference) {
-                            TypeReference type = (TypeReference) reference;
+                        if (reference instanceof TypeReference type) {
                             String internalTypeName = type.getInternalName();
                             ReferenceData data = newReferenceData(internalTypeName, null, null, internalName);
                             result.addHyperLink(from, new HyperlinkReferenceData(from, text.length(), data));
-                        } else if (reference instanceof MethodReference) {
-                            MethodReference method = (MethodReference) reference;
+                        } else if (reference instanceof MethodReference method) {
                             String descriptor = method.getErasedSignature();
                             TypeReference type = method.getDeclaringType();
                             String internalTypeName = type.getInternalName();
                             String name = method.getName();
                             ReferenceData data = newReferenceData(internalTypeName, name, descriptor, internalName);
                             result.addHyperLink(from, new HyperlinkReferenceData(from, text.length(), data));
-                        } else if (reference instanceof FieldReference) {
-                            FieldReference field = (FieldReference) reference;
+                        } else if (reference instanceof FieldReference field) {
                             String descriptor = field.getErasedSignature();
                             TypeReference type = field.getDeclaringType();
                             String internalTypeName = type.getInternalName();
