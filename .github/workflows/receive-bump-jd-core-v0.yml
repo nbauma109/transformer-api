@@ -68,6 +68,7 @@ jobs:
       - name: Create pull request
         uses: peter-evans/create-pull-request@v6
         with:
+          token: ${{ secrets.PAT_TOKEN }}
           branch: "bump-com.github.nbauma109-jd-core-v0-${{ github.event.client_payload.version }}"
           commit-message: "Bump com.github.nbauma109:jd-core-v0 from ${{ steps.current.outputs.version }} to ${{ github.event.client_payload.version }}"
           title: "Bump com.github.nbauma109:jd-core-v0 from ${{ steps.current.outputs.version }} to ${{ github.event.client_payload.version }}"
