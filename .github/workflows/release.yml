@@ -11,19 +11,51 @@ jobs:
     runs-on: "ubuntu-latest"
 
     steps:
-    - uses: actions/checkout@v5
-    - name: Set up JDK 17
-      uses: actions/setup-java@v5
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: maven
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
-    - name: Create release
-      uses: "marvinpinto/action-automatic-releases@latest"
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        prerelease: false
-        files: |
-          **/transformer-*.jar
+      - uses: actions/checkout@v5
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+
+      - name: Create release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          files: |
+            **/transformer-*.jar
+
+      # Notify jd-gui-duo after a successful release
+      - name: Notify downstream repos about new transformer-api release
+        if: ${{ success() }}
+        env:
+          VERSION: ${{ github.ref_name }}
+          OWNER: ${{ github.repository_owner }}
+          TARGETS: '["jd-gui-duo"]'
+          EVENT_TYPE: "bump-transformer-api"
+          GROUP_ID: "com.github.nbauma109"
+          ARTIFACT_ID: "transformer-api"
+          TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          payload=$(jq -nc \
+            --arg pkg_group "$GROUP_ID" \
+            --arg pkg_art "$ARTIFACT_ID" \
+            --arg ver "$VERSION" \
+            '{groupId:$pkg_group, artifactId:$pkg_art, version:$ver}')
+
+          for name in $(echo "$TARGETS" | jq -r '.[]'); do
+            echo "Dispatching to $OWNER/$name"
+            curl -sSf -X POST \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: token $TOKEN" \
+              https://api.github.com/repos/$OWNER/$name/dispatches \
+              -d "$(jq -nc --arg et "$EVENT_TYPE" --argjson pl "$payload" '{event_type:$et, client_payload:$pl}')"
+          done
