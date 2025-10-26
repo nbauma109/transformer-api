@@ -61,7 +61,7 @@ jobs:
         run: |
           set -euo pipefail
           mvn --no-transfer-progress -B versions:set-property \
-            -Dproperty=version.jd-core \
+            -Dproperty=version.jd-core-v1 \
             -DnewVersion='${{ github.event.client_payload.version }}' \
             -DgenerateBackupPoms=false
 
