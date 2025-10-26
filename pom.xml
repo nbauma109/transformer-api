@@ -17,8 +17,8 @@
 		<version.procyon>v0.6.0</version.procyon>
 		<version.fernflower>252.27397.103</version.fernflower>
 		<version.vineflower>1.11.1</version.vineflower>
-		<version.jd-core-v0>0.8.21</version.jd-core-v0>
-		<version.jd-core-v1>1.2.29</version.jd-core-v1>
+		<version.jd-core-v0>0.8.23</version.jd-core-v0>
+		<version.jd-core-v1>1.2.30</version.jd-core-v1>
 		<version.cfr>0.152</version.cfr>
 	</properties>
 
