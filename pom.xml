@@ -26,7 +26,7 @@
        sections, and try/finally blocks. This design yields remarkable speed.
        JD-Core v0 also supports line-number realignment for debugging.
      ====================================================================== -->
-    <version.jd-core-v0>0.8.24</version.jd-core-v0>
+    <version.jd-core-v0>0.8.25</version.jd-core-v0>
 
   <!-- ======================================================================
        JD-Core v1 — Analytical Decompiler (Fernflower-style engine)
