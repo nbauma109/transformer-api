@@ -31,10 +31,6 @@ public class VineflowerBytecodeProvider implements IBytecodeProvider {
         byteData.putAll(data);
     }
 
-    /**
-     * Notes: externalPath and internalPath are provided via {@link org.vineflower.java.decompiler.struct.lazy.LazyLoader.Link}
-     * Since we create the links ourselves, we know that externalPath is the one to use
-     */
     @Override
     public byte[] getBytecode(String externalPath, String internalPath) throws IOException {
         if (!byteData.containsKey(externalPath)) {
