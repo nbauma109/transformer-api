@@ -1,12 +1,30 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.github.nbauma109</groupId>
+  <groupId>io.github.nbauma109</groupId>
   <artifactId>transformer-api</artifactId>
   <version>4.0.61-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>transformer-api</name>
+  <name>Transformer API</name>
+  <description>Unified Java API for multiple decompilers (Fernflower, Vineflower, Procyon, CFR, JD-Core, JADX)</description>
+  <url>https://github.com/nbauma109/transformer-api</url>
+
+  <licenses>
+    <license>
+      <name>GNU General Public License, Version 3</name>
+      <url>https://www.gnu.org/licenses/gpl-3.0.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>nbauma109</id>
+      <name>Nicolas Baumann</name>
+      <url>https://github.com/nbauma109</url>
+    </developer>
+  </developers>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -16,7 +34,19 @@
     <version.jadx>1.5.3</version.jadx>
     <version.procyon>v0.6.0</version.procyon>
     <version.fernflower>252.27397.103</version.fernflower>
+
+  <!-- ======================================================================
+       Vineflower - Fork of the Fernflower decompiler 
+       ======================================================================
+       Modern Java decompiler aiming to be as accurate as possible, with an
+       emphasis on output quality. 
+       We use here a shaded version of Vineflower decompiler relocating package 
+       org.jetbrains.java.decompiler to org.vineflower.java.decompiler.
+       This allows this API to have both VineFlower and FernFlower
+       in the classpath.
+     ====================================================================== -->
     <version.vineflower>1.11.2</version.vineflower>
+
   <!-- ======================================================================
        JD-Core v0 — Pattern-Matching Decompiler (JAD-style engine)
        ======================================================================
@@ -26,7 +56,7 @@
        sections, and try/finally blocks. This design yields remarkable speed.
        JD-Core v0 also supports line-number realignment for debugging.
      ====================================================================== -->
-    <version.jd-core-v0>0.8.25</version.jd-core-v0>
+    <version.jd-core-v0>0.8.27</version.jd-core-v0>
 
   <!-- ======================================================================
        JD-Core v1 — Analytical Decompiler (Fernflower-style engine)
@@ -38,7 +68,7 @@
        (.class -> Java, Kotlin, Groovy, or even .apk -> Java)
        Like JD-Core v0, it realigns line numbers for debugger compatibility.
      ====================================================================== -->
-    <version.jd-core-v1>1.2.32</version.jd-core-v1>
+    <version.jd-core-v1>1.2.33</version.jd-core-v1>
     <version.cfr>0.152</version.cfr>
   </properties>
 
@@ -94,6 +124,45 @@
           <tagNameFormat>@{project.version}</tagNameFormat>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.12.0</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>3.2.8</version>
+        <executions>
+          <execution>
+            <id>sign-release</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+        <version>0.9.0</version>
+        <extensions>true</extensions>
+        <configuration>
+          <publishingServerId>central</publishingServerId>
+          <autoPublish>true</autoPublish>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
@@ -119,8 +188,8 @@
       <version>2.21.0</version>
     </dependency>
     <dependency>
-        <groupId>com.github.nbauma109</groupId>
-        <artifactId>vineflower-shaded</artifactId>
+        <groupId>io.github.nbauma109</groupId>
+        <artifactId>vineflower</artifactId>
         <version>${version.vineflower}</version>
     </dependency>
     <dependency>
@@ -129,12 +198,12 @@
       <version>${version.fernflower}</version>
     </dependency>
     <dependency>
-      <groupId>com.github.nbauma109</groupId>
+      <groupId>io.github.nbauma109</groupId>
       <artifactId>jd-core-v0</artifactId>
       <version>${version.jd-core-v0}</version>
     </dependency>
     <dependency>
-      <groupId>com.github.nbauma109</groupId>
+      <groupId>io.github.nbauma109</groupId>
       <artifactId>jd-core</artifactId>
       <version>${version.jd-core-v1}</version>
     </dependency>
