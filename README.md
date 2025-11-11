@@ -1,6 +1,5 @@
 # Transformer API
-[![](https://jitpack.io/v/nbauma109/transformer-api.svg)](https://jitpack.io/#nbauma109/transformer-api)
-[![](https://jitci.com/gh/nbauma109/transformer-api/svg)](https://jitci.com/gh/nbauma109/transformer-api)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.nbauma109/transformer-api.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.nbauma109/transformer-api)
 [![CodeQL](https://github.com/nbauma109/transformer-api/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/nbauma109/transformer-api/actions/workflows/codeql-analysis.yml)
 [![Maven Release](https://github.com/nbauma109/transformer-api/actions/workflows/maven.yml/badge.svg)](https://github.com/nbauma109/transformer-api/actions/workflows/maven.yml)
 [![Github Release](https://github.com/nbauma109/transformer-api/actions/workflows/release.yml/badge.svg)](https://github.com/nbauma109/transformer-api/actions/workflows/release.yml)
