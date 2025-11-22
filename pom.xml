@@ -45,7 +45,7 @@
        This allows this API to have both VineFlower and FernFlower
        in the classpath.
      ====================================================================== -->
-    <version.vineflower>1.11.2</version.vineflower>
+    <version.vineflower>1.11.2+1</version.vineflower>
 
   <!-- ======================================================================
        JD-Core v0 — Pattern-Matching Decompiler (JAD-style engine)
