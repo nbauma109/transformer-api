@@ -44,7 +44,7 @@ public interface Decompiler<S> {
 
     /**
      * Decompile the given class with a loader
-     * 
+     *
      * @param loader       The loader implementation used to load the class
      * @param internalName The internal name of the class to decompile
      * @param settings     The settings to use with this decompiler

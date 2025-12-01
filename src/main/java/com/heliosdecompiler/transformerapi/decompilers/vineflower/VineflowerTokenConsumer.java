@@ -84,7 +84,9 @@ public class VineflowerTokenConsumer extends TextTokenVisitor {
     }
 
     private static String toFragment(DeclarationData data, String desc) {
-        if (data.isAType()) return data.getTypeName();
+        if (data.isAType()) {
+			return data.getTypeName();
+		}
         return data.getTypeName() + '-' + data.getName() + '-' + desc;
     }
 }

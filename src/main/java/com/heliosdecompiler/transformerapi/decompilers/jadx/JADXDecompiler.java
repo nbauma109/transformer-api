@@ -42,7 +42,8 @@ public class JADXDecompiler implements Decompiler<JadxArgs> {
             int i = 0;
             List<JavaClassReader> readers = new ArrayList<>();
             for (Map.Entry<String, byte[]> ent : importantData.entrySet()) {
-                readers.add(new JavaClassReader(i++, ent.getKey(), ent.getValue()));
+                readers.add(new JavaClassReader(i, ent.getKey(), ent.getValue()));
+				i++;
             }
             try (JadxDecompiler jadx = new JadxDecompiler(args); JavaLoadResult javaLoadResult = new JavaLoadResult(readers, null)) {
                 jadx.addCustomCodeLoader(javaLoadResult);

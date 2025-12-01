@@ -36,7 +36,7 @@ public class FernflowerBytecodeProvider implements IBytecodeProvider {
 
     /**
      * internalPath is null
-     * externalPath does not exist but internal class name can be extracted from it 
+     * externalPath does not exist but internal class name can be extracted from it
      */
     @Override
     public byte[] getBytecode(String externalPath, String internalPath) throws IOException {

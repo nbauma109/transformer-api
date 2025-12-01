@@ -34,7 +34,6 @@ public class ProcyonFastTypeLoader implements ITypeLoader {
                 return true;
             } catch (IOException e) {
                 System.err.println(e);
-                return false;
             }
         }
         return false;
