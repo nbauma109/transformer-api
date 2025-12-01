@@ -51,7 +51,7 @@ public class Sample {
         return this.getClass().getResource("/" + internalName + ".class") != null;
     }
 
-    
+
     public static void main(String[] args) {
         Sample sample = new Sample();
         Loader loader = new Loader(sample::canLoad, sample::load);
