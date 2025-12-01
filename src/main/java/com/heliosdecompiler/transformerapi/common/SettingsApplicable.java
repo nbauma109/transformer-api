@@ -8,8 +8,8 @@ import java.util.Map;
 public interface SettingsApplicable {
 
     final class Constants {
-        private static final Class<?>[] BOOLEAN_PARAM = new Class<?>[] { boolean.class };
-        private static final Class<?>[] INT_PARAM = new Class<?>[] { int.class };
+        private static final Class<?>[] BOOLEAN_PARAM = { boolean.class };
+        private static final Class<?>[] INT_PARAM = { int.class };
 
         private Constants() {
         }

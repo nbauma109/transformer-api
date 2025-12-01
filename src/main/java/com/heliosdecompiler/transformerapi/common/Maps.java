@@ -15,8 +15,8 @@ public final class Maps {
         @SuppressWarnings("all")
         V v = map.get(key);
         if (v == null) {
-            V newValue;
-            if ((newValue = mappingFunction.apply(key)) != null) {
+            V newValue = mappingFunction.apply(key);
+            if (newValue != null) {
                 map.put(key, newValue);
                 return newValue;
             }
