@@ -21,7 +21,7 @@ jobs:
           persist-credentials: false
 
       - name: Run refactoring action
-        uses: nbauma109/refactoring-cleanup-action@5780205f0103b0b30de32a017cf8dbe31a3384a7
+        uses: nbauma109/refactoring-cleanup-action@b3116e9820500285a25fdd00963f0c2fe76d4030
         with:
           project_root: .
           source_level: "17"
