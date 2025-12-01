@@ -133,7 +133,9 @@ public class Loader implements IContextSource {
 
     @Override
     public Entries getEntries() {
-        if (classpathEntries == null) return Entries.EMPTY;
+        if (classpathEntries == null) {
+            return Entries.EMPTY;
+        }
         loadClasspathEntries();
         List<Entry> classes = new ArrayList<>();
         for (Map.Entry<String, ZipFile> entry : openedZipFiles.entrySet()) {
