@@ -30,7 +30,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
-    <version.asm>9.9</version.asm>
+    <version.asm>9.9.1</version.asm>
     <version.jadx>1.5.3</version.jadx>
     <version.procyon>v0.6.0</version.procyon>
     <version.fernflower>253.28294.334</version.fernflower>
