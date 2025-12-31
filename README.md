@@ -66,7 +66,13 @@ public class Sample {
         Map<String, String> preferences = new HashMap<>();
         try {
             String ff = StandardTransformers.Decompilers.ENGINE_VINEFLOWER;
-            DecompilationResult result = StandardTransformers.decompile(loader, "java/lang/String", preferences, ff);
+            DecompilationResult result =
+                    StandardTransformers.decompile(
+                            loader,
+                            "java/lang/String",
+                            preferences,
+                            ff
+                    );
             System.out.println(result.getDecompiledOutput());
         } catch (Exception e) {
             System.err.println(e);
