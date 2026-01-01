@@ -39,6 +39,11 @@ public class StandardTransformersTest {
     }
     
     @Test
+    public void testDecompileProcyonByteCode() throws Exception {
+        testDecompile("/TestCompactProcyonByteCode.txt", ENGINE_PROCYON, Map.of("SuppressBanner", "true", "RawBytecode", "true"));
+    }
+    
+    @Test
     public void testDecompileJADX() throws Exception {
         testDecompile("/TestCompactJADX.txt", ENGINE_JADX, Collections.emptyMap());
     }
