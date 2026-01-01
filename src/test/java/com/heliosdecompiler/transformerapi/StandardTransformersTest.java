@@ -37,32 +37,32 @@ public class StandardTransformersTest {
     public void testDecompileProcyon() throws Exception {
         testDecompile("/HelloWorldProcyon.txt", ENGINE_PROCYON, Map.of("SuppressBanner", "true"));
     }
-    
+
     @Test
     public void testDecompileJADX() throws Exception {
         testDecompile("/HelloWorldJADX.txt", ENGINE_JADX, Collections.emptyMap());
     }
-    
+
     @Test
     public void testDecompileFernflower() throws Exception {
         testDecompile("/HelloWorldFernflower.txt", ENGINE_FERNFLOWER, Collections.emptyMap());
     }
-    
+
     @Test
     public void testDecompileVineflower() throws Exception {
         testDecompile("/HelloWorldVineflower.txt", ENGINE_VINEFLOWER, Collections.emptyMap());
     }
-    
+
     @Test
     public void testDecompileJDCoreV0() throws Exception {
         testDecompile("/HelloWorldJDCoreV0.txt", ENGINE_JD_CORE_V0, Collections.emptyMap());
     }
-    
+
     @Test
     public void testDecompileJDCoreV1() throws Exception {
         testDecompile("/HelloWorldJDCoreV1.txt", ENGINE_JD_CORE_V1, Map.of(WRITE_LINE_NUMBERS, "false", WRITE_METADATA, "false"));
     }
-    
+
     private void testDecompile(String path, String engineName, Map<String, String> preferences)
             throws TransformationException, IOException, IllegalAccessException, InvocationTargetException {
         ClassPathLoader classPathLoader = new ClassPathLoader();
