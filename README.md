@@ -3,6 +3,7 @@
 [![CodeQL](https://github.com/nbauma109/transformer-api/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/nbauma109/transformer-api/actions/workflows/codeql-analysis.yml)
 [![Maven Release](https://github.com/nbauma109/transformer-api/actions/workflows/maven.yml/badge.svg)](https://github.com/nbauma109/transformer-api/actions/workflows/maven.yml)
 [![Github Release](https://github.com/nbauma109/transformer-api/actions/workflows/release.yml/badge.svg)](https://github.com/nbauma109/transformer-api/actions/workflows/release.yml)
+[![Coverage Status](https://codecov.io/gh/nbauma109/transformer-api/branch/master/graph/badge.svg)](https://app.codecov.io/gh/nbauma109/transformer-api)
 
 The Transformer API provides convenient access to different transformers (currently decompilers only) under a unified
 API. The API is still subject to major changes, but only with a major version bump.

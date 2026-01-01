@@ -1,0 +1,8 @@
+package com.heliosdecompiler.transformerapi;
+
+/* loaded from: com/heliosdecompiler/transformerapi/HelloWorld */
+public class HelloWorld {
+    public static void main(java.lang.String[] strArr) {
+        java.lang.System.out.println("Hello World!");
+    }
+}
