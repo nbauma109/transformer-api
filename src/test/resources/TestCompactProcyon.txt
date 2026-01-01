@@ -2,12 +2,13 @@ package test;
 
 public abstract class TestCompact
 {
+    public abstract void log(final String p0);
+
     public void method1(final boolean flag) {
         this.log("Test.method1 start");
         if (flag) {
             this.log("Test.method1 if");
-        }
-        else {
+        } else {
             this.log("Test.method1 else");
         }
         this.log("Test.method1 end");
@@ -17,14 +18,35 @@ public abstract class TestCompact
         this.log("Test.method2 start");
         try {
             this.log("Test.method2 try");
-        }
-        catch (final Exception e) {
+        } catch (final Exception e) {
             this.log("Test.method2 catch");
-        }
-        finally {
+        } finally {
             this.log("Test.method2 finally");
         }
         this.log("Test.method2 end");
+    }
+
+    class Inner1
+    {
+        public Inner1() {
+            TestCompact.this.log("Inner1 constructor");
+        }
+
+        public void method1(final boolean flag) {
+            TestCompact.this.log("Inner1.method1 start");
+            while (flag) {
+                TestCompact.this.log("Inner1.method1 while");
+            }
+            TestCompact.this.log("Inner1.method1 end");
+        }
+
+        public void method2(final boolean flag) {
+            TestCompact.this.log("Inner1.method2 start");
+            do {
+                TestCompact.this.log("Inner1.method2 do while");
+            } while (flag);
+            TestCompact.this.log("Inner1.method2 end");
+        }
     }
 
     public void method3(final int[] arr) {
@@ -72,39 +94,6 @@ public abstract class TestCompact
             default -> throw new IllegalArgumentException();
         };
         return "return:" + s;
-    }
-
-    public void method5() {
-        this.log("Test.method5");
-    }
-
-    public void method6() {
-        this.log("Test.method6");
-    }
-
-    public abstract void log(final String p0);
-
-    class Inner1
-    {
-        public Inner1() {
-            TestCompact.this.log("Inner1 constructor");
-        }
-
-        public void method1(final boolean flag) {
-            TestCompact.this.log("Inner1.method1 start");
-            while (flag) {
-                TestCompact.this.log("Inner1.method1 while");
-            }
-            TestCompact.this.log("Inner1.method1 end");
-        }
-
-        public void method2(final boolean flag) {
-            TestCompact.this.log("Inner1.method2 start");
-            do {
-                TestCompact.this.log("Inner1.method2 do while");
-            } while (flag);
-            TestCompact.this.log("Inner1.method2 end");
-        }
     }
 
     class Inner3
@@ -162,5 +151,13 @@ public abstract class TestCompact
         public String toString() {
             throw new UnsupportedOperationException("toString");
         }
+    }
+
+    public void method5() {
+        this.log("Test.method5");
+    }
+
+    public void method6() {
+        this.log("Test.method6");
     }
 }

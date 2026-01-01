@@ -32,7 +32,7 @@
     <maven.compiler.target>21</maven.compiler.target>
     <version.asm>9.9.1</version.asm>
     <version.jadx>1.5.3</version.jadx>
-    <version.procyon>v0.6.0</version.procyon>
+    <version.procyon>0.6.1</version.procyon>
     <version.fernflower>253.29346.138</version.fernflower>
 
   <!-- ======================================================================
@@ -235,27 +235,27 @@
       <version>${version.cfr}</version>
     </dependency>
     <dependency>
-      <groupId>com.github.mstrobel.procyon</groupId>
+      <groupId>com.github.nbauma109.procyon</groupId>
       <artifactId>procyon-decompiler</artifactId>
       <version>${version.procyon}</version>
       <exclusions>
         <exclusion>
-          <groupId>com.github.mstrobel.procyon</groupId>
+          <groupId>com.github.nbauma109.procyon</groupId>
           <artifactId>procyon-compilertools</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>com.github.mstrobel.procyon</groupId>
+          <groupId>com.github.nbauma109.procyon</groupId>
           <artifactId>procyon-core</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.github.mstrobel.procyon</groupId>
+      <groupId>com.github.nbauma109.procyon</groupId>
       <artifactId>procyon-reflection</artifactId>
       <version>${version.procyon}</version>
       <exclusions>
         <exclusion>
-          <groupId>com.github.mstrobel.procyon</groupId>
+          <groupId>com.github.nbauma109.procyon</groupId>
           <artifactId>procyon-core</artifactId>
         </exclusion>
       </exclusions>
