@@ -44,14 +44,6 @@ import jd.core.links.StringData;
 
 public class ProcyonDecompiler implements Decompiler<CommandLineOptions> {
 
-    public CommandLineOptions defaultSettings() {
-        CommandLineOptions options = new CommandLineOptions();
-        options.setCollapseImports(false);
-        options.setFlattenSwitchBlocks(true);
-        options.setRetainRedundantCasts(true);
-        options.setSuppressBanner(false);
-        return options;
-    }
 
     private static BytecodeOutputOptions createBytecodeFormattingOptions(final CommandLineOptions options) {
         if (options.isVerbose()) {

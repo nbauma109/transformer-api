@@ -25,7 +25,6 @@ import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import jd.core.DecompilationResult;
@@ -42,10 +41,5 @@ public class JDCoreV1Decompiler implements Decompiler<Map<String, String>> {
         String decompiledOutput = printer.buildDecompiledOutput(preferences, new JDLoader(loader), internalName + StringConstants.CLASS_FILE_SUFFIX, DECOMPILER);
         printer.getResult().setDecompiledOutput(decompiledOutput);
         return printer.getResult();
-    }
-
-    @Override
-    public Map<String, String> defaultSettings() {
-        return new HashMap<>();
     }
 }

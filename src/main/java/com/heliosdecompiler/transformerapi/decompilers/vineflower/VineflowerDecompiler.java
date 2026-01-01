@@ -67,9 +67,4 @@ public class VineflowerDecompiler implements Decompiler<VineflowerSettings> {
         }
         return null;
     }
-
-    @Override
-    public VineflowerSettings defaultSettings() {
-        return new VineflowerSettings();
-    }
 }

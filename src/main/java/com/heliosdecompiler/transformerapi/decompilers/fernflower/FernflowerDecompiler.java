@@ -63,9 +63,4 @@ public class FernflowerDecompiler implements Decompiler<FernflowerSettings> {
         }
         return null;
     }
-
-    @Override
-    public FernflowerSettings defaultSettings() {
-        return new FernflowerSettings();
-    }
 }

@@ -45,9 +45,4 @@ public class CFRDecompiler implements Decompiler<CFRSettings> {
         decompilationResult.setDecompiledOutput(sink.getGeneratedSource());
         return decompilationResult;
     }
-
-    @Override
-    public CFRSettings defaultSettings() {
-        return new CFRSettings();
-    }
 }

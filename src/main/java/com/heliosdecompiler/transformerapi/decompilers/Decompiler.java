@@ -54,12 +54,6 @@ public interface Decompiler<S> {
      */
     DecompilationResult decompile(Loader loader, String internalName, S settings) throws TransformationException, IOException;
 
-    S defaultSettings();
-
-    default DecompilationResult decompile(Loader loader, String internalName) throws TransformationException, IOException {
-        return decompile(loader, internalName, defaultSettings());
-    }
-
     default ClassStruct readClassAndInnerClasses(Loader loader, String internalName) throws IOException {
         return readClassAndInnerClasses(new HashMap<>(), loader, internalName);
     }

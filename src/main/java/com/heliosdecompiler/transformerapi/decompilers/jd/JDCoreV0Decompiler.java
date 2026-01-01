@@ -40,10 +40,4 @@ public class JDCoreV0Decompiler implements Decompiler<Preferences> {
         printer.getResult().setDecompiledOutput(decompiledOutput);
         return printer.getResult();
     }
-
-    @Override
-    public Preferences defaultSettings() {
-        return new Preferences();
-    }
-
 }

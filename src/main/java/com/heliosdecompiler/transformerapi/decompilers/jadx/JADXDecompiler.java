@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import jadx.api.CommentsLevel;
 import jadx.api.JadxArgs;
 import jadx.api.JadxDecompiler;
 import jadx.api.JavaClass;
@@ -58,12 +57,4 @@ public class JADXDecompiler implements Decompiler<JadxArgs> {
         }
         return null;
     }
-
-    @Override
-    public JadxArgs defaultSettings() {
-        JadxArgs jadxArgs = new JadxArgs();
-        jadxArgs.setCommentsLevel(CommentsLevel.WARN);
-        return jadxArgs;
-    }
-
 }
