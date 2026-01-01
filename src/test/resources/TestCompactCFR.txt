@@ -1,0 +1,161 @@
+/*
+ * Decompiled with CFR.
+ */
+package test;
+
+public abstract class TestCompact {
+    public void method1(boolean flag) {
+        this.log("Test.method1 start");
+        if (flag) {
+            this.log("Test.method1 if");
+        } else {
+            this.log("Test.method1 else");
+        }
+        this.log("Test.method1 end");
+    }
+
+    public void method2() {
+        this.log("Test.method2 start");
+        try {
+            this.log("Test.method2 try");
+        }
+        catch (Exception e) {
+            this.log("Test.method2 catch");
+        }
+        finally {
+            this.log("Test.method2 finally");
+        }
+        this.log("Test.method2 end");
+    }
+
+    public void method3(int[] arr) {
+        this.log("Test.method3 start");
+        for (int i = 0; i < arr.length; ++i) {
+            this.log("Test.method3 for");
+        }
+        this.log("Test.method3 end");
+    }
+
+    public void method4(int i) {
+        this.log("Test.method4 start");
+        switch (i) {
+            case 0: {
+                this.log("Test.method4 case 0");
+                break;
+            }
+            case 1: {
+                this.log("Test.method4 case 1");
+                break;
+            }
+            case 2: {
+                this.log("Test.method4 case 2");
+                break;
+            }
+            case 3: {
+                this.log("Test.method4 case 3");
+                break;
+            }
+            default: {
+                this.log("Test.method4 default");
+            }
+        }
+        this.log("Test.method4 end");
+    }
+
+    public String method5(int i) {
+        this.log("Test.method5 start");
+        String s = switch (i) {
+            case 0 -> "Test.method4 case 0";
+            case 1 -> "Test.method4 case 1";
+            case 2 -> "Test.method4 case 2";
+            case 3 -> "Test.method4 case 3";
+            default -> throw new IllegalArgumentException();
+        };
+        return "return:" + s;
+    }
+
+    public void method5() {
+        this.log("Test.method5");
+    }
+
+    public void method6() {
+        this.log("Test.method6");
+    }
+
+    public abstract void log(String var1);
+
+    class Inner4 {
+        public Inner4() {
+            TestCompact.this.log("Inner4 constructor");
+        }
+
+        public void method1() {
+            TestCompact.this.log("Inner4.method1");
+        }
+
+        public void method2() {
+            TestCompact.this.log("Inner4.method2");
+        }
+
+        public boolean equals(Object o) {
+            throw new UnsupportedOperationException("equals");
+        }
+
+        public int hashCode() {
+            throw new UnsupportedOperationException("hashCode");
+        }
+
+        public String toString() {
+            throw new UnsupportedOperationException("toString");
+        }
+    }
+
+    class Inner3 {
+        public Inner3() {
+            TestCompact.this.log("Inner3 constructor");
+        }
+
+        public void method1() {
+            new Thread(new Runnable(){
+
+                @Override
+                public void run() {
+                    TestCompact.this.log("Inner3.method1");
+                }
+            }).start();
+        }
+
+        public void method2() {
+            new Thread(() -> {
+                TestCompact.this.log("Inner3.method2a");
+                TestCompact.this.log("Inner3.method2b");
+            }).start();
+        }
+
+        public void method3() {
+            new Thread(() -> TestCompact.this.log("Inner3.method3")).start();
+        }
+    }
+
+    class Inner1 {
+        public Inner1() {
+            TestCompact.this.log("Inner1 constructor");
+        }
+
+        public void method1(boolean flag) {
+            TestCompact.this.log("Inner1.method1 start");
+            while (flag) {
+                TestCompact.this.log("Inner1.method1 while");
+            }
+            TestCompact.this.log("Inner1.method1 end");
+        }
+
+        public void method2(boolean flag) {
+            TestCompact.this.log("Inner1.method2 start");
+            do {
+                TestCompact.this.log("Inner1.method2 do while");
+            } while (flag);
+            TestCompact.this.log("Inner1.method2 end");
+        }
+    }
+}

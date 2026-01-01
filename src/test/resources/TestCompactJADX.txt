@@ -1,0 +1,94 @@
+package test;
+
+/* loaded from: test/TestCompact */
+public abstract class TestCompact {
+    public void method1(boolean z) {
+        log("Test.method1 start");
+        if (z) {
+            log("Test.method1 if");
+        } else {
+            log("Test.method1 else");
+        }
+        log("Test.method1 end");
+    }
+
+    public void method2() {
+        log("Test.method2 start");
+        try {
+            try {
+                log("Test.method2 try");
+                log("Test.method2 finally");
+            } catch (java.lang.Exception e) {
+                log("Test.method2 catch");
+                log("Test.method2 finally");
+            }
+            log("Test.method2 end");
+        } catch (java.lang.Throwable th) {
+            log("Test.method2 finally");
+            throw th;
+        }
+    }
+
+    public void method3(int[] iArr) {
+        log("Test.method3 start");
+        for (int i = 0; i < iArr.length; i++) {
+            log("Test.method3 for");
+        }
+        log("Test.method3 end");
+    }
+
+    public void method4(int i) {
+        log("Test.method4 start");
+        switch (i) {
+            case 0:
+                log("Test.method4 case 0");
+                break;
+            case 1:
+                log("Test.method4 case 1");
+                break;
+            case 2:
+                log("Test.method4 case 2");
+                break;
+            case 3:
+                log("Test.method4 case 3");
+                break;
+            default:
+                log("Test.method4 default");
+                break;
+        }
+        log("Test.method4 end");
+    }
+
+    /* JADX INFO: Thrown type has an unknown type hierarchy: java.lang.IllegalArgumentException */
+    public java.lang.String method5(int i) throws java.lang.IllegalArgumentException {
+        java.lang.String str;
+        log("Test.method5 start");
+        switch (i) {
+            case 0:
+                str = "Test.method4 case 0";
+                break;
+            case 1:
+                str = "Test.method4 case 1";
+                break;
+            case 2:
+                str = "Test.method4 case 2";
+                break;
+            case 3:
+                str = "Test.method4 case 3";
+                break;
+            default:
+                throw new java.lang.IllegalArgumentException();
+        }
+        return "return:" + str;
+    }
+
+    public void method5() {
+        log("Test.method5");
+    }
+
+    public void method6() {
+        log("Test.method6");
+    }
+
+    public abstract void log(java.lang.String str);
+}
