@@ -22,8 +22,6 @@ import org.vineflower.java.decompiler.main.extern.IResultSaver;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.Manifest;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class VineflowerResultSaver implements IResultSaver {
     private final DecompilationResult result;
