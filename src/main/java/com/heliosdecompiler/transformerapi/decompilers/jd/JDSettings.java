@@ -36,5 +36,5 @@ public class JDSettings {
     public static Map<String, String> lineNumbers() {
         return Map.of(WRITE_LINE_NUMBERS, TRUE, WRITE_METADATA, FALSE);
     }
-    
+
 }
