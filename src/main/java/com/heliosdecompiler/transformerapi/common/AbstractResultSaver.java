@@ -38,7 +38,7 @@ public abstract class AbstractResultSaver {
     protected AbstractResultSaver() {
         this(new DecompilationResult());
     }
-    
+
     public Map<String, String> getResults() {
         return this.results;
     }
