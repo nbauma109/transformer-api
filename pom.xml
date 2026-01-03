@@ -32,7 +32,7 @@
     <maven.compiler.target>21</maven.compiler.target>
     <version.asm>9.9.1</version.asm>
     <version.jadx>1.5.3</version.jadx>
-    <version.procyon>0.6.1</version.procyon>
+    <version.procyon>0.6.2</version.procyon>
     <version.fernflower>253.29346.138</version.fernflower>
 
   <!-- ======================================================================

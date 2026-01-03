@@ -1,0 +1,327 @@
+package java.lang;
+
+/* loaded from: java/lang/Throwable */
+public class Throwable implements java.io.Serializable {
+    private static final long serialVersionUID = -3042686055658047285L;
+    private transient java.lang.Object backtrace;
+    private java.lang.String detailMessage;
+    private static final java.lang.StackTraceElement[] UNASSIGNED_STACK;
+    private java.lang.Throwable cause;
+    private java.lang.StackTraceElement[] stackTrace;
+    private transient int depth;
+    private static final java.util.List<java.lang.Throwable> SUPPRESSED_SENTINEL;
+    private java.util.List<java.lang.Throwable> suppressedExceptions;
+    private static final java.lang.String NULL_CAUSE_MESSAGE = "Cannot suppress a null exception.";
+    private static final java.lang.String SELF_SUPPRESSION_MESSAGE = "Self-suppression not permitted";
+    private static final java.lang.String CAUSE_CAPTION = "Caused by: ";
+    private static final java.lang.String SUPPRESSED_CAPTION = "Suppressed: ";
+    private static final java.lang.Throwable[] EMPTY_THROWABLE_ARRAY;
+    static final /* synthetic */ boolean $assertionsDisabled;
+
+    public Throwable() {
+        this.cause = this;
+        this.stackTrace = UNASSIGNED_STACK;
+        this.suppressedExceptions = SUPPRESSED_SENTINEL;
+        fillInStackTrace();
+    }
+
+    public Throwable(java.lang.String str) {
+        this.cause = this;
+        this.stackTrace = UNASSIGNED_STACK;
+        this.suppressedExceptions = SUPPRESSED_SENTINEL;
+        fillInStackTrace();
+        this.detailMessage = str;
+    }
+
+    public Throwable(java.lang.String str, java.lang.Throwable th) {
+        this.cause = this;
+        this.stackTrace = UNASSIGNED_STACK;
+        this.suppressedExceptions = SUPPRESSED_SENTINEL;
+        fillInStackTrace();
+        this.detailMessage = str;
+        this.cause = th;
+    }
+
+    public Throwable(java.lang.Throwable th) {
+        this.cause = this;
+        this.stackTrace = UNASSIGNED_STACK;
+        this.suppressedExceptions = SUPPRESSED_SENTINEL;
+        fillInStackTrace();
+        this.detailMessage = th == null ? null : th.toString();
+        this.cause = th;
+    }
+
+    protected Throwable(java.lang.String str, java.lang.Throwable th, boolean z, boolean z2) {
+        this.cause = this;
+        this.stackTrace = UNASSIGNED_STACK;
+        this.suppressedExceptions = SUPPRESSED_SENTINEL;
+        if (z2) {
+            fillInStackTrace();
+        } else {
+            this.stackTrace = null;
+        }
+        this.detailMessage = str;
+        this.cause = th;
+        if (z) {
+            return;
+        }
+        this.suppressedExceptions = null;
+    }
+
+    public java.lang.String getMessage() {
+        return this.detailMessage;
+    }
+
+    public java.lang.String getLocalizedMessage() {
+        return getMessage();
+    }
+
+    public synchronized java.lang.Throwable getCause() {
+        if (this.cause == this) {
+            return null;
+        }
+        return this.cause;
+    }
+
+    /* JADX INFO: Thrown type has an unknown type hierarchy: java.lang.IllegalArgumentException */
+    /* JADX INFO: Thrown type has an unknown type hierarchy: java.lang.IllegalStateException */
+    public synchronized java.lang.Throwable initCause(java.lang.Throwable th) throws java.lang.IllegalStateException, java.lang.IllegalArgumentException {
+        if (this.cause != this) {
+            throw new java.lang.IllegalStateException("Can't overwrite cause with " + java.util.Objects.toString(th, "a null"), this);
+        }
+        if (th == this) {
+            throw new java.lang.IllegalArgumentException("Self-causation not permitted", this);
+        }
+        this.cause = th;
+        return this;
+    }
+
+    final void setCause(java.lang.Throwable th) {
+        this.cause = th;
+    }
+
+    public java.lang.String toString() {
+        java.lang.String name = getClass().getName();
+        java.lang.String localizedMessage = getLocalizedMessage();
+        return localizedMessage != null ? name + ": " + localizedMessage : name;
+    }
+
+    public void printStackTrace() {
+        printStackTrace(java.lang.System.err);
+    }
+
+    public void printStackTrace(java.io.PrintStream printStream) {
+        printStackTrace(new java.lang.Throwable$WrappedPrintStream(printStream));
+    }
+
+    private void printStackTrace(java.lang.Throwable$PrintStreamOrWriter throwable$PrintStreamOrWriter) {
+        java.lang.Object objLock = throwable$PrintStreamOrWriter.lock();
+        if (!(objLock instanceof jdk.internal.misc.InternalLock)) {
+            synchronized (objLock) {
+                try {
+                    lockedPrintStackTrace(throwable$PrintStreamOrWriter);
+                } catch (java.lang.Throwable th) {
+                    throw th;
+                }
+            }
+            return;
+        }
+        jdk.internal.misc.InternalLock internalLock = (jdk.internal.misc.InternalLock) objLock;
+        internalLock.lock();
+        try {
+            lockedPrintStackTrace(throwable$PrintStreamOrWriter);
+            internalLock.unlock();
+        } catch (java.lang.Throwable th2) {
+            internalLock.unlock();
+            throw th2;
+        }
+    }
+
+    private void lockedPrintStackTrace(java.lang.Throwable$PrintStreamOrWriter throwable$PrintStreamOrWriter) throws java.lang.AssertionError {
+        java.util.Set<java.lang.Throwable> setNewSetFromMap = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap());
+        setNewSetFromMap.add(this);
+        throwable$PrintStreamOrWriter.println(this);
+        java.lang.StackTraceElement[] ourStackTrace = getOurStackTrace();
+        for (java.lang.StackTraceElement stackTraceElement : ourStackTrace) {
+            throwable$PrintStreamOrWriter.println("\tat " + stackTraceElement);
+        }
+        for (java.lang.Throwable th : getSuppressed()) {
+            th.printEnclosedStackTrace(throwable$PrintStreamOrWriter, ourStackTrace, "Suppressed: ", "\t", setNewSetFromMap);
+        }
+        java.lang.Throwable cause = getCause();
+        if (cause != null) {
+            cause.printEnclosedStackTrace(throwable$PrintStreamOrWriter, ourStackTrace, "Caused by: ", "", setNewSetFromMap);
+        }
+    }
+
+    /* JADX INFO: Thrown type has an unknown type hierarchy: java.lang.AssertionError */
+    private void printEnclosedStackTrace(java.lang.Throwable$PrintStreamOrWriter throwable$PrintStreamOrWriter, java.lang.StackTraceElement[] stackTraceElementArr, java.lang.String str, java.lang.String str2, java.util.Set<java.lang.Throwable> set) throws java.lang.AssertionError {
+        if (!$assertionsDisabled && !throwable$PrintStreamOrWriter.isLockedByCurrentThread()) {
+            throw new java.lang.AssertionError();
+        }
+        if (set.contains(this)) {
+            throwable$PrintStreamOrWriter.println(str2 + str + "[CIRCULAR REFERENCE: " + this + "]");
+            return;
+        }
+        set.add(this);
+        java.lang.StackTraceElement[] ourStackTrace = getOurStackTrace();
+        int length = ourStackTrace.length - 1;
+        for (int length2 = stackTraceElementArr.length - 1; length >= 0 && length2 >= 0 && ourStackTrace[length].equals(stackTraceElementArr[length2]); length2--) {
+            length--;
+        }
+        int length3 = (ourStackTrace.length - 1) - length;
+        throwable$PrintStreamOrWriter.println(str2 + str + this);
+        for (int i = 0; i <= length; i++) {
+            throwable$PrintStreamOrWriter.println(str2 + "\tat " + ourStackTrace[i]);
+        }
+        if (length3 != 0) {
+            throwable$PrintStreamOrWriter.println(str2 + "\t... " + length3 + " more");
+        }
+        for (java.lang.Throwable th : getSuppressed()) {
+            th.printEnclosedStackTrace(throwable$PrintStreamOrWriter, ourStackTrace, "Suppressed: ", str2 + "\t", set);
+        }
+        java.lang.Throwable cause = getCause();
+        if (cause != null) {
+            cause.printEnclosedStackTrace(throwable$PrintStreamOrWriter, ourStackTrace, "Caused by: ", str2, set);
+        }
+    }
+
+    public void printStackTrace(java.io.PrintWriter printWriter) {
+        printStackTrace(new java.lang.Throwable$WrappedPrintWriter(printWriter));
+    }
+
+    public synchronized java.lang.Throwable fillInStackTrace() {
+        if (this.stackTrace != null || this.backtrace != null) {
+            fillInStackTrace(0);
+            this.stackTrace = UNASSIGNED_STACK;
+        }
+        return this;
+    }
+
+    private native java.lang.Throwable fillInStackTrace(int i);
+
+    public java.lang.StackTraceElement[] getStackTrace() {
+        return (java.lang.StackTraceElement[]) getOurStackTrace().clone();
+    }
+
+    private synchronized java.lang.StackTraceElement[] getOurStackTrace() {
+        if (this.stackTrace == UNASSIGNED_STACK || this.stackTrace == null) {
+            if (this.backtrace == null) {
+                return UNASSIGNED_STACK;
+            }
+            this.stackTrace = java.lang.StackTraceElement.of(this.backtrace, this.depth);
+        }
+        return this.stackTrace;
+    }
+
+    /* JADX INFO: Thrown type has an unknown type hierarchy: java.lang.NullPointerException */
+    public void setStackTrace(java.lang.StackTraceElement[] stackTraceElementArr) throws java.lang.NullPointerException {
+        java.lang.StackTraceElement[] stackTraceElementArr2 = (java.lang.StackTraceElement[]) stackTraceElementArr.clone();
+        for (int i = 0; i < stackTraceElementArr2.length; i++) {
+            if (stackTraceElementArr2[i] == null) {
+                throw new java.lang.NullPointerException("stackTrace[" + i + "]");
+            }
+        }
+        synchronized (this) {
+            try {
+                if (this.stackTrace == null && this.backtrace == null) {
+                    return;
+                }
+                this.stackTrace = stackTraceElementArr2;
+            } catch (java.lang.Throwable th) {
+                throw th;
+            }
+        }
+    }
+
+    /* JADX INFO: Thrown type has an unknown type hierarchy: java.lang.IllegalArgumentException */
+    private void readObject(java.io.ObjectInputStream objectInputStream) throws java.io.StreamCorruptedException, java.io.IOException, java.lang.ClassNotFoundException, java.lang.IllegalArgumentException {
+        objectInputStream.defaultReadObject();
+        java.util.List<java.lang.Throwable> list = this.suppressedExceptions;
+        this.suppressedExceptions = SUPPRESSED_SENTINEL;
+        java.lang.StackTraceElement[] stackTraceElementArr = this.stackTrace;
+        this.stackTrace = (java.lang.StackTraceElement[]) UNASSIGNED_STACK.clone();
+        if (list != null) {
+            int iValidateSuppressedExceptionsList = validateSuppressedExceptionsList(list);
+            if (iValidateSuppressedExceptionsList > 0) {
+                java.util.ArrayList arrayList = new java.util.ArrayList(java.lang.Math.min(100, iValidateSuppressedExceptionsList));
+                for (java.lang.Throwable th : list) {
+                    java.util.Objects.requireNonNull(th, "Cannot suppress a null exception.");
+                    if (th == this) {
+                        throw new java.lang.IllegalArgumentException("Self-suppression not permitted");
+                    }
+                    arrayList.add(th);
+                }
+                this.suppressedExceptions = arrayList;
+            }
+        } else {
+            this.suppressedExceptions = null;
+        }
+        if (stackTraceElementArr != null) {
+            java.lang.StackTraceElement[] stackTraceElementArr2 = (java.lang.StackTraceElement[]) stackTraceElementArr.clone();
+            if (stackTraceElementArr2.length >= 1) {
+                if (stackTraceElementArr2.length == 1 && java.lang.Throwable$SentinelHolder.STACK_TRACE_ELEMENT_SENTINEL.equals(stackTraceElementArr2[0])) {
+                    this.stackTrace = null;
+                    return;
+                }
+                for (java.lang.StackTraceElement stackTraceElement : stackTraceElementArr2) {
+                    java.util.Objects.requireNonNull(stackTraceElement, "null StackTraceElement in serial stream.");
+                }
+                this.stackTrace = stackTraceElementArr2;
+            }
+        }
+    }
+
+    /* JADX INFO: Thrown type has an unknown type hierarchy: java.io.StreamCorruptedException */
+    private int validateSuppressedExceptionsList(java.util.List<java.lang.Throwable> list) throws java.io.StreamCorruptedException, java.io.IOException {
+        if (!java.lang.Object.class.getModule().equals(list.getClass().getModule())) {
+            throw new java.io.StreamCorruptedException("List implementation not in base module.");
+        }
+        int size = list.size();
+        if (size < 0) {
+            throw new java.io.StreamCorruptedException("Negative list size reported.");
+        }
+        return size;
+    }
+
+    private synchronized void writeObject(java.io.ObjectOutputStream objectOutputStream) throws java.io.IOException {
+        getOurStackTrace();
+        java.lang.StackTraceElement[] stackTraceElementArr = this.stackTrace;
+        try {
+            if (this.stackTrace == null) {
+                this.stackTrace = java.lang.Throwable$SentinelHolder.STACK_TRACE_SENTINEL;
+            }
+            objectOutputStream.defaultWriteObject();
+            this.stackTrace = stackTraceElementArr;
+        } catch (java.lang.Throwable th) {
+            this.stackTrace = stackTraceElementArr;
+            throw th;
+        }
+    }
+
+    /* JADX INFO: Thrown type has an unknown type hierarchy: java.lang.IllegalArgumentException */
+    public final synchronized void addSuppressed(java.lang.Throwable th) throws java.lang.IllegalArgumentException {
+        if (th == this) {
+            throw new java.lang.IllegalArgumentException("Self-suppression not permitted", th);
+        }
+        java.util.Objects.requireNonNull(th, "Cannot suppress a null exception.");
+        if (this.suppressedExceptions == null) {
+            return;
+        }
+        if (this.suppressedExceptions == SUPPRESSED_SENTINEL) {
+            this.suppressedExceptions = new java.util.ArrayList(1);
+        }
+        this.suppressedExceptions.add(th);
+    }
+
+    public final synchronized java.lang.Throwable[] getSuppressed() {
+        return (this.suppressedExceptions == SUPPRESSED_SENTINEL || this.suppressedExceptions == null) ? EMPTY_THROWABLE_ARRAY : (java.lang.Throwable[]) this.suppressedExceptions.toArray(EMPTY_THROWABLE_ARRAY);
+    }
+
+    static {
+        $assertionsDisabled = !java.lang.Throwable.class.desiredAssertionStatus();
+        UNASSIGNED_STACK = new java.lang.StackTraceElement[0];
+        SUPPRESSED_SENTINEL = java.util.Collections.emptyList();
+        EMPTY_THROWABLE_ARRAY = new java.lang.Throwable[0];
+    }
+}

@@ -40,7 +40,12 @@ public class StandardTransformersTest {
     
     @Test
     public void testDecompileCFRFromClassPath() throws Exception {
-        testDecompileFromClassPath("/ExceptionCFR.txt", ENGINE_CFR, CFRSettings.defaults());
+        testDecompileFromClassPath("/TestThrowableCFR.txt", ENGINE_CFR, CFRSettings.defaults());
+    }
+    
+    @Test
+    public void testDecompileProcyonFromClassPath() throws Exception {
+        testDecompileFromClassPath("/TestThrowableProcyon.txt", ENGINE_PROCYON, MapDecompilerSettings.defaults());
     }
     
     @Test
@@ -51,6 +56,11 @@ public class StandardTransformersTest {
     @Test
     public void testDecompileProcyonByteCode() throws Exception {
         testDecompile("/TestCompactProcyonByteCode.txt", ENGINE_PROCYON, MapDecompilerSettings.byteCodeSettings());
+    }
+    
+    @Test
+    public void testDecompileJADXFromClassPath() throws Exception {
+        testDecompileFromClassPath("/TestThrowableJADX.txt", ENGINE_JADX, Collections.emptyMap());
     }
     
     @Test
@@ -69,6 +79,11 @@ public class StandardTransformersTest {
     }
     
     @Test
+    public void testDecompileFernflowerFromClassPath() throws Exception {
+        testDecompileFromClassPath("/TestThrowableFernflower.txt", ENGINE_FERNFLOWER, Collections.emptyMap());
+    }
+    
+    @Test
     public void testDecompileFernflowerWithLineNumbers() throws Exception {
         testDecompile("/TestCompactFernflowerWithLineNumbers.txt", ENGINE_FERNFLOWER, FernflowerSettings.lineNumbers());
     }
@@ -76,6 +91,11 @@ public class StandardTransformersTest {
     @Test
     public void testDecompileVineflower() throws Exception {
         testDecompile("/TestCompactVineflower.txt", ENGINE_VINEFLOWER, Collections.emptyMap());
+    }
+    
+    @Test
+    public void testDecompileVineflowerFromClassPath() throws Exception {
+        testDecompileFromClassPath("/TestThrowableVineflower.txt", ENGINE_VINEFLOWER, Collections.emptyMap());
     }
     
     @Test
@@ -89,6 +109,11 @@ public class StandardTransformersTest {
     }
     
     @Test
+    public void testDecompileJDCoreV0FromClassPath() throws Exception {
+        testDecompileFromClassPath("/TestThrowableJDCoreV0.txt", ENGINE_JD_CORE_V0, JDSettings.defaults());
+    }
+    
+    @Test
     public void testDecompileJDCoreV0WithLineNumbers() throws Exception {
         testDecompile("/TestCompactJDCoreV0WithLineNumbers.txt", ENGINE_JD_CORE_V0, JDSettings.lineNumbers());
     }
@@ -96,6 +121,11 @@ public class StandardTransformersTest {
     @Test
     public void testDecompileJDCoreV1() throws Exception {
         testDecompile("/TestCompactJDCoreV1.txt", ENGINE_JD_CORE_V1, JDSettings.defaults());
+    }
+    
+    @Test
+    public void testDecompileJDCoreV1FromClassPath() throws Exception {
+        testDecompileFromClassPath("/TestThrowableJDCoreV1.txt", ENGINE_JD_CORE_V1, JDSettings.defaults());
     }
     
     @Test
@@ -114,10 +144,10 @@ public class StandardTransformersTest {
     }
 
     private void testDecompileFromClassPath(String path, String engineName, Map<String, String> preferences)
-            throws IOException, IllegalAccessException, InvocationTargetException, URISyntaxException {
+            throws IOException, IllegalAccessException, InvocationTargetException {
         ClassPathLoader zipLoader = new ClassPathLoader();
         Loader loader = new Loader(zipLoader::canLoad, zipLoader::load);
-        String internalName = "java/lang/Exception";
+        String internalName = "java/lang/Throwable";
         DecompilationResult result = StandardTransformers.decompile(loader, internalName, preferences, engineName);
         assertEqualsIgnoreEOL(getResourceAsString(path), result.getDecompiledOutput());
     }

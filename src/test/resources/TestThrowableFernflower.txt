@@ -1,0 +1,392 @@
+package java.lang;
+
+import [Ljava.lang.StackTraceElement;;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.io.StreamCorruptedException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import jdk.internal.access.SharedSecrets;
+import jdk.internal.misc.InternalLock;
+
+public class Throwable implements Serializable {
+   private static final long serialVersionUID = -3042686055658047285L;
+   private transient Object backtrace;
+   private String detailMessage;
+   private static final StackTraceElement[] UNASSIGNED_STACK = new StackTraceElement[0];
+   private Throwable cause = this;
+   private StackTraceElement[] stackTrace;
+   private transient int depth;
+   private static final List SUPPRESSED_SENTINEL = Collections.emptyList();
+   private List suppressedExceptions;
+   private static final String NULL_CAUSE_MESSAGE = "Cannot suppress a null exception.";
+   private static final String SELF_SUPPRESSION_MESSAGE = "Self-suppression not permitted";
+   private static final String CAUSE_CAPTION = "Caused by: ";
+   private static final String SUPPRESSED_CAPTION = "Suppressed: ";
+   private static final Throwable[] EMPTY_THROWABLE_ARRAY = new Throwable[0];
+
+   public Throwable() {
+      this.stackTrace = UNASSIGNED_STACK;
+      this.suppressedExceptions = SUPPRESSED_SENTINEL;
+      this.fillInStackTrace();
+   }
+
+   public Throwable(String message) {
+      this.stackTrace = UNASSIGNED_STACK;
+      this.suppressedExceptions = SUPPRESSED_SENTINEL;
+      this.fillInStackTrace();
+      this.detailMessage = message;
+   }
+
+   public Throwable(String message, Throwable cause) {
+      this.stackTrace = UNASSIGNED_STACK;
+      this.suppressedExceptions = SUPPRESSED_SENTINEL;
+      this.fillInStackTrace();
+      this.detailMessage = message;
+      this.cause = cause;
+   }
+
+   public Throwable(Throwable cause) {
+      this.stackTrace = UNASSIGNED_STACK;
+      this.suppressedExceptions = SUPPRESSED_SENTINEL;
+      this.fillInStackTrace();
+      this.detailMessage = cause == null ? null : cause.toString();
+      this.cause = cause;
+   }
+
+   protected Throwable(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+      this.stackTrace = UNASSIGNED_STACK;
+      this.suppressedExceptions = SUPPRESSED_SENTINEL;
+      if (writableStackTrace) {
+         this.fillInStackTrace();
+      } else {
+         this.stackTrace = null;
+      }
+
+      this.detailMessage = message;
+      this.cause = cause;
+      if (!enableSuppression) {
+         this.suppressedExceptions = null;
+      }
+
+   }
+
+   public String getMessage() {
+      return this.detailMessage;
+   }
+
+   public String getLocalizedMessage() {
+      return this.getMessage();
+   }
+
+   public synchronized Throwable getCause() {
+      return this.cause == this ? null : this.cause;
+   }
+
+   public synchronized Throwable initCause(Throwable cause) {
+      if (this.cause != this) {
+         throw new IllegalStateException("Can't overwrite cause with " + Objects.toString(cause, "a null"), this);
+      } else if (cause == this) {
+         throw new IllegalArgumentException("Self-causation not permitted", this);
+      } else {
+         this.cause = cause;
+         return this;
+      }
+   }
+
+   final void setCause(Throwable t) {
+      this.cause = t;
+   }
+
+   public String toString() {
+      String s = this.getClass().getName();
+      String message = this.getLocalizedMessage();
+      return message != null ? s + ": " + message : s;
+   }
+
+   public void printStackTrace() {
+      this.printStackTrace(System.err);
+   }
+
+   public void printStackTrace(PrintStream s) {
+      this.printStackTrace((PrintStreamOrWriter)(new WrappedPrintStream(s)));
+   }
+
+   private void printStackTrace(PrintStreamOrWriter s) {
+      Object lock = s.lock();
+      if (lock instanceof InternalLock locker) {
+         locker.lock();
+
+         try {
+            this.lockedPrintStackTrace(s);
+         } finally {
+            locker.unlock();
+         }
+      } else {
+         synchronized(lock) {
+            this.lockedPrintStackTrace(s);
+         }
+      }
+
+   }
+
+   private void lockedPrintStackTrace(PrintStreamOrWriter s) {
+      Set<Throwable> dejaVu = Collections.newSetFromMap(new IdentityHashMap());
+      dejaVu.add(this);
+      s.println(this);
+      StackTraceElement[] trace = this.getOurStackTrace();
+
+      for(StackTraceElement traceElement : trace) {
+         s.println("\tat " + traceElement);
+      }
+
+      for(Throwable se : this.getSuppressed()) {
+         se.printEnclosedStackTrace(s, trace, "Suppressed: ", "\t", dejaVu);
+      }
+
+      Throwable ourCause = this.getCause();
+      if (ourCause != null) {
+         ourCause.printEnclosedStackTrace(s, trace, "Caused by: ", "", dejaVu);
+      }
+
+   }
+
+   private void printEnclosedStackTrace(PrintStreamOrWriter s, StackTraceElement[] enclosingTrace, String caption, String prefix, Set dejaVu) {
+      assert s.isLockedByCurrentThread();
+
+      if (dejaVu.contains(this)) {
+         s.println(prefix + caption + "[CIRCULAR REFERENCE: " + this + "]");
+      } else {
+         dejaVu.add(this);
+         StackTraceElement[] trace = this.getOurStackTrace();
+         int m = trace.length - 1;
+
+         for(int n = enclosingTrace.length - 1; m >= 0 && n >= 0 && trace[m].equals(enclosingTrace[n]); --n) {
+            --m;
+         }
+
+         int framesInCommon = trace.length - 1 - m;
+         s.println(prefix + caption + this);
+
+         for(int i = 0; i <= m; ++i) {
+            s.println(prefix + "\tat " + trace[i]);
+         }
+
+         if (framesInCommon != 0) {
+            s.println(prefix + "\t... " + framesInCommon + " more");
+         }
+
+         for(Throwable se : this.getSuppressed()) {
+            se.printEnclosedStackTrace(s, trace, "Suppressed: ", prefix + "\t", dejaVu);
+         }
+
+         Throwable ourCause = this.getCause();
+         if (ourCause != null) {
+            ourCause.printEnclosedStackTrace(s, trace, "Caused by: ", prefix, dejaVu);
+         }
+      }
+
+   }
+
+   public void printStackTrace(PrintWriter s) {
+      this.printStackTrace((PrintStreamOrWriter)(new WrappedPrintWriter(s)));
+   }
+
+   public synchronized Throwable fillInStackTrace() {
+      if (this.stackTrace != null || this.backtrace != null) {
+         this.fillInStackTrace(0);
+         this.stackTrace = UNASSIGNED_STACK;
+      }
+
+      return this;
+   }
+
+   private native Throwable fillInStackTrace(int var1);
+
+   public StackTraceElement[] getStackTrace() {
+      return (StackTraceElement[])this.getOurStackTrace().clone();
+   }
+
+   private synchronized StackTraceElement[] getOurStackTrace() {
+      if (this.stackTrace == UNASSIGNED_STACK || this.stackTrace == null) {
+         if (this.backtrace == null) {
+            return UNASSIGNED_STACK;
+         }
+
+         this.stackTrace = StackTraceElement.of(this.backtrace, this.depth);
+      }
+
+      return this.stackTrace;
+   }
+
+   public void setStackTrace(StackTraceElement[] stackTrace) {
+      StackTraceElement[] defensiveCopy = (StackTraceElement[])((StackTraceElement;)stackTrace).clone();
+
+      for(int i = 0; i < defensiveCopy.length; ++i) {
+         if (defensiveCopy[i] == null) {
+            throw new NullPointerException("stackTrace[" + i + "]");
+         }
+      }
+
+      synchronized(this) {
+         if (this.stackTrace != null || this.backtrace != null) {
+            this.stackTrace = defensiveCopy;
+         }
+      }
+   }
+
+   private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
+      s.defaultReadObject();
+      List<Throwable> candidateSuppressedExceptions = this.suppressedExceptions;
+      this.suppressedExceptions = SUPPRESSED_SENTINEL;
+      StackTraceElement[] candidateStackTrace = this.stackTrace;
+      this.stackTrace = (StackTraceElement[])UNASSIGNED_STACK.clone();
+      if (candidateSuppressedExceptions != null) {
+         int suppressedSize = this.validateSuppressedExceptionsList(candidateSuppressedExceptions);
+         if (suppressedSize > 0) {
+            ArrayList<Throwable> suppList = new ArrayList(Math.min(100, suppressedSize));
+
+            for(Throwable t : candidateSuppressedExceptions) {
+               Objects.requireNonNull(t, "Cannot suppress a null exception.");
+               if (t == this) {
+                  throw new IllegalArgumentException("Self-suppression not permitted");
+               }
+
+               suppList.add(t);
+            }
+
+            this.suppressedExceptions = suppList;
+         }
+      } else {
+         this.suppressedExceptions = null;
+      }
+
+      if (candidateStackTrace != null) {
+         candidateStackTrace = (StackTraceElement[])((StackTraceElement;)candidateStackTrace).clone();
+         if (candidateStackTrace.length >= 1) {
+            if (candidateStackTrace.length == 1 && Throwable.SentinelHolder.STACK_TRACE_ELEMENT_SENTINEL.equals(candidateStackTrace[0])) {
+               this.stackTrace = null;
+            } else {
+               for(StackTraceElement ste : candidateStackTrace) {
+                  Objects.requireNonNull(ste, "null StackTraceElement in serial stream.");
+               }
+
+               this.stackTrace = candidateStackTrace;
+            }
+         }
+      }
+
+   }
+
+   private int validateSuppressedExceptionsList(List deserSuppressedExceptions) throws IOException {
+      if (!Object.class.getModule().equals(deserSuppressedExceptions.getClass().getModule())) {
+         throw new StreamCorruptedException("List implementation not in base module.");
+      } else {
+         int size = deserSuppressedExceptions.size();
+         if (size < 0) {
+            throw new StreamCorruptedException("Negative list size reported.");
+         } else {
+            return size;
+         }
+      }
+   }
+
+   private synchronized void writeObject(ObjectOutputStream s) throws IOException {
+      this.getOurStackTrace();
+      StackTraceElement[] oldStackTrace = this.stackTrace;
+
+      try {
+         if (this.stackTrace == null) {
+            this.stackTrace = Throwable.SentinelHolder.STACK_TRACE_SENTINEL;
+         }
+
+         s.defaultWriteObject();
+      } finally {
+         this.stackTrace = oldStackTrace;
+      }
+
+   }
+
+   public final synchronized void addSuppressed(Throwable exception) {
+      if (exception == this) {
+         throw new IllegalArgumentException("Self-suppression not permitted", exception);
+      } else {
+         Objects.requireNonNull(exception, "Cannot suppress a null exception.");
+         if (this.suppressedExceptions != null) {
+            if (this.suppressedExceptions == SUPPRESSED_SENTINEL) {
+               this.suppressedExceptions = new ArrayList(1);
+            }
+
+            this.suppressedExceptions.add(exception);
+         }
+      }
+   }
+
+   public final synchronized Throwable[] getSuppressed() {
+      return this.suppressedExceptions != SUPPRESSED_SENTINEL && this.suppressedExceptions != null ? (Throwable[])this.suppressedExceptions.toArray(EMPTY_THROWABLE_ARRAY) : EMPTY_THROWABLE_ARRAY;
+   }
+
+   private static class SentinelHolder {
+      public static final StackTraceElement STACK_TRACE_ELEMENT_SENTINEL = new StackTraceElement("", "", (String)null, Integer.MIN_VALUE);
+      public static final StackTraceElement[] STACK_TRACE_SENTINEL;
+
+      static {
+         STACK_TRACE_SENTINEL = new StackTraceElement[]{STACK_TRACE_ELEMENT_SENTINEL};
+      }
+   }
+
+   private abstract static class PrintStreamOrWriter {
+      abstract Object lock();
+
+      boolean isLockedByCurrentThread() {
+         Object lock = this.lock();
+         if (lock instanceof InternalLock locker) {
+            return locker.isHeldByCurrentThread();
+         } else {
+            return Thread.holdsLock(lock);
+         }
+      }
+
+      abstract void println(Object var1);
+   }
+
+   private static class WrappedPrintStream extends PrintStreamOrWriter {
+      private final PrintStream printStream;
+
+      WrappedPrintStream(PrintStream printStream) {
+         this.printStream = printStream;
+      }
+
+      Object lock() {
+         return SharedSecrets.getJavaIOPrintStreamAccess().lock(this.printStream);
+      }
+
+      void println(Object o) {
+         this.printStream.println(o);
+      }
+   }
+
+   private static class WrappedPrintWriter extends PrintStreamOrWriter {
+      private final PrintWriter printWriter;
+
+      WrappedPrintWriter(PrintWriter printWriter) {
+         this.printWriter = printWriter;
+      }
+
+      Object lock() {
+         return SharedSecrets.getJavaIOPrintWriterAccess().lock(this.printWriter);
+      }
+
+      void println(Object o) {
+         this.printWriter.println(o);
+      }
+   }
+}
