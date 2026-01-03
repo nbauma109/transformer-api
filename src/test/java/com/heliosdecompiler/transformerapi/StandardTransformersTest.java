@@ -69,7 +69,7 @@ public class StandardTransformersTest {
     }
     
     private void testDecompile(String path, String engineName, Map<String, String> preferences)
-            throws TransformationException, IOException, IllegalAccessException, InvocationTargetException, URISyntaxException {
+            throws IOException, IllegalAccessException, InvocationTargetException, URISyntaxException {
         URI resource = getClass().getResource("/test-compact-expand-inline.jar").toURI();
         ZipLoader zipLoader = new ZipLoader(resource.toURL().openStream());
         Loader loader = new Loader(zipLoader::canLoad, zipLoader::load, resource);

@@ -22,7 +22,6 @@ import org.jetbrains.java.decompiler.main.decompiler.PrintStreamLogger;
 import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
 import org.jetbrains.java.decompiler.struct.StructContext;
 
-import com.heliosdecompiler.transformerapi.TransformationException;
 import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 
@@ -38,7 +37,7 @@ import jd.core.DecompilationResult;
 public class FernflowerDecompiler implements Decompiler<FernflowerSettings> {
 
     @Override
-    public DecompilationResult decompile(Loader loader, String internalName, FernflowerSettings settings) throws TransformationException, IOException {
+    public DecompilationResult decompile(Loader loader, String internalName, FernflowerSettings settings) throws IOException {
         ClassStruct classStruct = readClassAndInnerClasses(loader, internalName);
         if (!classStruct.importantData().isEmpty()) {
             IBytecodeProvider provider = new FernflowerBytecodeProvider(classStruct.importantData());

@@ -20,7 +20,6 @@ import org.jd.core.v1.ClassFileToJavaSourceDecompiler;
 import org.jd.core.v1.printer.ClassFilePrinter;
 import org.jd.core.v1.util.StringConstants;
 
-import com.heliosdecompiler.transformerapi.TransformationException;
 import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 
@@ -34,7 +33,7 @@ public class JDCoreV1Decompiler implements Decompiler<Map<String, String>> {
     public static final ClassFileToJavaSourceDecompiler DECOMPILER = new ClassFileToJavaSourceDecompiler();
 
     @Override
-    public DecompilationResult decompile(Loader loader, String internalName, Map<String, String> preferences) throws TransformationException, IOException {
+    public DecompilationResult decompile(Loader loader, String internalName, Map<String, String> preferences) throws IOException {
 
         ClassFilePrinter printer = new ClassFilePrinter();
 

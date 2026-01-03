@@ -22,7 +22,6 @@ import org.vineflower.java.decompiler.main.decompiler.PrintStreamLogger;
 import org.vineflower.java.decompiler.main.extern.IFernflowerPreferences;
 import org.vineflower.java.decompiler.main.extern.TextTokenVisitor;
 
-import com.heliosdecompiler.transformerapi.TransformationException;
 import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 
@@ -35,7 +34,7 @@ import jd.core.DecompilationResult;
  */
 public class VineflowerDecompiler implements Decompiler<VineflowerSettings> {
     @Override
-    public DecompilationResult decompile(Loader loader, String internalName, VineflowerSettings settings) throws TransformationException, IOException {
+    public DecompilationResult decompile(Loader loader, String internalName, VineflowerSettings settings) throws IOException {
         ClassStruct classStruct = readClassAndInnerClasses(loader, internalName);
         if (!classStruct.importantData().isEmpty()) {
             DecompilationResult decompilationResult = new DecompilationResult();

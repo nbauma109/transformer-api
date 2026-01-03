@@ -19,7 +19,6 @@ package com.heliosdecompiler.transformerapi.decompilers.cfr;
 import org.benf.cfr.reader.api.CfrDriver;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
-import com.heliosdecompiler.transformerapi.TransformationException;
 import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 
@@ -31,7 +30,7 @@ import jd.core.DecompilationResult;
 public class CFRDecompiler implements Decompiler<CFRSettings> {
 
     @Override
-    public DecompilationResult decompile(Loader loader, String internalName, CFRSettings settings) throws TransformationException, IOException {
+    public DecompilationResult decompile(Loader loader, String internalName, CFRSettings settings) throws IOException {
         CFROutputStreamFactory sink = new CFROutputStreamFactory();
         String entryPath = internalName + ".class";
         OptionsImpl options = new OptionsImpl(settings.getSettings());

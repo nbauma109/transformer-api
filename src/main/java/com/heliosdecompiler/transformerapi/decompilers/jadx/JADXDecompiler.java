@@ -16,7 +16,6 @@
  ******************************************************************************/
 package com.heliosdecompiler.transformerapi.decompilers.jadx;
 
-import com.heliosdecompiler.transformerapi.TransformationException;
 import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 
@@ -35,7 +34,7 @@ import jd.core.DecompilationResult;
 public class JADXDecompiler implements Decompiler<JadxArgs> {
 
     @Override
-    public DecompilationResult decompile(Loader loader, String internalName, JadxArgs args) throws TransformationException, IOException {
+    public DecompilationResult decompile(Loader loader, String internalName, JadxArgs args) throws IOException {
         Map<String, byte[]> importantData = readClassAndInnerClasses(loader, internalName).importantData();
         if (!importantData.isEmpty()) {
             int i = 0;

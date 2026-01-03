@@ -22,7 +22,6 @@ import org.objectweb.asm.tree.InnerClassNode;
 import org.vineflower.java.decompiler.main.extern.IContextSource;
 import org.vineflower.java.decompiler.main.extern.IResultSaver;
 
-import com.heliosdecompiler.transformerapi.TransformationException;
 import com.heliosdecompiler.transformerapi.common.Loader;
 
 import java.io.ByteArrayInputStream;
@@ -52,7 +51,7 @@ public interface Decompiler<S> {
      * @throws TransformationException
      * @throws IOException
      */
-    DecompilationResult decompile(Loader loader, String internalName, S settings) throws TransformationException, IOException;
+    DecompilationResult decompile(Loader loader, String internalName, S settings) throws IOException;
 
     default ClassStruct readClassAndInnerClasses(Loader loader, String internalName) throws IOException {
         return readClassAndInnerClasses(new HashMap<>(), loader, internalName);

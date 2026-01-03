@@ -16,7 +16,6 @@
  ******************************************************************************/
 package com.heliosdecompiler.transformerapi.decompilers.jd;
 
-import com.heliosdecompiler.transformerapi.TransformationException;
 import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 
@@ -32,7 +31,7 @@ public class JDCoreV0Decompiler implements Decompiler<Preferences> {
     private static final DecompilerImpl DECOMPILER = new DecompilerImpl();
 
     @Override
-    public DecompilationResult decompile(Loader loader, String internalName, Preferences preferences) throws TransformationException, IOException {
+    public DecompilationResult decompile(Loader loader, String internalName, Preferences preferences) throws IOException {
 
         // Init printer
         PrinterImpl printer = new PrinterImpl(preferences);
