@@ -1,9 +1,11 @@
 package com.heliosdecompiler.transformerapi;
 
 import org.apache.commons.io.IOUtils;
+import org.jd.core.v1.loader.ClassPathLoader;
 import org.junit.Test;
 
 import com.heliosdecompiler.transformerapi.common.Loader;
+import com.heliosdecompiler.transformerapi.decompilers.cfr.CFRSettings;
 import com.heliosdecompiler.transformerapi.decompilers.fernflower.FernflowerSettings;
 import com.heliosdecompiler.transformerapi.decompilers.jadx.MapJadxArgs;
 import com.heliosdecompiler.transformerapi.decompilers.jd.JDSettings;
@@ -33,7 +35,12 @@ public class StandardTransformersTest {
 
     @Test
     public void testDecompileCFR() throws Exception {
-        testDecompile("/TestCompactCFR.txt", ENGINE_CFR, Map.of("showversion", "false"));
+        testDecompile("/TestCompactCFR.txt", ENGINE_CFR, CFRSettings.defaults());
+    }
+    
+    @Test
+    public void testDecompileCFRFromClassPath() throws Exception {
+        testDecompileFromClassPath("/ExceptionCFR.txt", ENGINE_CFR, CFRSettings.defaults());
     }
     
     @Test
@@ -106,6 +113,15 @@ public class StandardTransformersTest {
         assertEqualsIgnoreEOL(getResourceAsString(path), result.getDecompiledOutput());
     }
 
+    private void testDecompileFromClassPath(String path, String engineName, Map<String, String> preferences)
+            throws IOException, IllegalAccessException, InvocationTargetException, URISyntaxException {
+        ClassPathLoader zipLoader = new ClassPathLoader();
+        Loader loader = new Loader(zipLoader::canLoad, zipLoader::load);
+        String internalName = "java/lang/Exception";
+        DecompilationResult result = StandardTransformers.decompile(loader, internalName, preferences, engineName);
+        assertEqualsIgnoreEOL(getResourceAsString(path), result.getDecompiledOutput());
+    }
+    
     private void assertEqualsIgnoreEOL(String expected, String actual) {
         assertEquals(expected.replaceAll("\s*\r?\n", "\n"), actual.replaceAll("\s*\r?\n", "\n"));
     }

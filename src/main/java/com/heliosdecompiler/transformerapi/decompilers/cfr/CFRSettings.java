@@ -48,4 +48,8 @@ public class CFRSettings {
     public Map<String, String> getSettings() {
         return this.internalSettings;
     }
+
+    public static Map<String, String> defaults() {
+        return Map.of("showversion", "false");
+    }
 }
