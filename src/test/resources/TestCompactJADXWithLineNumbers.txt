@@ -1,0 +1,95 @@
+            package test;
+
+            /* loaded from: test/TestCompact */
+/* 4 */     public abstract class TestCompact {
+                public abstract void log(java.lang.String str);
+
+/* 5 */         public void method1(boolean flag) {
+/* 6 */             log("Test.method1 start");
+/* 7 */             if (flag) {
+/* 8 */                 log("Test.method1 if");
+                    } else {
+/* 10 */                log("Test.method1 else");
+                    }
+/* 11 */            log("Test.method1 end");
+                }
+
+/* 14 */        public void method2() {
+/* 15 */            log("Test.method2 start");
+                    try {
+                        try {
+/* 17 */                    log("Test.method2 try");
+/* 21 */                    log("Test.method2 finally");
+                        } catch (java.lang.Exception e) {
+/* 19 */                    log("Test.method2 catch");
+/* 21 */                    log("Test.method2 finally");
+                        }
+/* 23 */                log("Test.method2 end");
+                    } catch (java.lang.Throwable th) {
+                        log("Test.method2 finally");
+/* 22 */                throw th;
+                    }
+                }
+
+/* 47 */        public void method3(int[] arr) {
+/* 48 */            log("Test.method3 start");
+                    for (int i = 0; i < arr.length; i++) {
+/* 50 */                log("Test.method3 for");
+                    }
+/* 51 */            log("Test.method3 end");
+                }
+
+/* 54 */        public void method4(int i) {
+/* 55 */            log("Test.method4 start");
+                    switch (i) {
+                        case 0:
+/* 58 */                    log("Test.method4 case 0");
+                            break;
+                        case 1:
+/* 61 */                    log("Test.method4 case 1");
+                            break;
+                        case 2:
+/* 64 */                    log("Test.method4 case 2");
+                            break;
+                        case 3:
+/* 67 */                    log("Test.method4 case 3");
+                            break;
+                        default:
+/* 70 */                    log("Test.method4 default");
+                            break;
+                    }
+/* 73 */            log("Test.method4 end");
+                }
+
+                /* JADX INFO: Thrown type has an unknown type hierarchy: java.lang.IllegalArgumentException */
+/* 76 */        public java.lang.String method5(int i) throws java.lang.IllegalArgumentException {
+                    java.lang.String str;
+/* 77 */            log("Test.method5 start");
+                    switch (i) {
+                        case 0:
+/* 79 */                    str = "Test.method4 case 0";
+                            break;
+                        case 1:
+/* 80 */                    str = "Test.method4 case 1";
+                            break;
+                        case 2:
+/* 81 */                    str = "Test.method4 case 2";
+                            break;
+                        case 3:
+/* 82 */                    str = "Test.method4 case 3";
+                            break;
+                        default:
+/* 83 */                    throw new java.lang.IllegalArgumentException();
+                    }
+                    java.lang.String s = str;
+/* 85 */            return "return:" + s;
+                }
+
+/* 145 */       public void method5() {
+/* 146 */           log("Test.method5");
+                }
+
+/* 149 */       public void method6() {
+/* 150 */           log("Test.method6");
+                }
+            }

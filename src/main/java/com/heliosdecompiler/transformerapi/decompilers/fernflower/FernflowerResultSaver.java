@@ -18,60 +18,7 @@ package com.heliosdecompiler.transformerapi.decompilers.fernflower;
 
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.jar.Manifest;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import com.heliosdecompiler.transformerapi.common.AbstractResultSaver;
 
-public class FernflowerResultSaver implements IResultSaver {
-
-    private static final String UNEXPECTED = "Unexpected";
-
-    private final Map<String, String> results = new HashMap<>();
-
-    public Map<String, String> getResults() {
-        return this.results;
-    }
-
-    public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content) {
-        throw new IllegalArgumentException(UNEXPECTED);
-    }
-
-    public void saveFolder(String path) {
-    }
-
-    public void copyFile(String source, String path, String entryName) {
-    }
-
-    public void saveClassFile(String path, String qualifiedName, String entryName, String content, int[] mapping) {
-        if (mapping != null) {
-            String[] splits = content.split("\r?\n");
-
-            for (int i = 0; i < mapping.length; i += 2) {
-                int srcLine = mapping[i + 1] - 1; // line in decompiled source
-                int actualLine = mapping[i]; // actual source line
-                splits[srcLine] = splits[srcLine] + " /* " + actualLine + " */";
-            }
-
-            content = Stream.of(splits).collect(Collectors.joining("\r\n"));
-        }
-        results.put(qualifiedName, content);
-    }
-
-    public void createArchive(String path, String archiveName, Manifest manifest) {
-        // nothing to do
-    }
-
-    public void saveDirEntry(String path, String archiveName, String entryName) {
-        throw new IllegalArgumentException(UNEXPECTED);
-    }
-
-    public void copyEntry(String source, String path, String archiveName, String entry) {
-        throw new IllegalArgumentException(UNEXPECTED);
-    }
-
-    public void closeArchive(String path, String archiveName) {
-        // nothing to do
-    }
+public class FernflowerResultSaver extends AbstractResultSaver implements IResultSaver {
 }

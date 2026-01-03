@@ -16,6 +16,8 @@
 
 package com.heliosdecompiler.transformerapi.decompilers.vineflower;
 
+import org.vineflower.java.decompiler.main.extern.IFernflowerPreferences;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,5 +58,9 @@ public class VineflowerSettings {
 
     public Map<String, Object> getSettings() {
         return this.internalSettings;
+    }
+
+    public static Map<String, String> lineNumbers() {
+        return Map.of(IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1", IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1");
     }
 }

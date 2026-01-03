@@ -19,65 +19,12 @@ package com.heliosdecompiler.transformerapi.decompilers.vineflower;
 import jd.core.DecompilationResult;
 import org.vineflower.java.decompiler.main.extern.IResultSaver;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.jar.Manifest;
+import com.heliosdecompiler.transformerapi.common.AbstractResultSaver;
 
-public class VineflowerResultSaver implements IResultSaver {
-    private final DecompilationResult result;
-    private boolean lineNumbers;
+public class VineflowerResultSaver extends AbstractResultSaver implements IResultSaver {
 
     public VineflowerResultSaver(DecompilationResult result) {
-        this.result = result;
+        super(result);
     }
 
-    private static final String UNEXPECTED = "Unexpected";
-
-    private final Map<String, String> results = new HashMap<>();
-
-    public Map<String, String> getResults() {
-        return this.results;
-    }
-
-    public boolean hasLineRemapping() {
-        return lineNumbers;
-    }
-
-    public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content) {
-        throw new IllegalArgumentException(UNEXPECTED);
-    }
-
-    public void saveFolder(String path) {
-    }
-
-    public void copyFile(String source, String path, String entryName) {
-    }
-
-    public void saveClassFile(String path, String qualifiedName, String entryName, String content, int[] mapping) {
-        if (mapping != null) {
-            lineNumbers = true;
-            for (int i = 0; i < mapping.length; i += 2) {
-                int line = mapping[i + 1];
-                int actualLine = mapping[i];
-                result.putLineNumber(line, actualLine);
-            }
-        }
-        results.put(qualifiedName, content);
-    }
-
-    public void createArchive(String path, String archiveName, Manifest manifest) {
-        // nothing to do
-    }
-
-    public void saveDirEntry(String path, String archiveName, String entryName) {
-        throw new IllegalArgumentException(UNEXPECTED);
-    }
-
-    public void copyEntry(String source, String path, String archiveName, String entry) {
-        throw new IllegalArgumentException(UNEXPECTED);
-    }
-
-    public void closeArchive(String path, String archiveName) {
-        // nothing to do
-    }
 }

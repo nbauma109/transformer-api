@@ -1,0 +1,153 @@
+package test;
+
+public abstract class TestCompact {
+   public void method1(boolean flag) {
+      this.log("Test.method1 start");// 6
+      if (flag) {// 7
+         this.log("Test.method1 if");// 8
+      } else {
+         this.log("Test.method1 else");// 10
+      }
+
+      this.log("Test.method1 end");// 11
+   }// 12
+
+   public void method2() {
+      this.log("Test.method2 start");// 15
+
+      try {
+         this.log("Test.method2 try");// 17
+      } catch (Exception var5) {// 18
+         this.log("Test.method2 catch");// 19
+      } finally {
+         this.log("Test.method2 finally");// 21
+      }
+
+      this.log("Test.method2 end");// 23
+   }// 24
+
+   public void method3(int[] arr) {
+      this.log("Test.method3 start");// 48
+
+      for(int i = 0; i < arr.length; ++i) {// 49
+         this.log("Test.method3 for");// 50
+      }
+
+      this.log("Test.method3 end");// 51
+   }// 52
+
+   public void method4(int i) {
+      this.log("Test.method4 start");// 55
+      switch (i) {// 56
+         case 0 -> this.log("Test.method4 case 0");// 58
+         case 1 -> this.log("Test.method4 case 1");// 61
+         case 2 -> this.log("Test.method4 case 2");// 64
+         case 3 -> this.log("Test.method4 case 3");// 67
+         default -> this.log("Test.method4 default");// 70
+      }
+
+      this.log("Test.method4 end");// 73
+   }// 74
+
+   public String method5(int i) {
+      this.log("Test.method5 start");// 77
+      String var10000;
+      switch (i) {// 78
+         case 0 -> var10000 = "Test.method4 case 0";// 79
+         case 1 -> var10000 = "Test.method4 case 1";// 80
+         case 2 -> var10000 = "Test.method4 case 2";// 81
+         case 3 -> var10000 = "Test.method4 case 3";// 82
+         default -> throw new IllegalArgumentException();
+      }
+
+      String s = var10000;// 83
+      return "return:" + s;// 85
+   }
+
+   public void method5() {
+      this.log("Test.method5");// 146
+   }// 147
+
+   public void method6() {
+      this.log("Test.method6");// 150
+   }// 151
+
+   public abstract void log(String var1);
+
+   class Inner1 {
+      public Inner1() {
+         TestCompact.this.log("Inner1 constructor");// 29
+      }// 30
+
+      public void method1(boolean flag) {
+         TestCompact.this.log("Inner1.method1 start");// 33
+
+         while(flag) {// 34
+            TestCompact.this.log("Inner1.method1 while");// 35
+         }
+
+         TestCompact.this.log("Inner1.method1 end");// 36
+      }// 37
+
+      public void method2(boolean flag) {
+         TestCompact.this.log("Inner1.method2 start");// 40
+
+         do {
+            TestCompact.this.log("Inner1.method2 do while");// 41
+         } while(flag);// 42
+
+         TestCompact.this.log("Inner1.method2 end");// 43
+      }// 44
+   }
+
+   class Inner3 {
+      public Inner3() {
+         TestCompact.this.log("Inner3 constructor");// 91
+      }// 92
+
+      public void method1() {
+         (new Thread(new Runnable() {// 100
+            public void run() {
+               TestCompact.this.log("Inner3.method1");// 98
+            }// 99
+         })).start();
+      }// 101
+
+      public void method2() {
+         (new Thread(() -> {// 107
+            TestCompact.this.log("Inner3.method2a");// 105
+            TestCompact.this.log("Inner3.method2b");// 106
+         })).start();
+      }// 108
+
+      public void method3() {
+         (new Thread(() -> TestCompact.this.log("Inner3.method3"))).start();// 111
+      }// 112
+   }
+
+   class Inner4 {
+      public Inner4() {
+         TestCompact.this.log("Inner4 constructor");// 118
+      }// 119
+
+      public void method1() {
+         TestCompact.this.log("Inner4.method1");// 122
+      }// 123
+
+      public void method2() {
+         TestCompact.this.log("Inner4.method2");// 126
+      }// 127
+
+      public boolean equals(Object o) {
+         throw new UnsupportedOperationException("equals");// 131
+      }
+
+      public int hashCode() {
+         throw new UnsupportedOperationException("hashCode");// 136
+      }
+
+      public String toString() {
+         throw new UnsupportedOperationException("toString");// 141
+      }
+   }
+}

@@ -11,4 +11,12 @@ public class MapDecompilerSettings extends CommandLineOptions implements Setting
     public MapDecompilerSettings(Map<String, String> settings) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         applySettings(settings);
     }
+
+    public static Map<String, String> defaults() {
+        return Map.of("SuppressBanner", "true");
+    }
+
+    public static Map<String, String> byteCodeSettings() {
+        return Map.of("SuppressBanner", "true", "RawBytecode", "true");
+    }
 }

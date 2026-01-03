@@ -4,6 +4,11 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import com.heliosdecompiler.transformerapi.common.Loader;
+import com.heliosdecompiler.transformerapi.decompilers.fernflower.FernflowerSettings;
+import com.heliosdecompiler.transformerapi.decompilers.jadx.MapJadxArgs;
+import com.heliosdecompiler.transformerapi.decompilers.jd.JDSettings;
+import com.heliosdecompiler.transformerapi.decompilers.procyon.MapDecompilerSettings;
+import com.heliosdecompiler.transformerapi.decompilers.vineflower.VineflowerSettings;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -20,8 +25,6 @@ import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompile
 import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers.ENGINE_JD_CORE_V1;
 import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers.ENGINE_PROCYON;
 import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers.ENGINE_VINEFLOWER;
-import static jd.core.preferences.Preferences.WRITE_LINE_NUMBERS;
-import static jd.core.preferences.Preferences.WRITE_METADATA;
 import static org.junit.Assert.assertEquals;
 
 import jd.core.DecompilationResult;
@@ -35,12 +38,12 @@ public class StandardTransformersTest {
     
     @Test
     public void testDecompileProcyon() throws Exception {
-        testDecompile("/TestCompactProcyon.txt", ENGINE_PROCYON, Map.of("SuppressBanner", "true"));
+        testDecompile("/TestCompactProcyon.txt", ENGINE_PROCYON, MapDecompilerSettings.defaults());
     }
     
     @Test
     public void testDecompileProcyonByteCode() throws Exception {
-        testDecompile("/TestCompactProcyonByteCode.txt", ENGINE_PROCYON, Map.of("SuppressBanner", "true", "RawBytecode", "true"));
+        testDecompile("/TestCompactProcyonByteCode.txt", ENGINE_PROCYON, MapDecompilerSettings.byteCodeSettings());
     }
     
     @Test
@@ -49,8 +52,18 @@ public class StandardTransformersTest {
     }
     
     @Test
+    public void testDecompileJADXWithLineNumbers() throws Exception {
+        testDecompile("/TestCompactJADXWithLineNumbers.txt", ENGINE_JADX, MapJadxArgs.lineNumbers());
+    }
+    
+    @Test
     public void testDecompileFernflower() throws Exception {
         testDecompile("/TestCompactFernflower.txt", ENGINE_FERNFLOWER, Collections.emptyMap());
+    }
+    
+    @Test
+    public void testDecompileFernflowerWithLineNumbers() throws Exception {
+        testDecompile("/TestCompactFernflowerWithLineNumbers.txt", ENGINE_FERNFLOWER, FernflowerSettings.lineNumbers());
     }
     
     @Test
@@ -59,13 +72,28 @@ public class StandardTransformersTest {
     }
     
     @Test
+    public void testDecompileVineflowerWithLineNumbers() throws Exception {
+        testDecompile("/TestCompactVineflowerWithLineNumbers.txt", ENGINE_VINEFLOWER, VineflowerSettings.lineNumbers());
+    }
+    
+    @Test
     public void testDecompileJDCoreV0() throws Exception {
-        testDecompile("/TestCompactJDCoreV0.txt", ENGINE_JD_CORE_V0, Collections.emptyMap());
+        testDecompile("/TestCompactJDCoreV0.txt", ENGINE_JD_CORE_V0, JDSettings.defaults());
+    }
+    
+    @Test
+    public void testDecompileJDCoreV0WithLineNumbers() throws Exception {
+        testDecompile("/TestCompactJDCoreV0WithLineNumbers.txt", ENGINE_JD_CORE_V0, JDSettings.lineNumbers());
     }
     
     @Test
     public void testDecompileJDCoreV1() throws Exception {
-        testDecompile("/TestCompactJDCoreV1.txt", ENGINE_JD_CORE_V1, Map.of(WRITE_LINE_NUMBERS, "false", WRITE_METADATA, "false"));
+        testDecompile("/TestCompactJDCoreV1.txt", ENGINE_JD_CORE_V1, JDSettings.defaults());
+    }
+    
+    @Test
+    public void testDecompileJDCoreV1WithLineNumbers() throws Exception {
+        testDecompile("/TestCompactJDCoreV1WithLineNumbers.txt", ENGINE_JD_CORE_V1, JDSettings.lineNumbers());
     }
     
     private void testDecompile(String path, String engineName, Map<String, String> preferences)
