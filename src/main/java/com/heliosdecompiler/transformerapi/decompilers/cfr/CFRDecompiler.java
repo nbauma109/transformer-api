@@ -59,18 +59,11 @@ public class CFRDecompiler implements Decompiler<CFRSettings> {
             }
         }
 
-        String formatStr = "/* %2d */ ";
-        String emptyStr = "         ";
+        int numberWidth = Math.max(2, String.valueOf(maxLineNumber).length());
+        String formatStr = "/* %" + numberWidth + "d */ ";
+        String emptyStr = " ".repeat(numberWidth + 7);
 
         StringBuilder sb = new StringBuilder();
-
-        if (maxLineNumber >= 1000) {
-            formatStr = "/* %4d */ ";
-            emptyStr = "           ";
-        } else if (maxLineNumber >= 100) {
-            formatStr = "/* %3d */ ";
-            emptyStr = "          ";
-        }
 
         int index = 0;
         try (Scanner sc = new Scanner(src)) {
