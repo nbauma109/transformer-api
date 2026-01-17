@@ -121,8 +121,7 @@ implements Serializable {
             locker.lock();
             try {
                 this.lockedPrintStackTrace(s);
-            }
-            finally {
+            } finally {
                 locker.unlock();
             }
         }
@@ -277,8 +276,7 @@ implements Serializable {
                 this.stackTrace = SentinelHolder.STACK_TRACE_SENTINEL;
             }
             s.defaultWriteObject();
-        }
-        finally {
+        } finally {
             this.stackTrace = oldStackTrace;
         }
     }

@@ -52,4 +52,8 @@ public class CFRSettings {
     public static Map<String, String> defaults() {
         return Map.of("showversion", "false");
     }
+
+    public static Map<String, String> lineNumbers() {
+        return Map.of("showversion", "false", "trackbytecodeloc", "true");
+    }
 }

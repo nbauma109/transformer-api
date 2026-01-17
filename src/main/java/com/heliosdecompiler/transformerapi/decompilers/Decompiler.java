@@ -48,7 +48,6 @@ public interface Decompiler<S> {
      * @param internalName The internal name of the class to decompile
      * @param settings     The settings to use with this decompiler
      * @return The decompilation result
-     * @throws TransformationException
      * @throws IOException
      */
     DecompilationResult decompile(Loader loader, String internalName, S settings) throws IOException;

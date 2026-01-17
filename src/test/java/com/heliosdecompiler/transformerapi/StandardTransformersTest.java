@@ -39,6 +39,11 @@ public class StandardTransformersTest {
     }
 
     @Test
+    public void testDecompileCFRWithLineNumbers() throws Exception {
+        testDecompile("/TestCompactCFRWithLineNumbers.txt", ENGINE_CFR, CFRSettings.lineNumbers());
+    }
+
+    @Test
     public void testDecompileCFRFromClassPath() throws Exception {
         testDecompileFromClassPath("/TestThrowableCFR.txt", ENGINE_CFR, CFRSettings.defaults());
     }

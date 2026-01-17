@@ -18,11 +18,9 @@ public abstract class TestCompact {
         this.log("Test.method2 start");
         try {
             this.log("Test.method2 try");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             this.log("Test.method2 catch");
-        }
-        finally {
+        } finally {
             this.log("Test.method2 finally");
         }
         this.log("Test.method2 end");

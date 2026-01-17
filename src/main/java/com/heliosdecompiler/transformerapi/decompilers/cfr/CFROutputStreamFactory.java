@@ -17,25 +17,54 @@
 package com.heliosdecompiler.transformerapi.decompilers.cfr;
 
 import org.benf.cfr.reader.api.OutputSinkFactory;
+import org.benf.cfr.reader.api.SinkReturns.LineNumberMapping;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 
 public class CFROutputStreamFactory implements OutputSinkFactory {
-    private String generatedSource;
+
+    private StringBuilder sb = new StringBuilder();
+    private NavigableMap<Integer, Integer> lineMapping = new TreeMap<>();
 
     @Override
     public List<SinkClass> getSupportedSinks(SinkType sinkType, Collection<SinkClass> collection) {
-        return Collections.singletonList(SinkClass.STRING);
+        return Arrays.asList(SinkClass.STRING, SinkClass.DECOMPILED, SinkClass.DECOMPILED_MULTIVER,
+                SinkClass.EXCEPTION_MESSAGE, SinkClass.LINE_NUMBER_MAPPING);
     }
 
     @Override
     public <T> Sink<T> getSink(SinkType sinkType, SinkClass sinkClass) {
-        return a -> generatedSource = (String) a;
+        return sinkable -> {
+            if (sinkType == SinkType.PROGRESS) {
+                return;
+            }
+            if (sinkType == SinkType.LINENUMBER) {
+                LineNumberMapping mapping = (LineNumberMapping) sinkable;
+                Map<Integer, Integer> classFileMappings = mapping.getClassFileMappings();
+                Map<Integer, Integer> mappings = mapping.getMappings();
+                if (classFileMappings != null && mappings != null) {
+                    for (Entry<Integer, Integer> entry : mappings.entrySet()) {
+                        Integer srcLineNumber = classFileMappings.get(entry.getKey());
+                        lineMapping.put(entry.getValue(), srcLineNumber);
+                    }
+                }
+                return;
+            }
+            sb.append(sinkable);
+        };
     }
 
     public String getGeneratedSource() {
-        return generatedSource;
+        return sb.toString();
+    }
+
+    public Map<Integer, Integer> getLineMapping() {
+        return lineMapping;
     }
 }
