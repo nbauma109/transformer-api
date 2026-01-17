@@ -27,13 +27,19 @@ import com.strobel.assembler.metadata.TypeDefinition;
 import com.strobel.assembler.metadata.TypeReference;
 import com.strobel.decompiler.CommandLineOptions;
 import com.strobel.decompiler.DecompilerSettings;
+import com.strobel.decompiler.InMemoryLineNumberFormatter;
+import com.strobel.decompiler.LineNumberOption;
 import com.strobel.decompiler.PlainTextOutput;
 import com.strobel.decompiler.languages.BytecodeOutputOptions;
 import com.strobel.decompiler.languages.Languages;
+import com.strobel.decompiler.languages.LineNumberPosition;
+import com.strobel.decompiler.languages.TypeDecompilationResults;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import jd.core.DecompilationResult;
@@ -191,8 +197,19 @@ public class ProcyonDecompiler implements Decompiler<CommandLineOptions> {
                 });
             }
         };
-        com.strobel.decompiler.Decompiler.decompile(internalName, plainTextOutput, settings);
-        result.setDecompiledOutput(stringwriter.toString());
+        TypeDecompilationResults typeDecompilationResults = com.strobel.decompiler.Decompiler.decompile(internalName, plainTextOutput, settings);
+        if (options.getIncludeLineNumbers()) {
+            List<LineNumberPosition> lineNumberPositions = typeDecompilationResults.getLineNumberPositions();
+            EnumSet<LineNumberOption> lineNumberOptions = EnumSet.noneOf(LineNumberOption.class);
+
+            lineNumberOptions.add(LineNumberOption.LEADING_COMMENTS);
+
+            InMemoryLineNumberFormatter lineFormatter = new InMemoryLineNumberFormatter(stringwriter.toString(), lineNumberPositions, lineNumberOptions);
+            String sourceWithLineNumbers = lineFormatter.reformatFile();
+            result.setDecompiledOutput(sourceWithLineNumbers);
+        } else {
+            result.setDecompiledOutput(stringwriter.toString());
+        }
         return result;
     }
 }

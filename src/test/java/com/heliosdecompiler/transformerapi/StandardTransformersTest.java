@@ -59,6 +59,11 @@ public class StandardTransformersTest {
     }
 
     @Test
+    public void testDecompileProcyonWithLineNumbers() throws Exception {
+        testDecompile("/TestCompactProcyonWithLineNumbers.txt", ENGINE_PROCYON, MapDecompilerSettings.lineNumbers());
+    }
+
+    @Test
     public void testDecompileProcyonByteCode() throws Exception {
         testDecompile("/TestCompactProcyonByteCode.txt", ENGINE_PROCYON, MapDecompilerSettings.byteCodeSettings());
     }
