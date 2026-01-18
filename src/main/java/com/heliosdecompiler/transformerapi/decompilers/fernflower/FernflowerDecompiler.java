@@ -16,6 +16,7 @@
 
 package com.heliosdecompiler.transformerapi.decompilers.fernflower;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.Fernflower;
 import org.jetbrains.java.decompiler.main.decompiler.PrintStreamLogger;
@@ -36,8 +37,13 @@ import jd.core.DecompilationResult;
  */
 public class FernflowerDecompiler implements Decompiler<FernflowerSettings> {
 
+    private long time;
+
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, FernflowerSettings settings) throws IOException {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        DecompilationResult decompilationResult = new DecompilationResult();
         ClassStruct classStruct = readClassAndInnerClasses(loader, internalName);
         if (!classStruct.importantData().isEmpty()) {
             IBytecodeProvider provider = new FernflowerBytecodeProvider(classStruct.importantData());
@@ -55,11 +61,30 @@ public class FernflowerDecompiler implements Decompiler<FernflowerSettings> {
             } finally {
                 baseDecompiler.clearContext();
             }
-            DecompilationResult decompilationResult = new DecompilationResult();
             String key = classStruct.fullClassName();
             decompilationResult.setDecompiledOutput(saver.getResults().get(key));
-            return decompilationResult;
         }
-        return null;
+        time = stopWatch.getTime();
+        return decompilationResult;
+    }
+
+    @Override
+    public long getDecompilationTime() {
+        return time;
+    }
+
+    @Override
+    public String getDecompilerVersion() {
+        return getAllManifestAttributes().getValue("fernflower-version");
+    }
+
+    @Override
+    public FernflowerSettings defaultSettings() {
+        return new FernflowerSettings(FernflowerSettings.defaults());
+    }
+
+    @Override
+    public FernflowerSettings lineNumberSettings() {
+        return new FernflowerSettings(FernflowerSettings.lineNumbers());
     }
 }

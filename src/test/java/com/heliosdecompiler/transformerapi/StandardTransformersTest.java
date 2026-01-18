@@ -4,7 +4,9 @@ import org.apache.commons.io.IOUtils;
 import org.jd.core.v1.loader.ClassPathLoader;
 import org.junit.Test;
 
+import com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers;
 import com.heliosdecompiler.transformerapi.common.Loader;
+import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 import com.heliosdecompiler.transformerapi.decompilers.cfr.CFRSettings;
 import com.heliosdecompiler.transformerapi.decompilers.fernflower.FernflowerSettings;
 import com.heliosdecompiler.transformerapi.decompilers.jadx.MapJadxArgs;
@@ -44,10 +46,20 @@ public class StandardTransformersTest {
     }
 
     @Test
+    public void testDecompileCFRFromArchive() throws Exception {
+        testDecompileFromArchive("/TestCompactCFRWithLineNumbers.txt", Decompilers.CFR);
+    }
+    
+    @Test
+    public void testDecompileCFRFromRootLocation() throws Exception {
+        testDecompileFromRootLocation("/TestZipLoader.txt");
+    }
+    
+    @Test
     public void testDecompileCFRFromClassPath() throws Exception {
         testDecompileFromClassPath("/TestThrowableCFR.txt", ENGINE_CFR, CFRSettings.defaults());
     }
-
+    
     @Test
     public void testDecompileProcyonFromClassPath() throws Exception {
         testDecompileFromClassPath("/TestThrowableProcyon.txt", ENGINE_PROCYON, MapDecompilerSettings.defaults());
@@ -64,6 +76,11 @@ public class StandardTransformersTest {
     }
 
     @Test
+    public void testDecompileProcyonFromArchive() throws Exception {
+        testDecompileFromArchive("/TestCompactProcyonWithLineNumbers.txt", Decompilers.PROCYON);
+    }
+    
+    @Test
     public void testDecompileProcyonByteCode() throws Exception {
         testDecompile("/TestCompactProcyonByteCode.txt", ENGINE_PROCYON, MapDecompilerSettings.byteCodeSettings());
     }
@@ -75,7 +92,7 @@ public class StandardTransformersTest {
 
     @Test
     public void testDecompileJADX() throws Exception {
-        testDecompile("/TestCompactJADX.txt", ENGINE_JADX, Collections.emptyMap());
+        testDecompile("/TestCompactJADX.txt", ENGINE_JADX, MapJadxArgs.defaults());
     }
 
     @Test
@@ -83,6 +100,11 @@ public class StandardTransformersTest {
         testDecompile("/TestCompactJADXWithLineNumbers.txt", ENGINE_JADX, MapJadxArgs.lineNumbers());
     }
 
+    @Test
+    public void testDecompileJADXFromArchive() throws Exception {
+        testDecompileFromArchive("/TestCompactJADXWithLineNumbers.txt", Decompilers.JADX);
+    }
+    
     @Test
     public void testDecompileFernflower() throws Exception {
         testDecompile("/TestCompactFernflower.txt", ENGINE_FERNFLOWER, Collections.emptyMap());
@@ -99,6 +121,11 @@ public class StandardTransformersTest {
     }
 
     @Test
+    public void testDecompileFernflowerFromArchive() throws Exception {
+        testDecompileFromArchive("/TestCompactFernflowerWithLineNumbers.txt", Decompilers.FERNFLOWER);
+    }
+    
+    @Test
     public void testDecompileVineflower() throws Exception {
         testDecompile("/TestCompactVineflower.txt", ENGINE_VINEFLOWER, Collections.emptyMap());
     }
@@ -113,6 +140,11 @@ public class StandardTransformersTest {
         testDecompile("/TestCompactVineflowerWithLineNumbers.txt", ENGINE_VINEFLOWER, VineflowerSettings.lineNumbers());
     }
 
+    @Test
+    public void testDecompileVineflowerFromArchive() throws Exception {
+        testDecompileFromArchive("/TestCompactVineflowerWithLineNumbers.txt", Decompilers.VINEFLOWER);
+    }
+    
     @Test
     public void testDecompileJDCoreV0() throws Exception {
         testDecompile("/TestCompactJDCoreV0.txt", ENGINE_JD_CORE_V0, JDSettings.defaults());
@@ -129,6 +161,11 @@ public class StandardTransformersTest {
     }
 
     @Test
+    public void testDecompileJDCoreV0FromArchive() throws Exception {
+        testDecompileFromArchive("/TestCompactJDCoreV0WithLineNumbers.txt", Decompilers.JD_CORE_V0);
+    }
+    
+    @Test
     public void testDecompileJDCoreV1() throws Exception {
         testDecompile("/TestCompactJDCoreV1.txt", ENGINE_JD_CORE_V1, JDSettings.defaults());
     }
@@ -142,7 +179,12 @@ public class StandardTransformersTest {
     public void testDecompileJDCoreV1WithLineNumbers() throws Exception {
         testDecompile("/TestCompactJDCoreV1WithLineNumbers.txt", ENGINE_JD_CORE_V1, JDSettings.lineNumbers());
     }
-
+    
+    @Test
+    public void testDecompileJDCoreV1FromArchive() throws Exception {
+        testDecompileFromArchive("/TestCompactJDCoreV1WithLineNumbers.txt", Decompilers.JD_CORE_V1);
+    }
+    
     private void testDecompile(String path, String engineName, Map<String, String> preferences)
             throws IOException, IllegalAccessException, InvocationTargetException, URISyntaxException {
         URI resource = getClass().getResource("/test-compact-expand-inline.jar").toURI();
@@ -152,7 +194,25 @@ public class StandardTransformersTest {
         DecompilationResult result = StandardTransformers.decompile(loader, internalName, preferences, engineName);
         assertEqualsIgnoreEOL(getResourceAsString(path), result.getDecompiledOutput());
     }
-
+    
+    private void testDecompileFromArchive(String path, Decompiler<?> decompiler)
+            throws IOException, IllegalAccessException, InvocationTargetException {
+        String archivePath = "src/test/resources/test-compact-expand-inline.jar";
+        String pkg = "test";
+        String className = "TestCompact.class";
+        DecompilationResult result = decompiler.decompileFromArchive(archivePath, pkg, className);
+        assertEqualsIgnoreEOL(getResourceAsString(path), result.getDecompiledOutput());
+    }
+    
+    private void testDecompileFromRootLocation(String path)
+            throws IOException, IllegalAccessException, InvocationTargetException {
+        String rootLocation = "target/test-classes";
+        String pkg = "com/heliosdecompiler/transformerapi";
+        String className = "ZipLoader.class";
+        DecompilationResult result = StandardTransformers.Decompilers.CFR.decompile(rootLocation, pkg, className);
+        assertEqualsIgnoreEOL(getResourceAsString(path), result.getDecompiledOutput());
+    }
+    
     private void testDecompileFromClassPath(String path, String engineName, Map<String, String> preferences)
             throws IOException, IllegalAccessException, InvocationTargetException {
         ClassPathLoader zipLoader = new ClassPathLoader();

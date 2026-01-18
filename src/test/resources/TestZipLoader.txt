@@ -1,0 +1,29 @@
+         /*
+          * Decompiled with CFR.
+          */
+         package com.heliosdecompiler.transformerapi;
+
+         import java.io.IOException;
+         import java.io.InputStream;
+
+         public class ZipLoader
+         extends org.jd.core.v1.util.ZipLoader {
+             public ZipLoader(InputStream in) throws IOException {
+/* 11 */         super(in);
+             }
+
+             @Override
+             protected String makeEntryName(String entryName) {
+/* 16 */         return entryName;
+             }
+
+             @Override
+             public byte[] load(String internalName) throws IOException {
+/* 21 */         return (byte[])this.getMap().get(internalName + ".class");
+             }
+
+             @Override
+             public boolean canLoad(String internalName) {
+/* 26 */         return this.getMap().containsKey(internalName + ".class");
+             }
+         }

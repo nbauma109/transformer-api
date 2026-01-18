@@ -16,6 +16,7 @@
 
 package com.heliosdecompiler.transformerapi.decompilers.vineflower;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.vineflower.java.decompiler.main.DecompilerContext;
 import org.vineflower.java.decompiler.main.Fernflower;
 import org.vineflower.java.decompiler.main.decompiler.PrintStreamLogger;
@@ -33,11 +34,16 @@ import jd.core.DecompilationResult;
  * Provides a gateway to the Fernflower decompiler
  */
 public class VineflowerDecompiler implements Decompiler<VineflowerSettings> {
+
+    private long time;
+
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, VineflowerSettings settings) throws IOException {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        DecompilationResult decompilationResult = new DecompilationResult();
         ClassStruct classStruct = readClassAndInnerClasses(loader, internalName);
         if (!classStruct.importantData().isEmpty()) {
-            DecompilationResult decompilationResult = new DecompilationResult();
             VineflowerResultSaver saver = new VineflowerResultSaver(decompilationResult);
             Fernflower baseDecompiler = new Fernflower(saver, settings.getSettings(), new PrintStreamLogger(System.out));
             if (!"1".equals(settings.getSettings().getOrDefault(IFernflowerPreferences.DUMP_ORIGINAL_LINES, "0"))) {
@@ -62,8 +68,28 @@ public class VineflowerDecompiler implements Decompiler<VineflowerSettings> {
                     decompilationResult.putLineNumber(i, i);
                 }
             }
-            return decompilationResult;
         }
-        return null;
+        time = stopWatch.getTime();
+        return decompilationResult;
+    }
+
+    @Override
+    public long getDecompilationTime() {
+        return time;
+    }
+
+    @Override
+    public String getDecompilerVersion() {
+        return getAllManifestAttributes().getValue("vineflower-version");
+    }
+
+    @Override
+    public VineflowerSettings defaultSettings() {
+        return new VineflowerSettings();
+    }
+
+    @Override
+    public VineflowerSettings lineNumberSettings() {
+        return new VineflowerSettings(VineflowerSettings.lineNumbers());
     }
 }

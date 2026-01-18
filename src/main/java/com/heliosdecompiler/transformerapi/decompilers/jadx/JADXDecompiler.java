@@ -16,25 +16,36 @@
  ******************************************************************************/
 package com.heliosdecompiler.transformerapi.decompilers.jadx;
 
+import org.apache.commons.lang3.time.StopWatch;
+
 import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import jadx.api.JadxArgs;
 import jadx.api.JadxDecompiler;
 import jadx.api.JavaClass;
+import jadx.core.Jadx;
 import jadx.plugins.input.java.JavaClassReader;
 import jadx.plugins.input.java.JavaLoadResult;
 import jd.core.DecompilationResult;
 
 public class JADXDecompiler implements Decompiler<JadxArgs> {
 
+    private long time;
+
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, JadxArgs args) throws IOException {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        DecompilationResult decompilationResult = new DecompilationResult();
         Map<String, byte[]> importantData = readClassAndInnerClasses(loader, internalName).importantData();
         if (!importantData.isEmpty()) {
             int i = 0;
@@ -47,13 +58,35 @@ public class JADXDecompiler implements Decompiler<JadxArgs> {
                 jadx.load();
                 for (JavaClass cls : jadx.getClasses()) {
                     if (cls.getClassNode().getClsData().getInputFileName().equals(internalName)) {
-                        DecompilationResult decompilationResult = new DecompilationResult();
                         decompilationResult.setDecompiledOutput(cls.getCode());
-                        return decompilationResult;
+                        break;
                     }
                 }
             }
         }
-        return null;
+
+        time = stopWatch.getTime();
+        
+        return decompilationResult;
+    }
+
+    @Override
+    public long getDecompilationTime() {
+        return time;
+    }
+
+    @Override
+    public String getDecompilerVersion() {
+        return Jadx.getVersion();
+    }
+
+    @Override
+    public JadxArgs defaultSettings() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        return new MapJadxArgs(new HashMap<>());
+    }
+
+    @Override
+    public JadxArgs lineNumberSettings() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        return new MapJadxArgs(MapJadxArgs.lineNumbers());
     }
 }

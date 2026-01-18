@@ -2,6 +2,95 @@ package test;
 
 /* loaded from: test/TestCompact */
 public abstract class TestCompact {
+
+    /* loaded from: test/TestCompact$Inner1 */
+    class Inner1 {
+        public Inner1() {
+            test.TestCompact.this.log("Inner1 constructor");
+        }
+
+        public void method1(boolean z) {
+            test.TestCompact.this.log("Inner1.method1 start");
+            while (z) {
+                test.TestCompact.this.log("Inner1.method1 while");
+            }
+            test.TestCompact.this.log("Inner1.method1 end");
+        }
+
+        public void method2(boolean z) {
+            test.TestCompact.this.log("Inner1.method2 start");
+            do {
+                test.TestCompact.this.log("Inner1.method2 do while");
+            } while (z);
+            test.TestCompact.this.log("Inner1.method2 end");
+        }
+    }
+
+    /* loaded from: test/TestCompact$Inner3 */
+    class Inner3 {
+
+        /* loaded from: test/TestCompact$Inner3$1 */
+        class 1 implements java.lang.Runnable {
+            1() {
+            }
+
+            public void run() {
+                test.TestCompact.this.log("Inner3.method1");
+            }
+        }
+
+        public Inner3() {
+            test.TestCompact.this.log("Inner3 constructor");
+        }
+
+        public void method1() {
+            new java.lang.Thread(new test.TestCompact.Inner3.1()).start();
+        }
+
+        public void method2() {
+            new java.lang.Thread(() -> {
+                test.TestCompact.this.log("Inner3.method2a");
+                test.TestCompact.this.log("Inner3.method2b");
+            }).start();
+        }
+
+        public void method3() {
+            new java.lang.Thread(() -> {
+                test.TestCompact.this.log("Inner3.method3");
+            }).start();
+        }
+    }
+
+    /* loaded from: test/TestCompact$Inner4 */
+    class Inner4 {
+        public Inner4() {
+            test.TestCompact.this.log("Inner4 constructor");
+        }
+
+        public void method1() {
+            test.TestCompact.this.log("Inner4.method1");
+        }
+
+        public void method2() {
+            test.TestCompact.this.log("Inner4.method2");
+        }
+
+        /* JADX INFO: Thrown type has an unknown type hierarchy: java.lang.UnsupportedOperationException */
+        public boolean equals(java.lang.Object obj) throws java.lang.UnsupportedOperationException {
+            throw new java.lang.UnsupportedOperationException("equals");
+        }
+
+        /* JADX INFO: Thrown type has an unknown type hierarchy: java.lang.UnsupportedOperationException */
+        public int hashCode() throws java.lang.UnsupportedOperationException {
+            throw new java.lang.UnsupportedOperationException("hashCode");
+        }
+
+        /* JADX INFO: Thrown type has an unknown type hierarchy: java.lang.UnsupportedOperationException */
+        public java.lang.String toString() throws java.lang.UnsupportedOperationException {
+            throw new java.lang.UnsupportedOperationException("toString");
+        }
+    }
+
     public void method1(boolean z) {
         log("Test.method1 start");
         if (z) {

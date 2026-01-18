@@ -18,6 +18,7 @@ package com.heliosdecompiler.transformerapi.decompilers.jd;
 
 import java.util.Map;
 
+import static jd.core.preferences.Preferences.REALIGN_LINE_NUMBERS;
 import static jd.core.preferences.Preferences.WRITE_LINE_NUMBERS;
 import static jd.core.preferences.Preferences.WRITE_METADATA;
 
@@ -34,7 +35,7 @@ public class JDSettings {
     }
 
     public static Map<String, String> lineNumbers() {
-        return Map.of(WRITE_LINE_NUMBERS, TRUE, WRITE_METADATA, FALSE);
+        return Map.of(WRITE_LINE_NUMBERS, TRUE, REALIGN_LINE_NUMBERS, TRUE, WRITE_METADATA, FALSE);
     }
 
 }

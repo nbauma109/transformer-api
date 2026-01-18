@@ -16,10 +16,13 @@
 
 package com.heliosdecompiler.transformerapi.decompilers.fernflower;
 
-import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences.BYTECODE_SOURCE_MAPPING;
+import static org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES;
+import static org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences.DUMP_ORIGINAL_LINES;
+import static org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences.REMOVE_SYNTHETIC;
 
 /**
  * Represents settings which can be used to configure the particular decompiling session.
@@ -51,7 +54,11 @@ public class FernflowerSettings {
         return this.internalSettings;
     }
 
+    public static Map<String, String> defaults() {
+        return Map.of(REMOVE_SYNTHETIC, "1", DECOMPILE_GENERIC_SIGNATURES, "1");
+    }
+    
     public static Map<String, String> lineNumbers() {
-        return Map.of(IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1", IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1");
+        return Map.of(REMOVE_SYNTHETIC, "1", DECOMPILE_GENERIC_SIGNATURES, "1", DUMP_ORIGINAL_LINES, "1", BYTECODE_SOURCE_MAPPING, "1");
     }
 }

@@ -16,6 +16,8 @@
 
 package com.heliosdecompiler.transformerapi.decompilers;
 
+import org.jd.core.v1.service.converter.classfiletojavasyntax.util.ExceptionUtil;
+import org.jd.core.v1.util.ZipLoader;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InnerClassNode;
@@ -27,11 +29,19 @@ import com.heliosdecompiler.transformerapi.common.Loader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 import jd.core.DecompilationResult;
 
@@ -125,4 +135,48 @@ public interface Decompiler<S> {
             };
         }
     }
+
+    default DecompilationResult decompileFromArchive(String archivePath, String pkg, String className) throws IOException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        Path path = Paths.get(archivePath);
+        try (InputStream in = Files.newInputStream(path)) {
+            ZipLoader zipLoader = new ZipLoader(in);
+            Loader loader = new Loader(zipLoader::canLoad, zipLoader::load, path.toUri());
+            String internalName = pkg + "/" + className.replaceFirst("\\.class$", "");
+            return decompile(loader, internalName, lineNumberSettings());
+        }
+    }
+
+    default DecompilationResult decompile(String rootLocation, String pkg, String className) throws IOException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        Path path = Paths.get(rootLocation, pkg, className);
+        Loader loader = new Loader(s -> Files.exists(path), s -> Files.readAllBytes(path));
+        String internalName = pkg + "/" + className;
+        return decompile(loader, internalName, lineNumberSettings());
+    }
+    
+    S defaultSettings() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
+
+    S lineNumberSettings() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
+
+    default Attributes getAllManifestAttributes() {
+        Attributes allAttributes = new Attributes();
+        try {
+            Enumeration<URL> enumeration = getClass().getClassLoader().getResources("META-INF/MANIFEST.MF");
+            
+            while (enumeration.hasMoreElements()) {
+                try (InputStream is = enumeration.nextElement().openStream()) {
+                    Attributes attributes = new Manifest(is).getMainAttributes();
+                    if (attributes != null) {
+                        allAttributes.putAll(attributes);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            assert ExceptionUtil.printStackTrace(e);
+        }
+        return allAttributes;
+    }
+    
+    long getDecompilationTime();
+
+    String getDecompilerVersion();
 }

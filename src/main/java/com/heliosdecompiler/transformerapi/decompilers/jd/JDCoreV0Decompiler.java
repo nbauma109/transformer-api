@@ -16,6 +16,8 @@
  ******************************************************************************/
 package com.heliosdecompiler.transformerapi.decompilers.jd;
 
+import org.apache.commons.lang3.time.StopWatch;
+
 import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 
@@ -30,13 +32,40 @@ public class JDCoreV0Decompiler implements Decompiler<Preferences> {
 
     private static final DecompilerImpl DECOMPILER = new DecompilerImpl();
 
+    private long time;
+
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, Preferences preferences) throws IOException {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
 
         // Init printer
         PrinterImpl printer = new PrinterImpl(preferences);
         String decompiledOutput = printer.buildDecompiledOutput(new JDLoader(loader), internalName, preferences, DECOMPILER);
         printer.getResult().setDecompiledOutput(decompiledOutput);
+
+        time = stopWatch.getTime();
+        
         return printer.getResult();
+    }
+
+    @Override
+    public long getDecompilationTime() {
+        return time;
+    }
+
+    @Override
+    public String getDecompilerVersion() {
+        return getAllManifestAttributes().getValue("jd-core-v0-version");
+    }
+
+    @Override
+    public Preferences defaultSettings() {
+        return new Preferences(JDSettings.defaults());
+    }
+
+    @Override
+    public Preferences lineNumberSettings() {
+        return new Preferences(JDSettings.lineNumbers());
     }
 }

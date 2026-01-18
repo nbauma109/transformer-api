@@ -16,6 +16,8 @@
 
 package com.heliosdecompiler.transformerapi.decompilers.procyon;
 
+import org.apache.commons.lang3.time.StopWatch;
+
 import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 import com.strobel.Procyon;
@@ -37,6 +39,7 @@ import com.strobel.decompiler.languages.TypeDecompilationResults;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +53,7 @@ import jd.core.links.StringData;
 
 public class ProcyonDecompiler implements Decompiler<CommandLineOptions> {
 
+    private long time;
 
     private static BytecodeOutputOptions createBytecodeFormattingOptions(final CommandLineOptions options) {
         if (options.isVerbose()) {
@@ -69,6 +73,8 @@ public class ProcyonDecompiler implements Decompiler<CommandLineOptions> {
 
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, CommandLineOptions options) throws IOException {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         Map<String, byte[]> importantClasses = new HashMap<>();
 
         String key = readClassAndInnerClasses(loader, internalName).fullClassName();
@@ -211,5 +217,27 @@ public class ProcyonDecompiler implements Decompiler<CommandLineOptions> {
             result.setDecompiledOutput(stringwriter.toString());
         }
         return result;
+    }
+
+
+    @Override
+    public long getDecompilationTime() {
+        return time;
+    }
+
+    @Override
+    public String getDecompilerVersion() {
+        return Procyon.version();
+    }
+
+    @Override
+    public CommandLineOptions defaultSettings() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        return new MapDecompilerSettings(MapDecompilerSettings.defaults());
+    }
+
+    @Override
+    public CommandLineOptions lineNumberSettings()
+            throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        return new MapDecompilerSettings(MapDecompilerSettings.lineNumbers());
     }
 }

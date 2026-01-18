@@ -16,7 +16,9 @@
 
 package com.heliosdecompiler.transformerapi.decompilers.cfr;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.benf.cfr.reader.api.CfrDriver;
+import org.benf.cfr.reader.util.CfrVersionInfo;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
 import com.heliosdecompiler.transformerapi.common.Loader;
@@ -30,8 +32,12 @@ import jd.core.DecompilationResult;
 
 public class CFRDecompiler implements Decompiler<CFRSettings> {
 
+    private long time;
+
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, CFRSettings settings) throws IOException {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         CFROutputStreamFactory sink = new CFROutputStreamFactory();
         String entryPath = internalName + ".class";
         OptionsImpl options = new OptionsImpl(settings.getSettings());
@@ -48,6 +54,7 @@ public class CFRDecompiler implements Decompiler<CFRSettings> {
         }
         DecompilationResult decompilationResult = new DecompilationResult();
         decompilationResult.setDecompiledOutput(resultCode);
+        time = stopWatch.getTime();
         return decompilationResult;
     }
 
@@ -82,4 +89,23 @@ public class CFRDecompiler implements Decompiler<CFRSettings> {
         return sb.toString();
     }
 
+    @Override
+    public long getDecompilationTime() {
+        return time;
+    }
+
+    @Override
+    public String getDecompilerVersion() {
+        return CfrVersionInfo.VERSION_INFO;
+    }
+
+    @Override
+    public CFRSettings defaultSettings() {
+        return new CFRSettings(CFRSettings.defaults());
+    }
+
+    @Override
+    public CFRSettings lineNumberSettings() {
+        return new CFRSettings(CFRSettings.lineNumbers());
+    }
 }
