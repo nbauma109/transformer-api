@@ -77,10 +77,6 @@ public class ProcyonDecompiler implements Decompiler<CommandLineOptions> {
         stopWatch.start();
         Map<String, byte[]> importantClasses = new HashMap<>();
 
-        String key = readClassAndInnerClasses(loader, internalName).fullClassName();
-
-        importantClasses.put(key, loader.load(internalName));
-
         final DecompilerSettings settings = new DecompilerSettings();
 
         settings.setFlattenSwitchBlocks(options.getFlattenSwitchBlocks());
