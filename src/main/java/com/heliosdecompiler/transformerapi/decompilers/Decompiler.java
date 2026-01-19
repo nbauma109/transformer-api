@@ -24,6 +24,7 @@ import org.objectweb.asm.tree.InnerClassNode;
 import org.vineflower.java.decompiler.main.extern.IContextSource;
 import org.vineflower.java.decompiler.main.extern.IResultSaver;
 
+import com.heliosdecompiler.transformerapi.common.FileLoader;
 import com.heliosdecompiler.transformerapi.common.Loader;
 
 import java.io.ByteArrayInputStream;
@@ -147,9 +148,9 @@ public interface Decompiler<S> {
     }
 
     default DecompilationResult decompile(String rootLocation, String pkg, String className) throws IOException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        Path path = Paths.get(rootLocation, pkg, className);
-        Loader loader = new Loader(s -> Files.exists(path), s -> Files.readAllBytes(path));
-        String internalName = pkg + "/" + className;
+        FileLoader fileLoader = new FileLoader(rootLocation, pkg, className);
+        Loader loader = new Loader(fileLoader::canLoad, fileLoader::load, Paths.get(rootLocation).toUri());
+        String internalName = pkg + "/" + className.replaceFirst("\\.class$", "");
         return decompile(loader, internalName, lineNumberSettings());
     }
     

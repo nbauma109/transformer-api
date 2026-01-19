@@ -1,0 +1,186 @@
+            package com.heliosdecompiler.transformerapi;
+
+            /* loaded from: com/heliosdecompiler/transformerapi/TestCompact */
+/* 4 */     public abstract class TestCompact {
+                public abstract void log(java.lang.String str);
+
+/* 5 */         public void method1(boolean flag) {
+/* 6 */             log("Test.method1 start");
+/* 7 */             if (flag) {
+/* 8 */                 log("Test.method1 if");
+                    } else {
+/* 10 */                log("Test.method1 else");
+                    }
+/* 11 */            log("Test.method1 end");
+                }
+
+/* 14 */        public void method2() {
+/* 15 */            log("Test.method2 start");
+                    try {
+                        try {
+/* 17 */                    log("Test.method2 try");
+/* 21 */                    log("Test.method2 finally");
+                        } catch (java.lang.Exception e) {
+/* 19 */                    log("Test.method2 catch");
+/* 21 */                    log("Test.method2 finally");
+                        }
+/* 23 */                log("Test.method2 end");
+                    } catch (java.lang.Throwable th) {
+/* 21 */                log("Test.method2 finally");
+/* 22 */                throw th;
+                    }
+                }
+
+                /* loaded from: com/heliosdecompiler/transformerapi/TestCompact$Inner1 */
+/* 26 */        class Inner1 {
+/* 27 */            public Inner1() {
+/* 29 */                com.heliosdecompiler.transformerapi.TestCompact.this.log("Inner1 constructor");
+                    }
+
+/* 32 */            public void method1(boolean flag) {
+/* 33 */                com.heliosdecompiler.transformerapi.TestCompact.this.log("Inner1.method1 start");
+/* 34 */                while (flag) {
+/* 35 */                    com.heliosdecompiler.transformerapi.TestCompact.this.log("Inner1.method1 while");
+                        }
+/* 36 */                com.heliosdecompiler.transformerapi.TestCompact.this.log("Inner1.method1 end");
+                    }
+
+/* 39 */            public void method2(boolean flag) {
+/* 40 */                com.heliosdecompiler.transformerapi.TestCompact.this.log("Inner1.method2 start");
+/* 42 */                do {
+/* 41 */                    com.heliosdecompiler.transformerapi.TestCompact.this.log("Inner1.method2 do while");
+/* 42 */                } while (flag);
+/* 43 */                com.heliosdecompiler.transformerapi.TestCompact.this.log("Inner1.method2 end");
+                    }
+                }
+
+/* 47 */        public void method3(int[] arr) {
+/* 48 */            log("Test.method3 start");
+                    for (int i = 0; i < arr.length; i++) {
+/* 50 */                log("Test.method3 for");
+                    }
+/* 51 */            log("Test.method3 end");
+                }
+
+/* 54 */        public void method4(int i) {
+/* 55 */            log("Test.method4 start");
+                    switch (i) {
+                        case 0:
+/* 58 */                    log("Test.method4 case 0");
+                            break;
+                        case 1:
+/* 61 */                    log("Test.method4 case 1");
+                            break;
+                        case 2:
+/* 64 */                    log("Test.method4 case 2");
+                            break;
+                        case 3:
+/* 67 */                    log("Test.method4 case 3");
+                            break;
+                        default:
+/* 70 */                    log("Test.method4 default");
+                            break;
+                    }
+/* 73 */            log("Test.method4 end");
+                }
+
+                /* JADX INFO: Thrown type has an unknown type hierarchy: java.lang.IllegalArgumentException */
+/* 76 */        public java.lang.String method5(int i) throws java.lang.IllegalArgumentException {
+                    java.lang.String str;
+/* 77 */            log("Test.method5 start");
+                    switch (i) {
+                        case 0:
+/* 79 */                    str = "Test.method4 case 0";
+                            break;
+                        case 1:
+/* 80 */                    str = "Test.method4 case 1";
+                            break;
+                        case 2:
+/* 81 */                    str = "Test.method4 case 2";
+                            break;
+                        case 3:
+/* 82 */                    str = "Test.method4 case 3";
+                            break;
+                        default:
+/* 83 */                    throw new java.lang.IllegalArgumentException();
+                    }
+/* 78 */            java.lang.String s = str;
+/* 85 */            return "return:" + s;
+                }
+
+                /* loaded from: com/heliosdecompiler/transformerapi/TestCompact$Inner3 */
+/* 86 */        class Inner3 {
+/* 87 */            static /* synthetic */ com.heliosdecompiler.transformerapi.TestCompact access$0(com.heliosdecompiler.transformerapi.TestCompact.Inner3 inner3) {
+/* 88 */                return com.heliosdecompiler.transformerapi.TestCompact.this;
+                    }
+
+/* 89 */            public Inner3() {
+/* 91 */                com.heliosdecompiler.transformerapi.TestCompact.this.log("Inner3 constructor");
+                    }
+
+                    /* loaded from: com/heliosdecompiler/transformerapi/TestCompact$Inner3$1 */
+/* 93 */            class 1 implements java.lang.Runnable {
+/* 94 */                1() {
+                        }
+
+/* 97 */                public void run() {
+/* 98 */                    com.heliosdecompiler.transformerapi.TestCompact.Inner3.access$0(com.heliosdecompiler.transformerapi.TestCompact.Inner3.this).log("Inner3.method1");
+                        }
+                    }
+
+/* 94 */            public void method1() {
+/* 100 */               new java.lang.Thread(new com.heliosdecompiler.transformerapi.TestCompact.Inner3.1()).start();
+                    }
+
+/* 103 */           public void method2() {
+/* 107 */               new java.lang.Thread(() -> {
+/* 105 */                   com.heliosdecompiler.transformerapi.TestCompact.this.log("Inner3.method2a");
+/* 106 */                   com.heliosdecompiler.transformerapi.TestCompact.this.log("Inner3.method2b");
+                        }).start();
+                    }
+
+/* 110 */           public void method3() {
+/* 111 */               new java.lang.Thread(() -> {
+/* 111 */                   com.heliosdecompiler.transformerapi.TestCompact.this.log("Inner3.method3");
+                        }).start();
+                    }
+                }
+
+                /* loaded from: com/heliosdecompiler/transformerapi/TestCompact$Inner4 */
+/* 115 */       class Inner4 {
+/* 116 */           public Inner4() {
+/* 118 */               com.heliosdecompiler.transformerapi.TestCompact.this.log("Inner4 constructor");
+                    }
+
+/* 121 */           public void method1() {
+/* 122 */               com.heliosdecompiler.transformerapi.TestCompact.this.log("Inner4.method1");
+                    }
+
+/* 125 */           public void method2() {
+/* 126 */               com.heliosdecompiler.transformerapi.TestCompact.this.log("Inner4.method2");
+                    }
+
+                    /* JADX INFO: Thrown type has an unknown type hierarchy: java.lang.UnsupportedOperationException */
+/* 130 */           public boolean equals(java.lang.Object o) throws java.lang.UnsupportedOperationException {
+/* 131 */               throw new java.lang.UnsupportedOperationException("equals");
+                    }
+
+                    /* JADX INFO: Thrown type has an unknown type hierarchy: java.lang.UnsupportedOperationException */
+/* 135 */           public int hashCode() throws java.lang.UnsupportedOperationException {
+/* 136 */               throw new java.lang.UnsupportedOperationException("hashCode");
+                    }
+
+                    /* JADX INFO: Thrown type has an unknown type hierarchy: java.lang.UnsupportedOperationException */
+/* 140 */           public java.lang.String toString() throws java.lang.UnsupportedOperationException {
+/* 141 */               throw new java.lang.UnsupportedOperationException("toString");
+                    }
+                }
+
+/* 145 */       public void method5() {
+/* 146 */           log("Test.method5");
+                }
+
+/* 149 */       public void method6() {
+/* 150 */           log("Test.method6");
+                }
+            }

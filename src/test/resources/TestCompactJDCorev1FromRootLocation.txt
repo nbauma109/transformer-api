@@ -1,0 +1,154 @@
+/*     */ package com.heliosdecompiler.transformerapi;
+/*     */
+/*     */ public abstract class TestCompact
+/*     */ {
+/*     */   public void method1(boolean flag) {
+/*   6 */     log("Test.method1 start");
+/*   7 */     if (flag) {
+/*   8 */       log("Test.method1 if");
+/*     */     } else
+/*  10 */       log("Test.method1 else");
+/*  11 */     log("Test.method1 end");
+/*     */   }
+/*     */
+/*     */   public void method2() {
+/*  15 */     log("Test.method2 start");
+/*     */     try {
+/*  17 */       log("Test.method2 try");
+/*  18 */     } catch (Exception e) {
+/*  19 */       log("Test.method2 catch");
+/*     */     } finally {
+/*  21 */       log("Test.method2 finally");
+/*     */     }
+/*  23 */     log("Test.method2 end");
+/*     */   }
+/*     */
+/*     */   class Inner1
+/*     */   {
+/*     */     public Inner1() {
+/*  29 */       TestCompact.this.log("Inner1 constructor");
+/*     */     }
+/*     */
+/*     */     public void method1(boolean flag) {
+/*  33 */       TestCompact.this.log("Inner1.method1 start");
+/*  34 */       while (flag)
+/*  35 */         TestCompact.this.log("Inner1.method1 while");
+/*  36 */       TestCompact.this.log("Inner1.method1 end");
+/*     */     }
+/*     */
+/*     */     public void method2(boolean flag) {
+/*  40 */       TestCompact.this.log("Inner1.method2 start"); while (true) {
+/*  41 */         TestCompact.this.log("Inner1.method2 do while");
+/*  42 */         if (!flag) {
+/*  43 */           TestCompact.this.log("Inner1.method2 end");
+/*     */           return;
+/*     */         }
+/*     */       }
+/*     */     } } public void method3(int[] arr) {
+/*  48 */     log("Test.method3 start");
+/*  49 */     for (int i = 0; i < arr.length; i++)
+/*  50 */       log("Test.method3 for");
+/*  51 */     log("Test.method3 end");
+/*     */   }
+/*     */
+/*     */   public void method4(int i) {
+/*  55 */     log("Test.method4 start");
+/*  56 */     switch (i) {
+/*     */       case 0:
+/*  58 */         log("Test.method4 case 0");
+/*     */         break;
+/*     */       case 1:
+/*  61 */         log("Test.method4 case 1");
+/*     */         break;
+/*     */       case 2:
+/*  64 */         log("Test.method4 case 2");
+/*     */         break;
+/*     */       case 3:
+/*  67 */         log("Test.method4 case 3");
+/*     */         break;
+/*     */       default:
+/*  70 */         log("Test.method4 default");
+/*     */         break;
+/*     */     }
+/*  73 */     log("Test.method4 end");
+/*     */   }
+/*     */
+/*     */   public String method5(int i) {
+/*  77 */     log("Test.method5 start");
+/*  78 */     String s = switch (i) {
+/*     */         case 0 -> "Test.method4 case 0";
+/*     */         case 1 -> "Test.method4 case 1";
+/*     */         case 2 -> "Test.method4 case 2";
+/*     */         case 3 -> "Test.method4 case 3";
+/*  83 */         default -> throw new IllegalArgumentException();
+/*     */       };
+/*  85 */     return "return:" + s;
+/*     */   }
+/*     */
+/*     */   class Inner3
+/*     */   {
+/*     */     public Inner3() {
+/*  91 */       TestCompact.this.log("Inner3 constructor");
+/*     */     }
+/*     */
+/*     */     public void method1() {
+/*  95 */       new Thread(new Runnable()
+/*     */           {
+/*     */             public void run() {
+/*  98 */               TestCompact.Inner3.access$0(Inner3.this).log("Inner3.method1");
+/*     */             }
+/* 100 */           }).start();
+/*     */     }
+/*     */
+/*     */     public void method2() {
+/* 104 */       new Thread(() -> {
+/* 105 */             TestCompact.this.log("Inner3.method2a");
+/* 106 */             TestCompact.this.log("Inner3.method2b");
+/* 107 */           }).start();
+/*     */     }
+/*     */
+/*     */     public void method3() {
+/* 111 */       new Thread(() -> TestCompact.this.log("Inner3.method3")).start();
+/*     */     }
+/*     */   }
+/*     */
+/*     */   class Inner4
+/*     */   {
+/*     */     public Inner4() {
+/* 118 */       TestCompact.this.log("Inner4 constructor");
+/*     */     }
+/*     */
+/*     */     public void method1() {
+/* 122 */       TestCompact.this.log("Inner4.method1");
+/*     */     }
+/*     */
+/*     */     public void method2() {
+/* 126 */       TestCompact.this.log("Inner4.method2");
+/*     */     }
+/*     */
+/*     */
+/*     */     public boolean equals(Object o) {
+/* 131 */       throw new UnsupportedOperationException("equals");
+/*     */     }
+/*     */
+/*     */
+/*     */     public int hashCode() {
+/* 136 */       throw new UnsupportedOperationException("hashCode");
+/*     */     }
+/*     */
+/*     */
+/*     */     public String toString() {
+/* 141 */       throw new UnsupportedOperationException("toString");
+/*     */     }
+/*     */   }
+/*     */
+/*     */   public void method5() {
+/* 146 */     log("Test.method5");
+/*     */   }
+/*     */
+/*     */   public void method6() {
+/* 150 */     log("Test.method6");
+/*     */   }
+/*     */
+/*     */   public abstract void log(String paramString);
+/*     */ }

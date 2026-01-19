@@ -1,0 +1,169 @@
+          /*
+           * Decompiled with CFR.
+           */
+          package com.heliosdecompiler.transformerapi;
+
+          public abstract class TestCompact {
+              public void method1(boolean flag) {
+/*   6 */         this.log("Test.method1 start");
+/*   7 */         if (flag) {
+/*   8 */             this.log("Test.method1 if");
+                  } else {
+/*  10 */             this.log("Test.method1 else");
+                  }
+/*  11 */         this.log("Test.method1 end");
+              }
+
+              public void method2() {
+                  block5: {
+/*  15 */             this.log("Test.method2 start");
+                      try {
+                          try {
+/*  17 */                     this.log("Test.method2 try");
+                          } catch (Exception e) {
+/*  19 */                     this.log("Test.method2 catch");
+/*  21 */                     this.log("Test.method2 finally");
+                              break block5;
+                          }
+                      } catch (Throwable throwable) {
+/*  21 */                 this.log("Test.method2 finally");
+/*  22 */                 throw throwable;
+                      }
+/*  21 */             this.log("Test.method2 finally");
+                  }
+/*  23 */         this.log("Test.method2 end");
+              }
+
+              public void method3(int[] arr) {
+/*  48 */         this.log("Test.method3 start");
+/*  49 */         int i = 0;
+                  while (i < arr.length) {
+/*  50 */             this.log("Test.method3 for");
+/*  49 */             ++i;
+                  }
+/*  51 */         this.log("Test.method3 end");
+              }
+
+              public void method4(int i) {
+/*  55 */         this.log("Test.method4 start");
+/*  56 */         switch (i) {
+                      case 0: {
+/*  58 */                 this.log("Test.method4 case 0");
+/*  59 */                 break;
+                      }
+                      case 1: {
+/*  61 */                 this.log("Test.method4 case 1");
+/*  62 */                 break;
+                      }
+                      case 2: {
+/*  64 */                 this.log("Test.method4 case 2");
+/*  65 */                 break;
+                      }
+                      case 3: {
+/*  67 */                 this.log("Test.method4 case 3");
+/*  68 */                 break;
+                      }
+                      default: {
+/*  70 */                 this.log("Test.method4 default");
+                      }
+                  }
+/*  73 */         this.log("Test.method4 end");
+              }
+
+              public String method5(int i) {
+/*  77 */         this.log("Test.method5 start");
+/*  78 */         String s = switch (i) {
+                      case 0 -> "Test.method4 case 0";
+                      case 1 -> "Test.method4 case 1";
+                      case 2 -> "Test.method4 case 2";
+                      case 3 -> "Test.method4 case 3";
+                      default -> throw new IllegalArgumentException();
+                  };
+/*  85 */         return "return:" + s;
+              }
+
+              public void method5() {
+/* 146 */         this.log("Test.method5");
+              }
+
+              public void method6() {
+/* 150 */         this.log("Test.method6");
+              }
+
+              public abstract void log(String var1);
+
+              class Inner1 {
+                  public Inner1() {
+/*  29 */             TestCompact.this.log("Inner1 constructor");
+                  }
+
+                  public void method1(boolean flag) {
+/*  33 */             TestCompact.this.log("Inner1.method1 start");
+/*  34 */             while (flag) {
+/*  35 */                 TestCompact.this.log("Inner1.method1 while");
+                      }
+/*  36 */             TestCompact.this.log("Inner1.method1 end");
+                  }
+
+                  public void method2(boolean flag) {
+/*  40 */             TestCompact.this.log("Inner1.method2 start");
+                      do {
+/*  41 */                 TestCompact.this.log("Inner1.method2 do while");
+                      } while (flag);
+/*  43 */             TestCompact.this.log("Inner1.method2 end");
+                  }
+              }
+
+              class Inner3 {
+                  public Inner3() {
+/*  91 */             TestCompact.this.log("Inner3 constructor");
+                  }
+
+                  public void method1() {
+                      new Thread(new Runnable(){
+
+                          @Override
+                          public void run() {
+/*  98 */                     TestCompact.this.log("Inner3.method1");
+                          }
+                      }).start();
+                  }
+
+                  public void method2() {
+                      new Thread(() -> {
+/* 105 */                 TestCompact.this.log("Inner3.method2a");
+/* 106 */                 TestCompact.this.log("Inner3.method2b");
+                      }).start();
+                  }
+
+                  public void method3() {
+                      new Thread(() -> TestCompact.this.log("Inner3.method3")).start();
+                  }
+              }
+
+              class Inner4 {
+                  public Inner4() {
+/* 118 */             TestCompact.this.log("Inner4 constructor");
+                  }
+
+                  public void method1() {
+/* 122 */             TestCompact.this.log("Inner4.method1");
+                  }
+
+                  public void method2() {
+/* 126 */             TestCompact.this.log("Inner4.method2");
+                  }
+
+                  public boolean equals(Object o) {
+                      throw new UnsupportedOperationException("equals");
+                  }
+
+                  public int hashCode() {
+                      throw new UnsupportedOperationException("hashCode");
+                  }
+
+                  public String toString() {
+                      throw new UnsupportedOperationException("toString");
+                  }
+              }
+          }
