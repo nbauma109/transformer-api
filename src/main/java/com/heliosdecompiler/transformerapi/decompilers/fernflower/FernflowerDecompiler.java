@@ -41,8 +41,7 @@ public class FernflowerDecompiler implements Decompiler<FernflowerSettings> {
 
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, FernflowerSettings settings) throws IOException {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+        StopWatch stopWatch = StopWatch.createStarted();
         DecompilationResult decompilationResult = new DecompilationResult();
         ClassStruct classStruct = readClassAndInnerClasses(loader, internalName);
         if (!classStruct.importantData().isEmpty()) {

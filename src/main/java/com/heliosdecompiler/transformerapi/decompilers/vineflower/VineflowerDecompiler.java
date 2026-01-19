@@ -39,8 +39,7 @@ public class VineflowerDecompiler implements Decompiler<VineflowerSettings> {
 
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, VineflowerSettings settings) throws IOException {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+        StopWatch stopWatch = StopWatch.createStarted();
         DecompilationResult decompilationResult = new DecompilationResult();
         ClassStruct classStruct = readClassAndInnerClasses(loader, internalName);
         if (!classStruct.importantData().isEmpty()) {

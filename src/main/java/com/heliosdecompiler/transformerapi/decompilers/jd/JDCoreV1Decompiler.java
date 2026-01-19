@@ -37,8 +37,7 @@ public class JDCoreV1Decompiler implements Decompiler<Map<String, String>> {
 
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, Map<String, String> preferences) throws IOException {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+        StopWatch stopWatch = StopWatch.createStarted();
 
         ClassFilePrinter printer = new ClassFilePrinter();
 

@@ -42,8 +42,7 @@ public class JADXDecompiler implements Decompiler<JadxArgs> {
 
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, JadxArgs args) throws IOException {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+        StopWatch stopWatch = StopWatch.createStarted();
 
         DecompilationResult decompilationResult = new DecompilationResult();
         Map<String, byte[]> importantData = readClassAndInnerClasses(loader, internalName).importantData();

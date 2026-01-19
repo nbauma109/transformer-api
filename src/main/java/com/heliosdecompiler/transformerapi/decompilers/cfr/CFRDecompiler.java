@@ -36,8 +36,7 @@ public class CFRDecompiler implements Decompiler<CFRSettings> {
 
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, CFRSettings settings) throws IOException {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+        StopWatch stopWatch = StopWatch.createStarted();
         CFROutputStreamFactory sink = new CFROutputStreamFactory();
         String entryPath = internalName + ".class";
         OptionsImpl options = new OptionsImpl(settings.getSettings());

@@ -73,8 +73,7 @@ public class ProcyonDecompiler implements Decompiler<CommandLineOptions> {
 
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, CommandLineOptions options) throws IOException {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+        StopWatch stopWatch = StopWatch.createStarted();
         Map<String, byte[]> importantClasses = new HashMap<>();
 
         final DecompilerSettings settings = new DecompilerSettings();
@@ -212,6 +211,7 @@ public class ProcyonDecompiler implements Decompiler<CommandLineOptions> {
         } else {
             result.setDecompiledOutput(stringwriter.toString());
         }
+        time = stopWatch.getTime();
         return result;
     }
 

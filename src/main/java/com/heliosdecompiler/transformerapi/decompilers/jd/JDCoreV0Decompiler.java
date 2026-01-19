@@ -36,8 +36,7 @@ public class JDCoreV0Decompiler implements Decompiler<Preferences> {
 
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, Preferences preferences) throws IOException {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+        StopWatch stopWatch = StopWatch.createStarted();
 
         // Init printer
         PrinterImpl printer = new PrinterImpl(preferences);
