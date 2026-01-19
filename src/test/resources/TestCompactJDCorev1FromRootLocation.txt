@@ -95,7 +95,7 @@
 /*  95 */       new Thread(new Runnable()
 /*     */           {
 /*     */             public void run() {
-/*  98 */               TestCompact.Inner3.access$0(Inner3.this).log("Inner3.method1");
+/*  98 */               TestCompact.this.log("Inner3.method1");
 /*     */             }
 /* 100 */           }).start();
 /*     */     }

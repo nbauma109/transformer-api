@@ -26,7 +26,7 @@
                         }
 /* 23 */                log("Test.method2 end");
                     } catch (java.lang.Throwable th) {
-/* 21 */                log("Test.method2 finally");
+                        log("Test.method2 finally");
 /* 22 */                throw th;
                     }
                 }
@@ -104,27 +104,23 @@
                         default:
 /* 83 */                    throw new java.lang.IllegalArgumentException();
                     }
-/* 78 */            java.lang.String s = str;
+                    java.lang.String s = str;
 /* 85 */            return "return:" + s;
                 }
 
                 /* loaded from: com/heliosdecompiler/transformerapi/TestCompact$Inner3 */
-/* 86 */        class Inner3 {
-/* 87 */            static /* synthetic */ com.heliosdecompiler.transformerapi.TestCompact access$0(com.heliosdecompiler.transformerapi.TestCompact.Inner3 inner3) {
-/* 88 */                return com.heliosdecompiler.transformerapi.TestCompact.this;
-                    }
-
+/* 88 */        class Inner3 {
 /* 89 */            public Inner3() {
 /* 91 */                com.heliosdecompiler.transformerapi.TestCompact.this.log("Inner3 constructor");
                     }
 
                     /* loaded from: com/heliosdecompiler/transformerapi/TestCompact$Inner3$1 */
-/* 93 */            class 1 implements java.lang.Runnable {
-/* 94 */                1() {
+/* 94 */            class 1 implements java.lang.Runnable {
+/* 95 */                1() {
                         }
 
 /* 97 */                public void run() {
-/* 98 */                    com.heliosdecompiler.transformerapi.TestCompact.Inner3.access$0(com.heliosdecompiler.transformerapi.TestCompact.Inner3.this).log("Inner3.method1");
+/* 98 */                    com.heliosdecompiler.transformerapi.TestCompact.this.log("Inner3.method1");
                         }
                     }
 

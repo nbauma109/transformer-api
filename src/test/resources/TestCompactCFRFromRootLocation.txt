@@ -15,20 +15,12 @@
               }
 
               public void method2() {
-                  block5: {
-/*  15 */             this.log("Test.method2 start");
-                      try {
-                          try {
-/*  17 */                     this.log("Test.method2 try");
-                          } catch (Exception e) {
-/*  19 */                     this.log("Test.method2 catch");
-/*  21 */                     this.log("Test.method2 finally");
-                              break block5;
-                          }
-                      } catch (Throwable throwable) {
-/*  21 */                 this.log("Test.method2 finally");
-/*  22 */                 throw throwable;
-                      }
+/*  15 */         this.log("Test.method2 start");
+                  try {
+/*  17 */             this.log("Test.method2 try");
+                  } catch (Exception e) {
+/*  19 */             this.log("Test.method2 catch");
+                  } finally {
 /*  21 */             this.log("Test.method2 finally");
                   }
 /*  23 */         this.log("Test.method2 end");
@@ -36,10 +28,8 @@
 
               public void method3(int[] arr) {
 /*  48 */         this.log("Test.method3 start");
-/*  49 */         int i = 0;
-                  while (i < arr.length) {
+/*  49 */         for (int i = 0; i < arr.length; ++i) {
 /*  50 */             this.log("Test.method3 for");
-/*  49 */             ++i;
                   }
 /*  51 */         this.log("Test.method3 end");
               }
@@ -92,25 +82,29 @@
 
               public abstract void log(String var1);
 
-              class Inner1 {
-                  public Inner1() {
-/*  29 */             TestCompact.this.log("Inner1 constructor");
+              class Inner4 {
+                  public Inner4() {
+/* 118 */             TestCompact.this.log("Inner4 constructor");
                   }
 
-                  public void method1(boolean flag) {
-/*  33 */             TestCompact.this.log("Inner1.method1 start");
-/*  34 */             while (flag) {
-/*  35 */                 TestCompact.this.log("Inner1.method1 while");
-                      }
-/*  36 */             TestCompact.this.log("Inner1.method1 end");
+                  public void method1() {
+/* 122 */             TestCompact.this.log("Inner4.method1");
                   }
 
-                  public void method2(boolean flag) {
-/*  40 */             TestCompact.this.log("Inner1.method2 start");
-                      do {
-/*  41 */                 TestCompact.this.log("Inner1.method2 do while");
-                      } while (flag);
-/*  43 */             TestCompact.this.log("Inner1.method2 end");
+                  public void method2() {
+/* 126 */             TestCompact.this.log("Inner4.method2");
+                  }
+
+                  public boolean equals(Object o) {
+                      throw new UnsupportedOperationException("equals");
+                  }
+
+                  public int hashCode() {
+                      throw new UnsupportedOperationException("hashCode");
+                  }
+
+                  public String toString() {
+                      throw new UnsupportedOperationException("toString");
                   }
               }
 
@@ -141,29 +135,25 @@
                   }
               }
 
-              class Inner4 {
-                  public Inner4() {
-/* 118 */             TestCompact.this.log("Inner4 constructor");
+              class Inner1 {
+                  public Inner1() {
+/*  29 */             TestCompact.this.log("Inner1 constructor");
                   }
 
-                  public void method1() {
-/* 122 */             TestCompact.this.log("Inner4.method1");
+                  public void method1(boolean flag) {
+/*  33 */             TestCompact.this.log("Inner1.method1 start");
+/*  34 */             while (flag) {
+/*  35 */                 TestCompact.this.log("Inner1.method1 while");
+                      }
+/*  36 */             TestCompact.this.log("Inner1.method1 end");
                   }
 
-                  public void method2() {
-/* 126 */             TestCompact.this.log("Inner4.method2");
-                  }
-
-                  public boolean equals(Object o) {
-                      throw new UnsupportedOperationException("equals");
-                  }
-
-                  public int hashCode() {
-                      throw new UnsupportedOperationException("hashCode");
-                  }
-
-                  public String toString() {
-                      throw new UnsupportedOperationException("toString");
+                  public void method2(boolean flag) {
+/*  40 */             TestCompact.this.log("Inner1.method2 start");
+                      do {
+/*  41 */                 TestCompact.this.log("Inner1.method2 do while");
+                      } while (flag);
+/*  43 */             TestCompact.this.log("Inner1.method2 end");
                   }
               }
           }

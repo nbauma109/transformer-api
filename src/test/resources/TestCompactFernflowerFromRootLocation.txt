@@ -20,7 +20,7 @@ public abstract class TestCompact {
       } catch (Exception var5) {// 18
          this.log("Test.method2 catch");// 19
       } finally {
-         this.log("Test.method2 finally");// 20 21
+         this.log("Test.method2 finally");// 21
       }
 
       this.log("Test.method2 end");// 23
@@ -57,10 +57,10 @@ public abstract class TestCompact {
          case 1 -> var10000 = "Test.method4 case 1";// 80
          case 2 -> var10000 = "Test.method4 case 2";// 81
          case 3 -> var10000 = "Test.method4 case 3";// 82
-         default -> throw new IllegalArgumentException();// 83
+         default -> throw new IllegalArgumentException();
       }
 
-      String s = var10000;
+      String s = var10000;// 83
       return "return:" + s;// 85
    }
 

@@ -16,16 +16,12 @@
 
            public void method2() {
 /* 15*/        this.log("Test.method2 start");
-               Label_0046: {
-                   try {
-/* 17*/                this.log("Test.method2 try");
-                   } catch (final Exception e) {
-/* 19*/                this.log("Test.method2 catch");
-                       break Label_0046;
-                   } finally {
-/* 21*/                this.log("Test.method2 finally");
-                   }
-                   this.log("Test.method2 finally");
+               try {
+/* 17*/            this.log("Test.method2 try");
+               } catch (final Exception e) {
+/* 19*/            this.log("Test.method2 catch");
+               } finally {
+/* 21*/            this.log("Test.method2 finally");
                }
 /* 23*/        this.log("Test.method2 end");
            }
