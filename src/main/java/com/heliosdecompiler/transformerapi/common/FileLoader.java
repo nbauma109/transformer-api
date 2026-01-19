@@ -16,6 +16,8 @@
 
 package com.heliosdecompiler.transformerapi.common;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.jd.core.v1.api.loader.Loader;
 
 import java.io.IOException;
@@ -39,9 +41,7 @@ public class FileLoader implements Loader {
         Objects.requireNonNull(className, "className");
 
         Path rootDirectory = Paths.get(rootLocation);
-        if (!Files.isDirectory(rootDirectory)) {
-            throw new IOException("Not a directory: " + rootDirectory);
-        }
+        Validate.isTrue(Files.isDirectory(rootDirectory), "Not a directory: " + rootDirectory);
 
         String topLevelTypeName = stripClassSuffix(className);
         String primaryInternalName = buildInternalName(pkg, topLevelTypeName);
@@ -49,9 +49,7 @@ public class FileLoader implements Loader {
         Path classDirectory = pkg.isEmpty() ? rootDirectory : rootDirectory.resolve(pkg);
         Path primaryClassFile = classDirectory.resolve(toClassFileName(topLevelTypeName));
 
-        if (!Files.isRegularFile(primaryClassFile)) {
-            throw new IOException("Class file not found: " + primaryClassFile);
-        }
+        Validate.isTrue(Files.isRegularFile(primaryClassFile), "Class file not found: " + primaryClassFile);
 
         map.put(primaryInternalName, Files.readAllBytes(primaryClassFile));
         loadInnerClasses(classDirectory, pkg, topLevelTypeName);
@@ -73,10 +71,14 @@ public class FileLoader implements Loader {
     }
 
     protected String buildInternalName(String packagePath, String typeName) {
-        if (packagePath == null || packagePath.isEmpty()) {
-            return typeName;
+        Objects.requireNonNull(typeName, "typeName");
+        StringBuilder sb = new StringBuilder();
+        if (StringUtils.isNotEmpty(packagePath)) {
+            sb.append(packagePath);
+            sb.append("/");
         }
-        return packagePath + "/" + typeName;
+        sb.append(typeName);
+        return sb.toString();
     }
 
     protected String stripClassSuffix(String name) {
