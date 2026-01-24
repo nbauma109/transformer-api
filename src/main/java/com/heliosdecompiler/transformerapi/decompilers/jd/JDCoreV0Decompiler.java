@@ -44,7 +44,7 @@ public class JDCoreV0Decompiler implements Decompiler<Preferences> {
         printer.getResult().setDecompiledOutput(decompiledOutput);
 
         time = stopWatch.getTime();
-        
+
         return printer.getResult();
     }
 

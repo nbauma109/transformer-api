@@ -65,7 +65,7 @@ public class JADXDecompiler implements Decompiler<JadxArgs> {
         }
 
         time = stopWatch.getTime();
-        
+
         return decompilationResult;
     }
 

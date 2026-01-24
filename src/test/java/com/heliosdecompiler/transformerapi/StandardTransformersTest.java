@@ -49,17 +49,17 @@ public class StandardTransformersTest {
     public void testDecompileCFRFromArchive() throws Exception {
         testDecompileFromArchive("/TestCompactCFRWithLineNumbers.txt", Decompilers.CFR);
     }
-    
+
     @Test
     public void testDecompileCFRFromRootLocation() throws Exception {
         testDecompileFromRootLocation("/TestCompactCFRFromRootLocation.txt", Decompilers.CFR);
     }
-    
+
     @Test
     public void testDecompileCFRFromClassPath() throws Exception {
         testDecompileFromClassPath("/TestThrowableCFR.txt", ENGINE_CFR, CFRSettings.defaults());
     }
-    
+
     @Test
     public void testDecompileProcyonFromClassPath() throws Exception {
         testDecompileFromClassPath("/TestThrowableProcyon.txt", ENGINE_PROCYON, MapDecompilerSettings.defaults());
@@ -79,7 +79,7 @@ public class StandardTransformersTest {
     public void testDecompileProcyonFromArchive() throws Exception {
         testDecompileFromArchive("/TestCompactProcyonWithLineNumbers.txt", Decompilers.PROCYON);
     }
-    
+
     @Test
     public void testDecompileProcyonFromRootLocation() throws Exception {
         testDecompileFromRootLocation("/TestCompactProcyonFromRootLocation.txt", Decompilers.PROCYON);
@@ -109,7 +109,7 @@ public class StandardTransformersTest {
     public void testDecompileJADXFromArchive() throws Exception {
         testDecompileFromArchive("/TestCompactJADXWithLineNumbers.txt", Decompilers.JADX);
     }
-    
+
     @Test
     public void testDecompileJADXFromRootLocation() throws Exception {
         testDecompileFromRootLocation("/TestCompactJADXFromRootLocation.txt", Decompilers.JADX);
@@ -134,7 +134,7 @@ public class StandardTransformersTest {
     public void testDecompileFernflowerFromArchive() throws Exception {
         testDecompileFromArchive("/TestCompactFernflowerWithLineNumbers.txt", Decompilers.FERNFLOWER);
     }
-    
+
     @Test
     public void testDecompileFernflowerFromRootLocation() throws Exception {
         testDecompileFromRootLocation("/TestCompactFernflowerFromRootLocation.txt", Decompilers.FERNFLOWER);
@@ -159,7 +159,7 @@ public class StandardTransformersTest {
     public void testDecompileVineflowerFromArchive() throws Exception {
         testDecompileFromArchive("/TestCompactVineflowerWithLineNumbers.txt", Decompilers.VINEFLOWER);
     }
-    
+
     @Test
     public void testDecompileVineflowerFromRootLocation() throws Exception {
         testDecompileFromRootLocation("/TestCompactVineflowerFromRootLocation.txt", Decompilers.VINEFLOWER);
@@ -184,7 +184,7 @@ public class StandardTransformersTest {
     public void testDecompileJDCoreV0FromArchive() throws Exception {
         testDecompileFromArchive("/TestCompactJDCoreV0WithLineNumbers.txt", Decompilers.JD_CORE_V0);
     }
-    
+
     @Test
     public void testDecompileJDCoreV0FromRootLocation() throws Exception {
         testDecompileFromRootLocation("/TestCompactJDCoreV0FromRootLocation.txt", Decompilers.JD_CORE_V0);
@@ -204,12 +204,12 @@ public class StandardTransformersTest {
     public void testDecompileJDCoreV1WithLineNumbers() throws Exception {
         testDecompile("/TestCompactJDCoreV1WithLineNumbers.txt", ENGINE_JD_CORE_V1, JDSettings.lineNumbers());
     }
-    
+
     @Test
     public void testDecompileJDCoreV1FromArchive() throws Exception {
         testDecompileFromArchive("/TestCompactJDCoreV1WithLineNumbers.txt", Decompilers.JD_CORE_V1);
     }
-    
+
     @Test
     public void testDecompileJDCoreV1FromRootLocation() throws Exception {
         testDecompileFromRootLocation("/TestCompactJDCoreV1FromRootLocation.txt", Decompilers.JD_CORE_V1);
@@ -224,7 +224,7 @@ public class StandardTransformersTest {
         DecompilationResult result = StandardTransformers.decompile(loader, internalName, preferences, engineName);
         assertEqualsIgnoreEOL(getResourceAsString(path), result.getDecompiledOutput());
     }
-    
+
     private void testDecompileFromArchive(String path, Decompiler<?> decompiler)
             throws IOException, IllegalAccessException, InvocationTargetException {
         String archivePath = "src/test/resources/test-compact-expand-inline.jar";
@@ -233,7 +233,7 @@ public class StandardTransformersTest {
         DecompilationResult result = decompiler.decompileFromArchive(archivePath, pkg, className);
         assertEqualsIgnoreEOL(getResourceAsString(path), result.getDecompiledOutput());
     }
-    
+
     private void testDecompileFromRootLocation(String path, Decompiler<?> decompiler)
             throws IOException, IllegalAccessException, InvocationTargetException {
         String rootLocation = "target/test-classes";
@@ -242,7 +242,7 @@ public class StandardTransformersTest {
         DecompilationResult result = decompiler.decompile(rootLocation, pkg, className);
         assertEqualsIgnoreEOL(getResourceAsString(path), result.getDecompiledOutput());
     }
-    
+
     private void testDecompileFromClassPath(String path, String engineName, Map<String, String> preferences)
             throws IOException, IllegalAccessException, InvocationTargetException {
         ClassPathLoader classPathLoader = new ClassPathLoader();

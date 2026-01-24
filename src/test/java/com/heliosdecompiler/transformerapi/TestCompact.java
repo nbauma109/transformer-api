@@ -6,8 +6,9 @@ public abstract class TestCompact
     log("Test.method1 start");
     if (flag) {
       log("Test.method1 if");
-    } else
-      log("Test.method1 else");
+    } else {
+        log("Test.method1 else");
+    }
     log("Test.method1 end");
   }
 
@@ -31,8 +32,9 @@ public abstract class TestCompact
 
     public void method1(boolean flag) {
       TestCompact.this.log("Inner1.method1 start");
-      while (flag)
+      while (flag) {
         TestCompact.this.log("Inner1.method1 while");
+      }
       TestCompact.this.log("Inner1.method1 end");
     }
 
@@ -46,8 +48,9 @@ public abstract class TestCompact
       }
     } } public void method3(int[] arr) {
     log("Test.method3 start");
-    for (int i = 0; i < arr.length; i++)
-      log("Test.method3 for");
+    for (int i = 0; i < arr.length; i++) {
+        log("Test.method3 for");
+    }
     log("Test.method3 end");
   }
 
@@ -92,12 +95,7 @@ public abstract class TestCompact
     }
 
     public void method1() {
-      new Thread(new Runnable()
-          {
-            public void run() {
-              TestCompact.this.log("Inner3.method1");
-            }
-          }).start();
+      new Thread(() -> TestCompact.this.log("Inner3.method1")).start();
     }
 
     public void method2() {

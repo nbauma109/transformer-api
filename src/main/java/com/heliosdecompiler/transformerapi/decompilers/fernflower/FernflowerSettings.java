@@ -57,7 +57,7 @@ public class FernflowerSettings {
     public static Map<String, String> defaults() {
         return Map.of(REMOVE_SYNTHETIC, "1", DECOMPILE_GENERIC_SIGNATURES, "1");
     }
-    
+
     public static Map<String, String> lineNumbers() {
         return Map.of(REMOVE_SYNTHETIC, "1", DECOMPILE_GENERIC_SIGNATURES, "1", DUMP_ORIGINAL_LINES, "1", BYTECODE_SOURCE_MAPPING, "1");
     }
