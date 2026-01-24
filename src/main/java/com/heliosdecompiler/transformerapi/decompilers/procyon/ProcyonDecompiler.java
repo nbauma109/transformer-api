@@ -199,11 +199,17 @@ public class ProcyonDecompiler implements Decompiler<CommandLineOptions> {
             }
         };
         TypeDecompilationResults typeDecompilationResults = com.strobel.decompiler.Decompiler.decompile(internalName, plainTextOutput, settings);
-        if (options.getIncludeLineNumbers()) {
+        if (options.getIncludeLineNumbers() || options.getStretchLines()) {
             List<LineNumberPosition> lineNumberPositions = typeDecompilationResults.getLineNumberPositions();
             EnumSet<LineNumberOption> lineNumberOptions = EnumSet.noneOf(LineNumberOption.class);
 
-            lineNumberOptions.add(LineNumberOption.LEADING_COMMENTS);
+            if (options.getIncludeLineNumbers()) {
+                lineNumberOptions.add(LineNumberOption.LEADING_COMMENTS);
+            }
+
+            if (options.getStretchLines()) {
+                lineNumberOptions.add(LineNumberOption.STRETCHED);
+            }
 
             InMemoryLineNumberFormatter lineFormatter = new InMemoryLineNumberFormatter(stringwriter.toString(), lineNumberPositions, lineNumberOptions);
             String sourceWithLineNumbers = lineFormatter.reformatFile();

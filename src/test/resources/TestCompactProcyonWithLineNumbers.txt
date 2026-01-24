@@ -1,17 +1,14 @@
        package test;
-
        public abstract class TestCompact
        {
            public abstract void log(final String p0);
-
            public void method1(final boolean flag) {
 /*  6*/        this.log("Test.method1 start");
 /*  7*/        if (flag) {
 /*  8*/            this.log("Test.method1 if");
                } else {
 /* 10*/            this.log("Test.method1 else");
-               }
-/* 11*/        this.log("Test.method1 end");
+/* 11*/        }          this.log("Test.method1 end");
            }
 
            public void method2() {
@@ -36,16 +33,14 @@
 /* 33*/            TestCompact.this.log("Inner1.method1 start");
 /* 34*/            while (flag) {
 /* 35*/                TestCompact.this.log("Inner1.method1 while");
-                   }
-/* 36*/            TestCompact.this.log("Inner1.method1 end");
+/* 36*/            }              TestCompact.this.log("Inner1.method1 end");
                }
 
                public void method2(final boolean flag) {
 /* 40*/            TestCompact.this.log("Inner1.method2 start");
+
 /* 42*/            do {
-                       TestCompact.this.log("Inner1.method2 do while");
-                   } while (flag);
-/* 43*/            TestCompact.this.log("Inner1.method2 end");
+/* 43*/                TestCompact.this.log("Inner1.method2 do while");              } while (flag);              TestCompact.this.log("Inner1.method2 end");
                }
            }
 
@@ -53,8 +48,7 @@
 /* 48*/        this.log("Test.method3 start");
 /* 49*/        for (int i = 0; i < arr.length; ++i) {
 /* 50*/            this.log("Test.method3 for");
-               }
-/* 51*/        this.log("Test.method3 end");
+/* 51*/        }          this.log("Test.method3 end");
            }
 
            public void method4(final int i) {
@@ -63,23 +57,18 @@
                    case 0: {
 /* 58*/                this.log("Test.method4 case 0");
 /* 59*/                break;
-                   }
-                   case 1: {
+                   }              case 1: {
 /* 61*/                this.log("Test.method4 case 1");
 /* 62*/                break;
-                   }
-                   case 2: {
+                   }              case 2: {
 /* 64*/                this.log("Test.method4 case 2");
 /* 65*/                break;
-                   }
-                   case 3: {
+                   }              case 3: {
 /* 67*/                this.log("Test.method4 case 3");
 /* 68*/                break;
-                   }
-                   default: {
+                   }              default: {
 /* 70*/                this.log("Test.method4 default");
-                       break;
-                   }
+                       break;              }
                }
 /* 73*/        this.log("Test.method4 end");
            }
@@ -113,11 +102,11 @@
 
                public void method2() {
 /*104*/            new Thread(() -> {
+
                        TestCompact.this.log("Inner3.method2a");
 /*107*/                TestCompact.this.log("Inner3.method2b");
                    }).start();
                }
-
                public void method3() {
 /*111*/            new Thread(() -> TestCompact.this.log("Inner3.method3")).start();
                }
