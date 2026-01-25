@@ -153,7 +153,7 @@ public interface Decompiler<S> {
         String internalName = pkg + "/" + className.replaceFirst("\\.class$", "");
         return decompile(loader, internalName, lineNumberSettings());
     }
-    
+
     S defaultSettings() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 
     S lineNumberSettings() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
@@ -162,7 +162,7 @@ public interface Decompiler<S> {
         Attributes allAttributes = new Attributes();
         try {
             Enumeration<URL> enumeration = getClass().getClassLoader().getResources("META-INF/MANIFEST.MF");
-            
+
             while (enumeration.hasMoreElements()) {
                 try (InputStream is = enumeration.nextElement().openStream()) {
                     Attributes attributes = new Manifest(is).getMainAttributes();
@@ -176,7 +176,7 @@ public interface Decompiler<S> {
         }
         return allAttributes;
     }
-    
+
     long getDecompilationTime();
 
     String getDecompilerVersion();
