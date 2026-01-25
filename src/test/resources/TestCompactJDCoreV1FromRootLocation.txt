@@ -76,10 +76,10 @@
 /*     */   public String method5(int i) {
 /*  77 */     log("Test.method5 start");
 /*  78 */     String s = switch (i) {
-/*     */         case 0 -> "Test.method4 case 0";
-/*     */         case 1 -> "Test.method4 case 1";
-/*     */         case 2 -> "Test.method4 case 2";
-/*     */         case 3 -> "Test.method4 case 3";
+/*  79 */         case 0 -> "Test.method4 case 0";
+/*  80 */         case 1 -> "Test.method4 case 1";
+/*  81 */         case 2 -> "Test.method4 case 2";
+/*  82 */         case 3 -> "Test.method4 case 3";
 /*  83 */         default -> throw new IllegalArgumentException();
 /*     */       };
 /*  85 */     return "return:" + s;
