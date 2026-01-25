@@ -20,5 +20,5 @@ public class MapJadxArgs extends JadxArgs implements SettingsApplicable  {
     public static Map<String, String> lineNumbers() {
         return Map.of("InsertDebugLines", "true", "DebugInfo", "true", "MoveInnerClasses", "true");
     }
-    
+
 }
