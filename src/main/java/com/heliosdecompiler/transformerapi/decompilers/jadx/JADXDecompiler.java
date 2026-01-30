@@ -36,9 +36,11 @@ import jadx.plugins.input.java.JavaClassReader;
 import jadx.plugins.input.java.JavaLoadResult;
 import jd.core.DecompilationResult;
 
-public class JADXDecompiler implements Decompiler<JadxArgs> {
+public class JADXDecompiler extends Decompiler.AbstractDecompiler implements Decompiler<JadxArgs> {
 
-    private long time;
+    public JADXDecompiler(String name) {
+        super(name);
+    }
 
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, JadxArgs args) throws IOException {

@@ -35,9 +35,11 @@ import jd.core.DecompilationResult;
 /**
  * Provides a gateway to the Fernflower decompiler
  */
-public class FernflowerDecompiler implements Decompiler<FernflowerSettings> {
+public class FernflowerDecompiler extends Decompiler.AbstractDecompiler implements Decompiler<FernflowerSettings> {
 
-    private long time;
+    public FernflowerDecompiler(String name) {
+        super(name);
+    }
 
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, FernflowerSettings settings) throws IOException {

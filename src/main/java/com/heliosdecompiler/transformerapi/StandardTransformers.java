@@ -68,13 +68,13 @@ public final class StandardTransformers {
 
         public static final Set<String> AVAILABLE_DECOMPILERS = Set.of(ENGINE_JD_CORE_V0, ENGINE_JD_CORE_V1, ENGINE_CFR, ENGINE_PROCYON, ENGINE_FERNFLOWER, ENGINE_VINEFLOWER, ENGINE_JADX);
 
-        public static final ProcyonDecompiler PROCYON = new ProcyonDecompiler();
-        public static final CFRDecompiler CFR = new CFRDecompiler();
-        public static final FernflowerDecompiler FERNFLOWER = new FernflowerDecompiler();
-        public static final VineflowerDecompiler VINEFLOWER = new VineflowerDecompiler();
-        public static final JDCoreV0Decompiler JD_CORE_V0 = new JDCoreV0Decompiler();
-        public static final JDCoreV1Decompiler JD_CORE_V1 = new JDCoreV1Decompiler();
-        public static final JADXDecompiler JADX = new JADXDecompiler();
+        public static final ProcyonDecompiler PROCYON = new ProcyonDecompiler(ENGINE_PROCYON);
+        public static final CFRDecompiler CFR = new CFRDecompiler(ENGINE_CFR);
+        public static final FernflowerDecompiler FERNFLOWER = new FernflowerDecompiler(ENGINE_FERNFLOWER);
+        public static final VineflowerDecompiler VINEFLOWER = new VineflowerDecompiler(ENGINE_VINEFLOWER);
+        public static final JDCoreV0Decompiler JD_CORE_V0 = new JDCoreV0Decompiler(ENGINE_JD_CORE_V0);
+        public static final JDCoreV1Decompiler JD_CORE_V1 = new JDCoreV1Decompiler(ENGINE_JD_CORE_V1);
+        public static final JADXDecompiler JADX = new JADXDecompiler(ENGINE_JADX);
 
         public static Decompiler<?> valueOf(String engineName) throws IllegalArgumentException {
             return switch (engineName) {

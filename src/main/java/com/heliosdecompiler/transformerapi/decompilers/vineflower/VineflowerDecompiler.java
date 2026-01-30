@@ -33,9 +33,11 @@ import jd.core.DecompilationResult;
 /**
  * Provides a gateway to the Fernflower decompiler
  */
-public class VineflowerDecompiler implements Decompiler<VineflowerSettings> {
+public class VineflowerDecompiler extends Decompiler.AbstractDecompiler implements Decompiler<VineflowerSettings> {
 
-    private long time;
+    public VineflowerDecompiler(String name) {
+        super(name);
+    }
 
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, VineflowerSettings settings) throws IOException {

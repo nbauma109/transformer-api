@@ -28,11 +28,13 @@ import jd.core.preferences.Preferences;
 import jd.core.printer.PrinterImpl;
 import jd.core.process.DecompilerImpl;
 
-public class JDCoreV0Decompiler implements Decompiler<Preferences> {
+public class JDCoreV0Decompiler extends Decompiler.AbstractDecompiler implements Decompiler<Preferences> {
 
     private static final DecompilerImpl DECOMPILER = new DecompilerImpl();
 
-    private long time;
+    public JDCoreV0Decompiler(String name) {
+        super(name);
+    }
 
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, Preferences preferences) throws IOException {

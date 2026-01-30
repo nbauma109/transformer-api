@@ -30,9 +30,11 @@ import java.util.Map;
 import java.util.Scanner;
 import jd.core.DecompilationResult;
 
-public class CFRDecompiler implements Decompiler<CFRSettings> {
+public class CFRDecompiler extends Decompiler.AbstractDecompiler implements Decompiler<CFRSettings> {
 
-    private long time;
+    public CFRDecompiler(String name) {
+        super(name);
+    }
 
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, CFRSettings settings) throws IOException {

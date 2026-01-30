@@ -29,11 +29,13 @@ import java.util.Map;
 
 import jd.core.DecompilationResult;
 
-public class JDCoreV1Decompiler implements Decompiler<Map<String, String>> {
+public class JDCoreV1Decompiler extends Decompiler.AbstractDecompiler implements Decompiler<Map<String, String>> {
 
     public static final ClassFileToJavaSourceDecompiler DECOMPILER = new ClassFileToJavaSourceDecompiler();
 
-    private long time;
+    public JDCoreV1Decompiler(String name) {
+        super(name);
+    }
 
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, Map<String, String> preferences) throws IOException {

@@ -51,9 +51,11 @@ import jd.core.links.HyperlinkReferenceData;
 import jd.core.links.ReferenceData;
 import jd.core.links.StringData;
 
-public class ProcyonDecompiler implements Decompiler<CommandLineOptions> {
+public class ProcyonDecompiler extends Decompiler.AbstractDecompiler implements Decompiler<CommandLineOptions> {
 
-    private long time;
+    public ProcyonDecompiler(String name) {
+        super(name);
+    }
 
     private static BytecodeOutputOptions createBytecodeFormattingOptions(final CommandLineOptions options) {
         if (options.isVerbose()) {

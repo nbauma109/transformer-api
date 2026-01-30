@@ -180,4 +180,19 @@ public interface Decompiler<S> {
     long getDecompilationTime();
 
     String getDecompilerVersion();
+
+    String getName();
+
+    abstract class AbstractDecompiler {
+        protected long time;
+        private final String name;
+
+        protected AbstractDecompiler(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
 }
