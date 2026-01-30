@@ -82,10 +82,9 @@ public final class StandardTransformers {
                 case ENGINE_JD_CORE, ENGINE_JD_CORE_V1 -> JD_CORE_V1;
                 case ENGINE_CFR -> CFR;
                 case ENGINE_FERNFLOWER -> FERNFLOWER;
-                case ENGINE_VINEFLOWER -> VINEFLOWER;
                 case ENGINE_PROCYON -> PROCYON;
                 case ENGINE_JADX -> JADX;
-                default -> throw new IllegalArgumentException("Unexpected decompiler engine: " + engineName);
+                default -> VINEFLOWER;
             };
         }
 
@@ -99,10 +98,9 @@ public final class StandardTransformers {
                 case ENGINE_JD_CORE, ENGINE_JD_CORE_V1 -> JD_CORE_V1.decompile(apiLoader, entryInternalName, preferences);
                 case ENGINE_CFR -> CFR.decompile(apiLoader, entryInternalName, new CFRSettings(preferences));
                 case ENGINE_FERNFLOWER -> FERNFLOWER.decompile(apiLoader, entryInternalName, new FernflowerSettings(preferences));
-                case ENGINE_VINEFLOWER -> VINEFLOWER.decompile(apiLoader, entryInternalName, new VineflowerSettings(preferences));
                 case ENGINE_PROCYON -> PROCYON.decompile(apiLoader, entryInternalName, new MapDecompilerSettings(preferences));
                 case ENGINE_JADX -> JADX.decompile(apiLoader, entryInternalName, new MapJadxArgs(preferences));
-                default -> throw new IllegalArgumentException("Unexpected decompiler engine: " + engineName);
+                default -> VINEFLOWER.decompile(apiLoader, entryInternalName, new VineflowerSettings(preferences));
             };
         }
     }

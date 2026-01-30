@@ -4,7 +4,6 @@ import org.apache.commons.io.IOUtils;
 import org.jd.core.v1.loader.ClassPathLoader;
 import org.junit.Test;
 
-import com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers;
 import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 import com.heliosdecompiler.transformerapi.decompilers.cfr.CFRSettings;
@@ -22,18 +21,40 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 
+import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers.CFR;
 import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers.ENGINE_CFR;
 import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers.ENGINE_FERNFLOWER;
 import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers.ENGINE_JADX;
+import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers.ENGINE_JD_CORE;
 import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers.ENGINE_JD_CORE_V0;
 import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers.ENGINE_JD_CORE_V1;
 import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers.ENGINE_PROCYON;
 import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers.ENGINE_VINEFLOWER;
+import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers.FERNFLOWER;
+import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers.JADX;
+import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers.JD_CORE_V0;
+import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers.JD_CORE_V1;
+import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers.PROCYON;
+import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers.VINEFLOWER;
+import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers.valueOf;
 import static org.junit.Assert.assertEquals;
 
 import jd.core.DecompilationResult;
 
 public class StandardTransformersTest {
+
+    @Test
+    public void testValueOf() {
+        assertEquals(VINEFLOWER, valueOf(""));
+        assertEquals(VINEFLOWER, valueOf(ENGINE_VINEFLOWER));
+        assertEquals(FERNFLOWER, valueOf(ENGINE_FERNFLOWER));
+        assertEquals(JD_CORE_V0, valueOf(ENGINE_JD_CORE_V0));
+        assertEquals(JD_CORE_V1, valueOf(ENGINE_JD_CORE_V1));
+        assertEquals(JD_CORE_V1, valueOf(ENGINE_JD_CORE));
+        assertEquals(CFR, valueOf(ENGINE_CFR));
+        assertEquals(PROCYON, valueOf(ENGINE_PROCYON));
+        assertEquals(JADX, valueOf(ENGINE_JADX));
+    }
 
     @Test
     public void testDecompileCFR() throws Exception {
@@ -47,12 +68,12 @@ public class StandardTransformersTest {
 
     @Test
     public void testDecompileCFRFromArchive() throws Exception {
-        testDecompileFromArchive("/TestCompactCFRWithLineNumbers.txt", Decompilers.CFR);
+        testDecompileFromArchive("/TestCompactCFRWithLineNumbers.txt", CFR);
     }
     
     @Test
     public void testDecompileCFRFromRootLocation() throws Exception {
-        testDecompileFromRootLocation("/TestCompactCFRFromRootLocation.txt", Decompilers.CFR);
+        testDecompileFromRootLocation("/TestCompactCFRFromRootLocation.txt", CFR);
     }
     
     @Test
@@ -77,12 +98,12 @@ public class StandardTransformersTest {
 
     @Test
     public void testDecompileProcyonFromArchive() throws Exception {
-        testDecompileFromArchive("/TestCompactProcyonWithLineNumbers.txt", Decompilers.PROCYON);
+        testDecompileFromArchive("/TestCompactProcyonWithLineNumbers.txt", PROCYON);
     }
     
     @Test
     public void testDecompileProcyonFromRootLocation() throws Exception {
-        testDecompileFromRootLocation("/TestCompactProcyonFromRootLocation.txt", Decompilers.PROCYON);
+        testDecompileFromRootLocation("/TestCompactProcyonFromRootLocation.txt", PROCYON);
     }
 
     @Test
@@ -107,12 +128,12 @@ public class StandardTransformersTest {
 
     @Test
     public void testDecompileJADXFromArchive() throws Exception {
-        testDecompileFromArchive("/TestCompactJADXWithLineNumbers.txt", Decompilers.JADX);
+        testDecompileFromArchive("/TestCompactJADXWithLineNumbers.txt", JADX);
     }
     
     @Test
     public void testDecompileJADXFromRootLocation() throws Exception {
-        testDecompileFromRootLocation("/TestCompactJADXFromRootLocation.txt", Decompilers.JADX);
+        testDecompileFromRootLocation("/TestCompactJADXFromRootLocation.txt", JADX);
     }
 
     @Test
@@ -132,12 +153,12 @@ public class StandardTransformersTest {
 
     @Test
     public void testDecompileFernflowerFromArchive() throws Exception {
-        testDecompileFromArchive("/TestCompactFernflowerWithLineNumbers.txt", Decompilers.FERNFLOWER);
+        testDecompileFromArchive("/TestCompactFernflowerWithLineNumbers.txt", FERNFLOWER);
     }
     
     @Test
     public void testDecompileFernflowerFromRootLocation() throws Exception {
-        testDecompileFromRootLocation("/TestCompactFernflowerFromRootLocation.txt", Decompilers.FERNFLOWER);
+        testDecompileFromRootLocation("/TestCompactFernflowerFromRootLocation.txt", FERNFLOWER);
     }
 
     @Test
@@ -157,12 +178,12 @@ public class StandardTransformersTest {
 
     @Test
     public void testDecompileVineflowerFromArchive() throws Exception {
-        testDecompileFromArchive("/TestCompactVineflowerWithLineNumbers.txt", Decompilers.VINEFLOWER);
+        testDecompileFromArchive("/TestCompactVineflowerWithLineNumbers.txt", VINEFLOWER);
     }
     
     @Test
     public void testDecompileVineflowerFromRootLocation() throws Exception {
-        testDecompileFromRootLocation("/TestCompactVineflowerFromRootLocation.txt", Decompilers.VINEFLOWER);
+        testDecompileFromRootLocation("/TestCompactVineflowerFromRootLocation.txt", VINEFLOWER);
     }
 
     @Test
@@ -182,12 +203,12 @@ public class StandardTransformersTest {
 
     @Test
     public void testDecompileJDCoreV0FromArchive() throws Exception {
-        testDecompileFromArchive("/TestCompactJDCoreV0WithLineNumbers.txt", Decompilers.JD_CORE_V0);
+        testDecompileFromArchive("/TestCompactJDCoreV0WithLineNumbers.txt", JD_CORE_V0);
     }
     
     @Test
     public void testDecompileJDCoreV0FromRootLocation() throws Exception {
-        testDecompileFromRootLocation("/TestCompactJDCoreV0FromRootLocation.txt", Decompilers.JD_CORE_V0);
+        testDecompileFromRootLocation("/TestCompactJDCoreV0FromRootLocation.txt", JD_CORE_V0);
     }
 
     @Test
@@ -207,12 +228,12 @@ public class StandardTransformersTest {
     
     @Test
     public void testDecompileJDCoreV1FromArchive() throws Exception {
-        testDecompileFromArchive("/TestCompactJDCoreV1WithLineNumbers.txt", Decompilers.JD_CORE_V1);
+        testDecompileFromArchive("/TestCompactJDCoreV1WithLineNumbers.txt", JD_CORE_V1);
     }
     
     @Test
     public void testDecompileJDCoreV1FromRootLocation() throws Exception {
-        testDecompileFromRootLocation("/TestCompactJDCoreV1FromRootLocation.txt", Decompilers.JD_CORE_V1);
+        testDecompileFromRootLocation("/TestCompactJDCoreV1FromRootLocation.txt", JD_CORE_V1);
     }
 
     private void testDecompile(String path, String engineName, Map<String, String> preferences)
