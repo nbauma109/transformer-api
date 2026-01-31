@@ -2,7 +2,7 @@
 
             /* loaded from: test/TestCompact */
 /* 4 */     public abstract class TestCompact {
-                public abstract void log(java.lang.String str);
+                public abstract void log(String str);
 
 /* 5 */         public void method1(boolean flag) {
 /* 6 */             log("Test.method1 start");
@@ -20,12 +20,12 @@
                         try {
 /* 17 */                    log("Test.method2 try");
 /* 21 */                    log("Test.method2 finally");
-                        } catch (java.lang.Exception e) {
+                        } catch (Exception e) {
 /* 19 */                    log("Test.method2 catch");
 /* 21 */                    log("Test.method2 finally");
                         }
 /* 23 */                log("Test.method2 end");
-                    } catch (java.lang.Throwable th) {
+                    } catch (Throwable th) {
                         log("Test.method2 finally");
 /* 22 */                throw th;
                     }
@@ -34,23 +34,23 @@
                 /* loaded from: test/TestCompact$Inner1 */
 /* 26 */        class Inner1 {
 /* 27 */            public Inner1() {
-/* 29 */                test.TestCompact.this.log("Inner1 constructor");
+/* 29 */                TestCompact.this.log("Inner1 constructor");
                     }
 
 /* 32 */            public void method1(boolean flag) {
-/* 33 */                test.TestCompact.this.log("Inner1.method1 start");
+/* 33 */                TestCompact.this.log("Inner1.method1 start");
 /* 34 */                while (flag) {
-/* 35 */                    test.TestCompact.this.log("Inner1.method1 while");
+/* 35 */                    TestCompact.this.log("Inner1.method1 while");
                         }
-/* 36 */                test.TestCompact.this.log("Inner1.method1 end");
+/* 36 */                TestCompact.this.log("Inner1.method1 end");
                     }
 
 /* 39 */            public void method2(boolean flag) {
-/* 40 */                test.TestCompact.this.log("Inner1.method2 start");
+/* 40 */                TestCompact.this.log("Inner1.method2 start");
 /* 42 */                do {
-/* 41 */                    test.TestCompact.this.log("Inner1.method2 do while");
+/* 41 */                    TestCompact.this.log("Inner1.method2 do while");
 /* 42 */                } while (flag);
-/* 43 */                test.TestCompact.this.log("Inner1.method2 end");
+/* 43 */                TestCompact.this.log("Inner1.method2 end");
                     }
                 }
 
@@ -85,8 +85,8 @@
                 }
 
                 /* JADX INFO: Thrown type has an unknown type hierarchy: java.lang.IllegalArgumentException */
-/* 76 */        public java.lang.String method5(int i) throws java.lang.IllegalArgumentException {
-                    java.lang.String str;
+/* 76 */        public String method5(int i) throws IllegalArgumentException {
+                    String str;
 /* 77 */            log("Test.method5 start");
                     switch (i) {
                         case 0:
@@ -102,42 +102,36 @@
 /* 82 */                    str = "Test.method4 case 3";
                             break;
                         default:
-/* 83 */                    throw new java.lang.IllegalArgumentException();
+/* 83 */                    throw new IllegalArgumentException();
                     }
-                    java.lang.String s = str;
+                    String s = str;
 /* 85 */            return "return:" + s;
                 }
 
                 /* loaded from: test/TestCompact$Inner3 */
 /* 88 */        class Inner3 {
 /* 89 */            public Inner3() {
-/* 91 */                test.TestCompact.this.log("Inner3 constructor");
-                    }
-
-                    /* loaded from: test/TestCompact$Inner3$1 */
-/* 93 */            class 1 implements java.lang.Runnable {
-/* 94 */                1() {
-                        }
-
-/* 97 */                public void run() {
-/* 98 */                    test.TestCompact.this.log("Inner3.method1");
-                        }
+/* 91 */                TestCompact.this.log("Inner3 constructor");
                     }
 
 /* 94 */            public void method1() {
-/* 100 */               new java.lang.Thread(new test.TestCompact.Inner3.1()).start();
+/* 100 */               new Thread(new Runnable() { // from class: test.TestCompact.Inner3.1
+/* 97 */                    public void run() {
+/* 98 */                        TestCompact.this.log("Inner3.method1");
+                            }
+                        }).start();
                     }
 
 /* 103 */           public void method2() {
-/* 107 */               new java.lang.Thread(() -> {
-/* 105 */                   test.TestCompact.this.log("Inner3.method2a");
-/* 106 */                   test.TestCompact.this.log("Inner3.method2b");
+/* 107 */               new Thread(() -> {
+/* 105 */                   TestCompact.this.log("Inner3.method2a");
+/* 106 */                   TestCompact.this.log("Inner3.method2b");
                         }).start();
                     }
 
 /* 110 */           public void method3() {
-/* 111 */               new java.lang.Thread(() -> {
-/* 111 */                   test.TestCompact.this.log("Inner3.method3");
+/* 111 */               new Thread(() -> {
+/* 111 */                   TestCompact.this.log("Inner3.method3");
                         }).start();
                     }
                 }
@@ -145,30 +139,30 @@
                 /* loaded from: test/TestCompact$Inner4 */
 /* 115 */       class Inner4 {
 /* 116 */           public Inner4() {
-/* 118 */               test.TestCompact.this.log("Inner4 constructor");
+/* 118 */               TestCompact.this.log("Inner4 constructor");
                     }
 
 /* 121 */           public void method1() {
-/* 122 */               test.TestCompact.this.log("Inner4.method1");
+/* 122 */               TestCompact.this.log("Inner4.method1");
                     }
 
 /* 125 */           public void method2() {
-/* 126 */               test.TestCompact.this.log("Inner4.method2");
+/* 126 */               TestCompact.this.log("Inner4.method2");
                     }
 
                     /* JADX INFO: Thrown type has an unknown type hierarchy: java.lang.UnsupportedOperationException */
-/* 130 */           public boolean equals(java.lang.Object o) throws java.lang.UnsupportedOperationException {
-/* 131 */               throw new java.lang.UnsupportedOperationException("equals");
+/* 130 */           public boolean equals(Object o) throws UnsupportedOperationException {
+/* 131 */               throw new UnsupportedOperationException("equals");
                     }
 
                     /* JADX INFO: Thrown type has an unknown type hierarchy: java.lang.UnsupportedOperationException */
-/* 135 */           public int hashCode() throws java.lang.UnsupportedOperationException {
-/* 136 */               throw new java.lang.UnsupportedOperationException("hashCode");
+/* 135 */           public int hashCode() throws UnsupportedOperationException {
+/* 136 */               throw new UnsupportedOperationException("hashCode");
                     }
 
                     /* JADX INFO: Thrown type has an unknown type hierarchy: java.lang.UnsupportedOperationException */
-/* 140 */           public java.lang.String toString() throws java.lang.UnsupportedOperationException {
-/* 141 */               throw new java.lang.UnsupportedOperationException("toString");
+/* 140 */           public String toString() throws UnsupportedOperationException {
+/* 141 */               throw new UnsupportedOperationException("toString");
                     }
                 }
 
