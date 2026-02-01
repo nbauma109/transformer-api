@@ -120,8 +120,8 @@ public class Loader implements IContextSource {
             entryName.append("classes/");
         }
         entryName.append(internalName);
-        if (!internalName.endsWith(".class")) {
-            entryName.append(".class");
+        if (!internalName.endsWith(CLASS_SUFFIX)) {
+            entryName.append(CLASS_SUFFIX);
         }
         return zipFile.getEntry(entryName.toString());
     }
@@ -142,7 +142,7 @@ public class Loader implements IContextSource {
             ZipFile zipFile = entry.getValue();
             zipFile.stream().forEach(zipEntry -> {
                 String entryName = zipEntry.getName();
-                if (entryName.endsWith(".class")) {
+                if (entryName.endsWith(CLASS_SUFFIX)) {
                     String internalName = entryName.substring(0, entryName.length() - 6);
                     classes.add(Entry.parse(internalName));
                 }
