@@ -1,4 +1,5 @@
 # Transformer API
+[![Dependabot updates](https://img.shields.io/badge/Dependabot-Updates-025E8C?logo=dependabot&logoColor=white)](https://github.com/nbauma109/transformer-api/network/updates)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.nbauma109/transformer-api.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.nbauma109/transformer-api)
 [![CodeQL](https://github.com/nbauma109/transformer-api/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/nbauma109/transformer-api/actions/workflows/codeql-analysis.yml)
 [![Maven Release](https://github.com/nbauma109/transformer-api/actions/workflows/maven.yml/badge.svg)](https://github.com/nbauma109/transformer-api/actions/workflows/maven.yml)
