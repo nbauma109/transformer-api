@@ -68,7 +68,7 @@
        (.class -> Java, Kotlin, Groovy, or even .apk -> Java)
        Like JD-Core v0, it realigns line numbers for debugger compatibility.
      ====================================================================== -->
-    <version.jd-core-v1>1.3.2</version.jd-core-v1>
+    <version.jd-core-v1>1.3.3</version.jd-core-v1>
     <version.cfr>0.153</version.cfr>
   </properties>
 
