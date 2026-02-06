@@ -58,12 +58,22 @@ public class StandardTransformersTest {
 
     @Test
     public void testDecompileCFR() throws Exception {
-        testDecompile("/TestCompactCFR.txt", ENGINE_CFR, CFRSettings.defaults());
+        testDecompile("/TestCompactCFR.txt", ENGINE_CFR, CFRSettings.defaults(), "test/TestCompact", "/test-compact-expand-inline.jar");
     }
 
     @Test
+    public void testDecompileCFRBootInf() throws Exception {
+        testDecompile("/TestCompactCFRFromRootLocation.txt", ENGINE_CFR, CFRSettings.lineNumbers(), "BOOT-INF/classes/com/heliosdecompiler/transformerapi/TestCompact", "/test-boot-inf-classes.jar");
+    }
+    
+    @Test
+    public void testDecompileCFRWebInf() throws Exception {
+        testDecompile("/TestCompactCFRFromRootLocation.txt", ENGINE_CFR, CFRSettings.lineNumbers(), "WEB-INF/classes/com/heliosdecompiler/transformerapi/TestCompact", "/test-web-inf-classes.jar");
+    }
+    
+    @Test
     public void testDecompileCFRWithLineNumbers() throws Exception {
-        testDecompile("/TestCompactCFRWithLineNumbers.txt", ENGINE_CFR, CFRSettings.lineNumbers());
+        testDecompile("/TestCompactCFRWithLineNumbers.txt", ENGINE_CFR, CFRSettings.lineNumbers(), "test/TestCompact", "/test-compact-expand-inline.jar");
     }
 
     @Test
@@ -88,12 +98,22 @@ public class StandardTransformersTest {
 
     @Test
     public void testDecompileProcyon() throws Exception {
-        testDecompile("/TestCompactProcyon.txt", ENGINE_PROCYON, MapDecompilerSettings.defaults());
+        testDecompile("/TestCompactProcyon.txt", ENGINE_PROCYON, MapDecompilerSettings.defaults(), "test/TestCompact", "/test-compact-expand-inline.jar");
     }
 
     @Test
+    public void testDecompileProcyonBootInf() throws Exception {
+        testDecompile("/TestCompactProcyonFromRootLocation.txt", ENGINE_PROCYON, MapDecompilerSettings.lineNumbers(), "BOOT-INF/classes/com/heliosdecompiler/transformerapi/TestCompact", "/test-boot-inf-classes.jar");
+    }
+    
+    @Test
+    public void testDecompileProcyonWebInf() throws Exception {
+        testDecompile("/TestCompactProcyonFromRootLocation.txt", ENGINE_PROCYON, MapDecompilerSettings.lineNumbers(), "WEB-INF/classes/com/heliosdecompiler/transformerapi/TestCompact", "/test-web-inf-classes.jar");
+    }
+    
+    @Test
     public void testDecompileProcyonWithLineNumbers() throws Exception {
-        testDecompile("/TestCompactProcyonWithLineNumbers.txt", ENGINE_PROCYON, MapDecompilerSettings.lineNumbers());
+        testDecompile("/TestCompactProcyonWithLineNumbers.txt", ENGINE_PROCYON, MapDecompilerSettings.lineNumbers(), "test/TestCompact", "/test-compact-expand-inline.jar");
     }
 
     @Test
@@ -108,7 +128,7 @@ public class StandardTransformersTest {
 
     @Test
     public void testDecompileProcyonByteCode() throws Exception {
-        testDecompile("/TestCompactProcyonByteCode.txt", ENGINE_PROCYON, MapDecompilerSettings.byteCodeSettings());
+        testDecompile("/TestCompactProcyonByteCode.txt", ENGINE_PROCYON, MapDecompilerSettings.byteCodeSettings(), "test/TestCompact", "/test-compact-expand-inline.jar");
     }
 
     @Test
@@ -118,12 +138,22 @@ public class StandardTransformersTest {
 
     @Test
     public void testDecompileJADX() throws Exception {
-        testDecompile("/TestCompactJADX.txt", ENGINE_JADX, MapJadxArgs.defaults());
+        testDecompile("/TestCompactJADX.txt", ENGINE_JADX, MapJadxArgs.defaults(), "test/TestCompact", "/test-compact-expand-inline.jar");
     }
 
     @Test
+    public void testDecompileJADXBootInf() throws Exception {
+        testDecompile("/TestCompactJADXFromRootLocation.txt", ENGINE_JADX, MapJadxArgs.lineNumbers(), "BOOT-INF/classes/com/heliosdecompiler/transformerapi/TestCompact", "/test-boot-inf-classes.jar");
+    }
+    
+    @Test
+    public void testDecompileJADXWebInf() throws Exception {
+        testDecompile("/TestCompactJADXFromRootLocation.txt", ENGINE_JADX, MapJadxArgs.lineNumbers(), "WEB-INF/classes/com/heliosdecompiler/transformerapi/TestCompact", "/test-web-inf-classes.jar");
+    }
+    
+    @Test
     public void testDecompileJADXWithLineNumbers() throws Exception {
-        testDecompile("/TestCompactJADXWithLineNumbers.txt", ENGINE_JADX, MapJadxArgs.lineNumbers());
+        testDecompile("/TestCompactJADXWithLineNumbers.txt", ENGINE_JADX, MapJadxArgs.lineNumbers(), "test/TestCompact", "/test-compact-expand-inline.jar");
     }
 
     @Test
@@ -138,9 +168,19 @@ public class StandardTransformersTest {
 
     @Test
     public void testDecompileFernflower() throws Exception {
-        testDecompile("/TestCompactFernflower.txt", ENGINE_FERNFLOWER, Collections.emptyMap());
+        testDecompile("/TestCompactFernflower.txt", ENGINE_FERNFLOWER, Collections.emptyMap(), "test/TestCompact", "/test-compact-expand-inline.jar");
     }
 
+    @Test
+    public void testDecompileFernflowerBootInf() throws Exception {
+        testDecompile("/TestCompactFernflowerFromRootLocation.txt", ENGINE_FERNFLOWER, FernflowerSettings.lineNumbers(), "BOOT-INF/classes/com/heliosdecompiler/transformerapi/TestCompact", "/test-boot-inf-classes.jar");
+    }
+    
+    @Test
+    public void testDecompileFernflowerWebInf() throws Exception {
+        testDecompile("/TestCompactFernflowerFromRootLocation.txt", ENGINE_FERNFLOWER, FernflowerSettings.lineNumbers(), "WEB-INF/classes/com/heliosdecompiler/transformerapi/TestCompact", "/test-web-inf-classes.jar");
+    }
+    
     @Test
     public void testDecompileFernflowerFromClassPath() throws Exception {
         testDecompileFromClassPath("/TestThrowableFernflower.txt", ENGINE_FERNFLOWER, Collections.emptyMap());
@@ -148,7 +188,7 @@ public class StandardTransformersTest {
 
     @Test
     public void testDecompileFernflowerWithLineNumbers() throws Exception {
-        testDecompile("/TestCompactFernflowerWithLineNumbers.txt", ENGINE_FERNFLOWER, FernflowerSettings.lineNumbers());
+        testDecompile("/TestCompactFernflowerWithLineNumbers.txt", ENGINE_FERNFLOWER, FernflowerSettings.lineNumbers(), "test/TestCompact", "/test-compact-expand-inline.jar");
     }
 
     @Test
@@ -163,9 +203,19 @@ public class StandardTransformersTest {
 
     @Test
     public void testDecompileVineflower() throws Exception {
-        testDecompile("/TestCompactVineflower.txt", ENGINE_VINEFLOWER, Collections.emptyMap());
+        testDecompile("/TestCompactVineflower.txt", ENGINE_VINEFLOWER, Collections.emptyMap(), "test/TestCompact", "/test-compact-expand-inline.jar");
     }
 
+    @Test
+    public void testDecompileVineflowerBootInf() throws Exception {
+        testDecompile("/TestCompactVineflowerFromRootLocation.txt", ENGINE_VINEFLOWER, VineflowerSettings.lineNumbers(), "BOOT-INF/classes/com/heliosdecompiler/transformerapi/TestCompact", "/test-boot-inf-classes.jar");
+    }
+    
+    @Test
+    public void testDecompileVineflowerWebInf() throws Exception {
+        testDecompile("/TestCompactVineflowerFromRootLocation.txt", ENGINE_VINEFLOWER, VineflowerSettings.lineNumbers(), "WEB-INF/classes/com/heliosdecompiler/transformerapi/TestCompact", "/test-web-inf-classes.jar");
+    }
+    
     @Test
     public void testDecompileVineflowerFromClassPath() throws Exception {
         testDecompileFromClassPath("/TestThrowableVineflower.txt", ENGINE_VINEFLOWER, Collections.emptyMap());
@@ -173,7 +223,7 @@ public class StandardTransformersTest {
 
     @Test
     public void testDecompileVineflowerWithLineNumbers() throws Exception {
-        testDecompile("/TestCompactVineflowerWithLineNumbers.txt", ENGINE_VINEFLOWER, VineflowerSettings.lineNumbers());
+        testDecompile("/TestCompactVineflowerWithLineNumbers.txt", ENGINE_VINEFLOWER, VineflowerSettings.lineNumbers(), "test/TestCompact", "/test-compact-expand-inline.jar");
     }
 
     @Test
@@ -188,9 +238,19 @@ public class StandardTransformersTest {
 
     @Test
     public void testDecompileJDCoreV0() throws Exception {
-        testDecompile("/TestCompactJDCoreV0.txt", ENGINE_JD_CORE_V0, JDSettings.defaults());
+        testDecompile("/TestCompactJDCoreV0.txt", ENGINE_JD_CORE_V0, JDSettings.defaults(), "test/TestCompact", "/test-compact-expand-inline.jar");
     }
 
+    @Test
+    public void testDecompileJDCoreV0BootInf() throws Exception {
+        testDecompile("/TestCompactJDCoreV0FromRootLocation.txt", ENGINE_JD_CORE_V0, JDSettings.lineNumbers(), "BOOT-INF/classes/com/heliosdecompiler/transformerapi/TestCompact", "/test-boot-inf-classes.jar");
+    }
+    
+    @Test
+    public void testDecompileJDCoreV0WebInf() throws Exception {
+        testDecompile("/TestCompactJDCoreV0FromRootLocation.txt", ENGINE_JD_CORE_V0, JDSettings.lineNumbers(), "WEB-INF/classes/com/heliosdecompiler/transformerapi/TestCompact", "/test-web-inf-classes.jar");
+    }
+    
     @Test
     public void testDecompileJDCoreV0FromClassPath() throws Exception {
         testDecompileFromClassPath("/TestThrowableJDCoreV0.txt", ENGINE_JD_CORE_V0, JDSettings.defaults());
@@ -198,7 +258,7 @@ public class StandardTransformersTest {
 
     @Test
     public void testDecompileJDCoreV0WithLineNumbers() throws Exception {
-        testDecompile("/TestCompactJDCoreV0WithLineNumbers.txt", ENGINE_JD_CORE_V0, JDSettings.lineNumbers());
+        testDecompile("/TestCompactJDCoreV0WithLineNumbers.txt", ENGINE_JD_CORE_V0, JDSettings.lineNumbers(), "test/TestCompact", "/test-compact-expand-inline.jar");
     }
 
     @Test
@@ -213,9 +273,19 @@ public class StandardTransformersTest {
 
     @Test
     public void testDecompileJDCoreV1() throws Exception {
-        testDecompile("/TestCompactJDCoreV1.txt", ENGINE_JD_CORE_V1, JDSettings.defaults());
+        testDecompile("/TestCompactJDCoreV1.txt", ENGINE_JD_CORE_V1, JDSettings.defaults(), "test/TestCompact", "/test-compact-expand-inline.jar");
     }
 
+    @Test
+    public void testDecompileJDCoreV1BootInf() throws Exception {
+        testDecompile("/TestCompactJDCoreV1FromRootLocation.txt", ENGINE_JD_CORE_V1, JDSettings.lineNumbers(), "BOOT-INF/classes/com/heliosdecompiler/transformerapi/TestCompact", "/test-boot-inf-classes.jar");
+    }
+    
+    @Test
+    public void testDecompileJDCoreV1WebInf() throws Exception {
+        testDecompile("/TestCompactJDCoreV1FromRootLocation.txt", ENGINE_JD_CORE_V1, JDSettings.lineNumbers(), "WEB-INF/classes/com/heliosdecompiler/transformerapi/TestCompact", "/test-web-inf-classes.jar");
+    }
+    
     @Test
     public void testDecompileJDCoreV1FromClassPath() throws Exception {
         testDecompileFromClassPath("/TestThrowableJDCoreV1.txt", ENGINE_JD_CORE_V1, JDSettings.defaults());
@@ -223,7 +293,7 @@ public class StandardTransformersTest {
 
     @Test
     public void testDecompileJDCoreV1WithLineNumbers() throws Exception {
-        testDecompile("/TestCompactJDCoreV1WithLineNumbers.txt", ENGINE_JD_CORE_V1, JDSettings.lineNumbers());
+        testDecompile("/TestCompactJDCoreV1WithLineNumbers.txt", ENGINE_JD_CORE_V1, JDSettings.lineNumbers(), "test/TestCompact", "/test-compact-expand-inline.jar");
     }
     
     @Test
@@ -236,12 +306,11 @@ public class StandardTransformersTest {
         testDecompileFromRootLocation("/TestCompactJDCoreV1FromRootLocation.txt", JD_CORE_V1);
     }
 
-    private void testDecompile(String path, String engineName, Map<String, String> preferences)
+    private void testDecompile(String path, String engineName, Map<String, String> preferences, String internalName, String jarPath)
             throws IOException, IllegalAccessException, InvocationTargetException, URISyntaxException {
-        URI resource = getClass().getResource("/test-compact-expand-inline.jar").toURI();
+        URI resource = getClass().getResource(jarPath).toURI();
         ZipLoader zipLoader = new ZipLoader(resource.toURL().openStream());
         Loader loader = new Loader(zipLoader::canLoad, zipLoader::load, resource);
-        String internalName = "test/TestCompact";
         DecompilationResult result = StandardTransformers.decompile(loader, internalName, preferences, engineName);
         assertEqualsIgnoreEOL(getResourceAsString(path), result.getDecompiledOutput());
     }

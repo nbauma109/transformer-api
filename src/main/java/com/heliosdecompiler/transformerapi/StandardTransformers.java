@@ -49,7 +49,7 @@ public final class StandardTransformers {
                                                Map<String, String> preferences,
                                                String engineName)
             throws IOException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        return Decompilers.decompile(apiLoader, entryInternalName, preferences, engineName);
+        return Decompilers.decompile(apiLoader, entryInternalName.replaceFirst("^(WEB|BOOT)-INF/classes/", ""), preferences, engineName);
     }
 
     public static final class Decompilers {

@@ -74,7 +74,9 @@ public class Loader implements IContextSource {
     }
 
     public boolean canLoad(String internalName) {
-        if (canLoadFunction.test(internalName)) {
+        if (canLoadFunction.test(internalName)
+                || canLoadFunction.test("BOOT-INF/classes/" + internalName)
+                || canLoadFunction.test("WEB-INF/classes/" + internalName)) {
             return true;
         }
         if (classpathEntries != null) {
@@ -92,6 +94,14 @@ public class Loader implements IContextSource {
 
     public byte[] load(String internalName) throws IOException {
         byte[] classContents = loadFunction.apply(internalName);
+        if (classContents != null) {
+            return classContents;
+        }
+        classContents = loadFunction.apply("BOOT-INF/classes/" + internalName);
+        if (classContents != null) {
+            return classContents;
+        }
+        classContents = loadFunction.apply("WEB-INF/classes/" + internalName);
         if (classContents != null) {
             return classContents;
         }
