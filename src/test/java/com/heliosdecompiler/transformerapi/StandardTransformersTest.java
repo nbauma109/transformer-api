@@ -2,6 +2,7 @@ package com.heliosdecompiler.transformerapi;
 
 import org.apache.commons.io.IOUtils;
 import org.jd.core.v1.loader.ClassPathLoader;
+import org.jd.core.v1.util.ZipLoader;
 import org.junit.Test;
 
 import com.heliosdecompiler.transformerapi.common.Loader;
