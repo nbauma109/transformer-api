@@ -16,6 +16,7 @@
 
 package com.heliosdecompiler.transformerapi.decompilers;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jd.core.v1.service.converter.classfiletojavasyntax.util.ExceptionUtil;
 import org.jd.core.v1.util.ZipLoader;
 import org.objectweb.asm.ClassReader;
@@ -142,7 +143,7 @@ public interface Decompiler<S> {
         try (InputStream in = Files.newInputStream(path)) {
             ZipLoader zipLoader = new ZipLoader(in);
             Loader loader = new Loader(zipLoader::canLoad, zipLoader::load, path.toUri());
-            String internalName = pkg + "/" + className.replaceFirst("\\.class$", "");
+            String internalName = buildInternalName(pkg, className);
             return decompile(loader, internalName, lineNumberSettings());
         }
     }
@@ -150,8 +151,18 @@ public interface Decompiler<S> {
     default DecompilationResult decompile(String rootLocation, String pkg, String className) throws IOException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         FileLoader fileLoader = new FileLoader(rootLocation, pkg, className);
         Loader loader = new Loader(fileLoader::canLoad, fileLoader::load, Paths.get(rootLocation).toUri());
-        String internalName = pkg + "/" + className.replaceFirst("\\.class$", "");
+        String internalName = buildInternalName(pkg, className);
         return decompile(loader, internalName, lineNumberSettings());
+    }
+
+    default String buildInternalName(String pkg, String className) {
+        StringBuilder sb = new StringBuilder();
+        if (StringUtils.isNotEmpty(pkg)) {
+            sb.append(pkg);
+            sb.append("/");
+        }
+        sb.append(className.replaceFirst("\\.class$", ""));
+        return sb.toString();
     }
 
     S defaultSettings() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
