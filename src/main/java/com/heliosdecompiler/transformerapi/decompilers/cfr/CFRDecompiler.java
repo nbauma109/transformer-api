@@ -109,4 +109,9 @@ public class CFRDecompiler extends Decompiler.AbstractDecompiler implements Deco
     public CFRSettings lineNumberSettings() {
         return new CFRSettings(CFRSettings.lineNumbers());
     }
+
+    @Override
+    public boolean supportsRealignment() {
+        return false;
+    }
 }

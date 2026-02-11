@@ -93,4 +93,9 @@ public class VineflowerDecompiler extends Decompiler.AbstractDecompiler implemen
     public VineflowerSettings lineNumberSettings() {
         return new VineflowerSettings(VineflowerSettings.lineNumbers());
     }
+
+    @Override
+    public boolean supportsRealignment() {
+        return false;
+    }
 }

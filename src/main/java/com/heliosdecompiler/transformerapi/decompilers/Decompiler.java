@@ -194,6 +194,8 @@ public interface Decompiler<S> {
 
     String getName();
 
+    boolean supportsRealignment();
+
     abstract class AbstractDecompiler {
         protected long time;
         private final String name;

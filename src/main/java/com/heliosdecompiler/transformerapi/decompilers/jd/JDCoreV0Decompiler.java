@@ -69,4 +69,9 @@ public class JDCoreV0Decompiler extends Decompiler.AbstractDecompiler implements
     public Preferences lineNumberSettings() {
         return new Preferences(JDSettings.lineNumbers());
     }
+
+    @Override
+    public boolean supportsRealignment() {
+        return true;
+    }
 }

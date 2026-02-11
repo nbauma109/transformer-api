@@ -70,4 +70,9 @@ public class JDCoreV1Decompiler extends Decompiler.AbstractDecompiler implements
     public Map<String, String> lineNumberSettings() {
         return JDSettings.lineNumbers();
     }
+
+    @Override
+    public boolean supportsRealignment() {
+        return true;
+    }
 }

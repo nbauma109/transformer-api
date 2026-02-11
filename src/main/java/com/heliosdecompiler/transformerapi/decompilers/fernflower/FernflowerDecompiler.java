@@ -88,4 +88,9 @@ public class FernflowerDecompiler extends Decompiler.AbstractDecompiler implemen
     public FernflowerSettings lineNumberSettings() {
         return new FernflowerSettings(FernflowerSettings.lineNumbers());
     }
+
+    @Override
+    public boolean supportsRealignment() {
+        return false;
+    }
 }

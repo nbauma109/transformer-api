@@ -244,4 +244,9 @@ public class ProcyonDecompiler extends Decompiler.AbstractDecompiler implements 
             throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         return new MapDecompilerSettings(MapDecompilerSettings.lineNumbers());
     }
+
+    @Override
+    public boolean supportsRealignment() {
+        return true;
+    }
 }

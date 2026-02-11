@@ -90,4 +90,9 @@ public class JADXDecompiler extends Decompiler.AbstractDecompiler implements Dec
     public JadxArgs lineNumberSettings() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         return new MapJadxArgs(MapJadxArgs.lineNumbers());
     }
+
+    @Override
+    public boolean supportsRealignment() {
+        return false;
+    }
 }
