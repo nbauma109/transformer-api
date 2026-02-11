@@ -26,6 +26,6 @@ public class MapDecompilerSettings extends CommandLineOptions implements Setting
     }
 
     public static Map<String, String> lineNumbers() {
-        return Map.of(SUPPRESS_BANNER, "true", INCLUDE_LINE_NUMBERS, "true", STRETCH_LINES, "true");
+        return Map.of(SUPPRESS_BANNER, "true", INCLUDE_LINE_NUMBERS, "true", STRETCH_LINES, "false");
     }
 }

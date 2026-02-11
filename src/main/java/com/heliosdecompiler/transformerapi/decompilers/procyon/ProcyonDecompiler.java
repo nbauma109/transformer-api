@@ -247,6 +247,6 @@ public class ProcyonDecompiler extends Decompiler.AbstractDecompiler implements 
 
     @Override
     public boolean supportsRealignment() {
-        return true;
+        return false;
     }
 }

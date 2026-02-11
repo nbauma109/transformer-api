@@ -15,7 +15,7 @@ public class DecompilerTest {
     public void testSupportsRealignment() {
         assertTrue(Decompilers.JD_CORE_V0.supportsRealignment());
         assertTrue(Decompilers.JD_CORE_V1.supportsRealignment());
-        assertTrue(Decompilers.PROCYON.supportsRealignment());
+        assertFalse(Decompilers.PROCYON.supportsRealignment());
         assertFalse(Decompilers.FERNFLOWER.supportsRealignment());
         assertFalse(Decompilers.VINEFLOWER.supportsRealignment());
         assertFalse(Decompilers.CFR.supportsRealignment());
