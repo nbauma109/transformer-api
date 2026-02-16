@@ -1,6 +1,6 @@
 package java.lang;
 
-/* loaded from: java/lang/Throwable */
+/* JADX INFO: loaded from: java/lang/Throwable */
 public class Throwable implements java.io.Serializable {
     private static final long serialVersionUID = -3042686055658047285L;
     private transient java.lang.Object backtrace;
@@ -137,6 +137,7 @@ public class Throwable implements java.io.Serializable {
         }
     }
 
+    /* JADX INFO: Thrown type has an unknown type hierarchy: java.lang.AssertionError */
     private void lockedPrintStackTrace(java.lang.Throwable$PrintStreamOrWriter throwable$PrintStreamOrWriter) throws java.lang.AssertionError {
         java.util.Set<java.lang.Throwable> setNewSetFromMap = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap());
         setNewSetFromMap.add(this);
@@ -234,6 +235,8 @@ public class Throwable implements java.io.Serializable {
         }
     }
 
+    /* JADX INFO: Thrown type has an unknown type hierarchy: java.io.IOException */
+    /* JADX INFO: Thrown type has an unknown type hierarchy: java.io.StreamCorruptedException */
     /* JADX INFO: Thrown type has an unknown type hierarchy: java.lang.IllegalArgumentException */
     private void readObject(java.io.ObjectInputStream objectInputStream) throws java.io.StreamCorruptedException, java.io.IOException, java.lang.ClassNotFoundException, java.lang.IllegalArgumentException {
         objectInputStream.defaultReadObject();
