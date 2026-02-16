@@ -1,6 +1,6 @@
             package test;
 
-            /* loaded from: test/TestCompact */
+            /* JADX INFO: loaded from: test/TestCompact */
 /* 4 */     public abstract class TestCompact {
                 public abstract void log(String str);
 
@@ -31,7 +31,7 @@
                     }
                 }
 
-                /* loaded from: test/TestCompact$Inner1 */
+                /* JADX INFO: loaded from: test/TestCompact$Inner1 */
 /* 26 */        class Inner1 {
 /* 27 */            public Inner1() {
 /* 29 */                TestCompact.this.log("Inner1 constructor");
@@ -108,7 +108,7 @@
 /* 85 */            return "return:" + s;
                 }
 
-                /* loaded from: test/TestCompact$Inner3 */
+                /* JADX INFO: loaded from: test/TestCompact$Inner3 */
 /* 88 */        class Inner3 {
 /* 89 */            public Inner3() {
 /* 91 */                TestCompact.this.log("Inner3 constructor");
@@ -136,7 +136,7 @@
                     }
                 }
 
-                /* loaded from: test/TestCompact$Inner4 */
+                /* JADX INFO: loaded from: test/TestCompact$Inner4 */
 /* 115 */       class Inner4 {
 /* 116 */           public Inner4() {
 /* 118 */               TestCompact.this.log("Inner4 constructor");

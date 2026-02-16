@@ -1,9 +1,9 @@
 package test;
 
-/* loaded from: test/TestCompact */
+/* JADX INFO: loaded from: test/TestCompact */
 public abstract class TestCompact {
 
-    /* loaded from: test/TestCompact$Inner1 */
+    /* JADX INFO: loaded from: test/TestCompact$Inner1 */
     class Inner1 {
         public Inner1() {
             TestCompact.this.log("Inner1 constructor");
@@ -26,7 +26,7 @@ public abstract class TestCompact {
         }
     }
 
-    /* loaded from: test/TestCompact$Inner3 */
+    /* JADX INFO: loaded from: test/TestCompact$Inner3 */
     class Inner3 {
         public Inner3() {
             TestCompact.this.log("Inner3 constructor");
@@ -54,7 +54,7 @@ public abstract class TestCompact {
         }
     }
 
-    /* loaded from: test/TestCompact$Inner4 */
+    /* JADX INFO: loaded from: test/TestCompact$Inner4 */
     class Inner4 {
         public Inner4() {
             TestCompact.this.log("Inner4 constructor");
