@@ -76,7 +76,7 @@ public final class StandardTransformers {
         public static final JDCoreV1Decompiler JD_CORE_V1 = new JDCoreV1Decompiler(ENGINE_JD_CORE_V1);
         public static final JADXDecompiler JADX = new JADXDecompiler(ENGINE_JADX);
 
-        public static Decompiler<?> valueOf(String engineName) throws IllegalArgumentException {
+        public static Decompiler<?> valueOf(String engineName) {
             return switch (engineName) {
                 case ENGINE_JD_CORE_V0 -> JD_CORE_V0;
                 case ENGINE_JD_CORE, ENGINE_JD_CORE_V1 -> JD_CORE_V1;
@@ -86,6 +86,16 @@ public final class StandardTransformers {
                 case ENGINE_JADX -> JADX;
                 default -> VINEFLOWER;
             };
+        }
+
+        /**
+         * 
+         * Gets the default decompiler (currently Vineflower)
+         * @since 4.2.1
+         * @return the default decompiler (currently Vineflower)
+         */
+        public static Decompiler<?> getDefault() {
+            return valueOf("");
         }
 
         public static DecompilationResult decompile(Loader apiLoader,
