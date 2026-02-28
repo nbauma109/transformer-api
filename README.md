@@ -20,8 +20,7 @@ Currently, this API supports the following decompilers :
 - JD-Core V0 and V1
 - JADX
 
-Decompilers can be accessed either via `StandardTransformers.DECOMPILER` or by creating a new instance. They are also
-stateless, which means you can use the same instance across different threads.
+Decompilers can be accessed either via `StandardTransformers.Decompilers.ENGINE_*` constants.
 
 An example program decompiling a file using Vineflower (fork of Fernflower) is shown below:
 
