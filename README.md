@@ -26,35 +26,24 @@ stateless, which means you can use the same instance across different threads.
 An example program decompiling a file using Vineflower (fork of Fernflower) is shown below:
 
 ```java
-package com.heliosdecompiler.transformerapi;
+package demo;
 
+import com.heliosdecompiler.transformerapi.StandardTransformers;
 import com.heliosdecompiler.transformerapi.common.Loader;
 
-import java.io.ByteArrayOutputStream;
+import jd.core.DecompilationResult;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.io.IOUtils;
 
 public class Sample {
 
     public byte[] load(String internalName) throws IOException {
         InputStream is = this.getClass().getResourceAsStream("/" + internalName + ".class");
-
-        if (is == null) {
-            return null;
-        }
-        try (InputStream in=is; ByteArrayOutputStream out=new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[1024];
-            int read = in.read(buffer);
-
-            while (read > 0) {
-                out.write(buffer, 0, read);
-                read = in.read(buffer);
-            }
-
-            return out.toByteArray();
-        }
+        return is == null ? null : IOUtils.toByteArray(is);
     }
 
     public boolean canLoad(String internalName) {
