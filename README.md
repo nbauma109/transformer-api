@@ -72,10 +72,11 @@ public class Sample {
 ```
 
 
-### Features
+## Features
 
-In-memory decompilation (no temp files)
+- Agnostic loader utility
+- In-memory decompilation (no temp files)
 
-### Updates
+## Updates
 
 This API will be updated as decompilers receive updates, which means fixes reach you faster.
