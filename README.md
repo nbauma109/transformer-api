@@ -72,7 +72,9 @@ public class Sample {
 ```
 
 
-## Features
+### Features
+
+In-memory decompilation (no temp files)
 
 ### Updates
 
