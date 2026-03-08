@@ -21,4 +21,9 @@ import org.jetbrains.java.decompiler.main.extern.IResultSaver;
 import com.heliosdecompiler.transformerapi.common.AbstractResultSaver;
 
 public class FernflowerResultSaver extends AbstractResultSaver implements IResultSaver {
+
+    @Override
+    public void saveClassFile(String path, String qualifiedName, String entryName, String content, int[] mapping) {
+        saveClassFile(qualifiedName, content, mapping);
+    }
 }

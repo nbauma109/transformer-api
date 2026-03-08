@@ -28,4 +28,9 @@ public class VineflowerResultSaver extends AbstractResultSaver implements IResul
         super(result);
     }
 
+    @Override
+    public void saveClassFile(String path, String qualifiedName, String entryName, String content, int[] mapping) {
+        saveClassFile(qualifiedName, content, mapping);
+    }
+
 }
