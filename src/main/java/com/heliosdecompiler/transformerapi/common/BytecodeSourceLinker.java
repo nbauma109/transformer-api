@@ -652,19 +652,87 @@ public final class BytecodeSourceLinker {
         if (closeIndex < 0 || openIndex + 1 == closeIndex) {
             return 0;
         }
-        int depth = 0;
+        int parenDepth = 0;
+        int braceDepth = 0;
+        int bracketDepth = 0;
+        int angleDepth = 0;
         int count = 1;
         for (int i = openIndex + 1; i < closeIndex; i++) {
             String text = tokens.get(i).text();
-            if ("(".equals(text)) {
-                depth++;
-            } else if (")".equals(text) && depth > 0) {
-                depth--;
-            } else if (",".equals(text) && depth == 0) {
+            if ("<".equals(text) && startsGenericArgumentList(tokens, i, closeIndex)) {
+                angleDepth++;
+            } else if (">".equals(text) && angleDepth > 0) {
+                angleDepth--;
+            } else if ("(".equals(text)) {
+                parenDepth++;
+            } else if (")".equals(text) && parenDepth > 0) {
+                parenDepth--;
+            } else if ("{".equals(text)) {
+                braceDepth++;
+            } else if ("}".equals(text) && braceDepth > 0) {
+                braceDepth--;
+            } else if ("[".equals(text)) {
+                bracketDepth++;
+            } else if ("]".equals(text) && bracketDepth > 0) {
+                bracketDepth--;
+            } else if (",".equals(text) && parenDepth == 0 && braceDepth == 0 && bracketDepth == 0 && angleDepth == 0) {
                 count++;
             }
         }
         return count;
+    }
+
+    private static boolean startsGenericArgumentList(List<Token> tokens, int openIndex, int limitIndex) {
+        Token previous = previousSignificant(tokens, openIndex);
+        Token next = nextSignificant(tokens, openIndex);
+        if (previous == null || next == null) {
+            return false;
+        }
+        String previousText = previous.text();
+        String nextText = next.text();
+        if (!".".equals(previousText)
+            && !isIdentifier(previousText)
+            && !"?".equals(previousText)
+            && !">".equals(previousText)
+            && !"]".equals(previousText)) {
+            return false;
+        }
+        if (!isIdentifier(nextText) && !"?".equals(nextText)) {
+            return false;
+        }
+        int closeIndex = findMatchingAngle(tokens, openIndex, limitIndex);
+        if (closeIndex < 0) {
+            return false;
+        }
+        Token after = nextSignificant(tokens, closeIndex);
+        String afterText = textOf(after);
+        if (".".equals(previousText)) {
+            return isIdentifier(afterText) || "(".equals(afterText);
+        }
+        return "(".equals(afterText)
+            || "[".equals(afterText)
+            || ")".equals(afterText)
+            || ",".equals(afterText)
+            || ".".equals(afterText)
+            || ";".equals(afterText)
+            || ":".equals(afterText)
+            || "}".equals(afterText);
+    }
+
+    private static int findMatchingAngle(List<Token> tokens, int openIndex, int limitIndex) {
+        int depth = 0;
+        for (int i = openIndex; i < limitIndex; i++) {
+            String text = tokens.get(i).text();
+            if ("<".equals(text)) {
+                depth++;
+            } else if (">".equals(text)) {
+                depth--;
+                if (depth == 0) {
+                    return i;
+                }
+            }
+        }
+        return -1;
     }
 
     private static int findMatchingParen(List<Token> tokens, int openIndex) {
@@ -1090,7 +1158,11 @@ public final class BytecodeSourceLinker {
     }
 
     private static boolean isEscaped(char[] chars, int index) {
-        return index > 0 && chars[index - 1] == '\\';
+        int backslashCount = 0;
+        for (int i = index - 1; i >= 0 && chars[i] == '\\'; i--) {
+            backslashCount++;
+        }
+        return (backslashCount & 1) == 1;
     }
 
     private static ResultLinkSupport.LinkTarget target(String typeName, String name, String descriptor) {

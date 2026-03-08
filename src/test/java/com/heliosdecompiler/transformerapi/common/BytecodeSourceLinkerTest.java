@@ -167,6 +167,40 @@ public class BytecodeSourceLinkerTest {
         assertTrue(result.getReferences().stream().anyMatch(BytecodeSourceLinkerTest::isTypeResolutionRunReference));
     }
 
+    @Test
+    public void testLinkCountsOnlyTopLevelCommasForArrayAndGenericArguments() {
+        DecompilationResult result = new DecompilationResult();
+
+        BytecodeSourceLinker.link(
+            result,
+            readSource("src/test/java/com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage.java"),
+            "com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage",
+            importantData("com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage")
+        );
+
+        assertNotNull(result.getDeclarations().get("com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage-arrayTarget-(Ljava/lang/String;)V"));
+        assertNotNull(result.getDeclarations().get("com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage-genericTarget-(Ljava/lang/String;)V"));
+        assertTrue(result.getReferences().stream().anyMatch(BytecodeSourceLinkerTest::isRegressionArrayTargetReference));
+        assertTrue(result.getReferences().stream().anyMatch(BytecodeSourceLinkerTest::isRegressionGenericTargetReference));
+    }
+
+    @Test
+    public void testLinkHandlesEvenBackslashRunsBeforeClosingQuotes() {
+        DecompilationResult result = new DecompilationResult();
+
+        BytecodeSourceLinker.link(
+            result,
+            readSource("src/test/java/com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage.java"),
+            "com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage",
+            importantData("com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage")
+        );
+
+        assertNotNull(result.getDeclarations().get("com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage-afterEscapedString-()V"));
+        assertNotNull(result.getDeclarations().get("com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage-afterEscapedTarget-()V"));
+        assertTrue(result.getReferences().stream().anyMatch(BytecodeSourceLinkerTest::isRegressionEscapedTargetReference));
+        assertTrue(result.getReferences().stream().anyMatch(BytecodeSourceLinkerTest::isRegressionAfterEscapedTargetReference));
+    }
+
     private static boolean isInnerCallReference(ReferenceData reference) {
         return "com/heliosdecompiler/transformerapi/TestLinkCoverage$Inner".equals(reference.getTypeName())
             && "innerCall".equals(reference.getName())
@@ -200,6 +234,30 @@ public class BytecodeSourceLinkerTest {
     private static boolean isTypeResolutionRunReference(ReferenceData reference) {
         return "com/heliosdecompiler/transformerapi/TestTypeResolutionCoverage".equals(reference.getTypeName())
             && "run".equals(reference.getName())
+            && "()V".equals(reference.getDescriptor());
+    }
+
+    private static boolean isRegressionArrayTargetReference(ReferenceData reference) {
+        return "com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage".equals(reference.getTypeName())
+            && "arrayTarget".equals(reference.getName())
+            && "(Ljava/lang/String;)V".equals(reference.getDescriptor());
+    }
+
+    private static boolean isRegressionGenericTargetReference(ReferenceData reference) {
+        return "com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage".equals(reference.getTypeName())
+            && "genericTarget".equals(reference.getName())
+            && "(Ljava/lang/String;)V".equals(reference.getDescriptor());
+    }
+
+    private static boolean isRegressionEscapedTargetReference(ReferenceData reference) {
+        return "com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage".equals(reference.getTypeName())
+            && "escapedTarget".equals(reference.getName())
+            && "()V".equals(reference.getDescriptor());
+    }
+
+    private static boolean isRegressionAfterEscapedTargetReference(ReferenceData reference) {
+        return "com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage".equals(reference.getTypeName())
+            && "afterEscapedTarget".equals(reference.getName())
             && "()V".equals(reference.getDescriptor());
     }
 
