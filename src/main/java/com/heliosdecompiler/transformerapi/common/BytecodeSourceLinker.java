@@ -664,43 +664,6 @@ public final class BytecodeSourceLinker {
         return count;
     }
 
-    private static boolean startsGenericArgumentList(List<Token> tokens, int openIndex, int limitIndex) {
-        Token previous = previousSignificant(tokens, openIndex);
-        Token next = nextSignificant(tokens, openIndex);
-        if (previous == null || next == null) {
-            return false;
-        }
-        String previousText = previous.text();
-        String nextText = next.text();
-        if (!".".equals(previousText)
-            && !isIdentifier(previousText)
-            && !"?".equals(previousText)
-            && !">".equals(previousText)
-            && !"]".equals(previousText)) {
-            return false;
-        }
-        if (!isIdentifier(nextText) && !"?".equals(nextText)) {
-            return false;
-        }
-        int closeIndex = findMatchingAngle(tokens, openIndex, limitIndex);
-        if (closeIndex < 0) {
-            return false;
-        }
-        Token after = nextSignificant(tokens, closeIndex);
-        String afterText = textOf(after);
-        if (".".equals(previousText)) {
-            return isIdentifier(afterText) || "(".equals(afterText);
-        }
-        return "(".equals(afterText)
-            || "[".equals(afterText)
-            || ")".equals(afterText)
-            || ",".equals(afterText)
-            || ".".equals(afterText)
-            || ";".equals(afterText)
-            || ":".equals(afterText)
-            || "}".equals(afterText);
-    }
-
     private static int findMatchingAngle(List<Token> tokens, int openIndex, int limitIndex) {
         int depth = 0;
         for (int i = openIndex; i < limitIndex; i++) {
@@ -1159,11 +1122,7 @@ public final class BytecodeSourceLinker {
 
         private void accept(List<Token> tokens, int index, int closeIndex) {
             switch (tokens.get(index).text()) {
-                case "<" -> {
-                    if (startsGenericArgumentList(tokens, index, closeIndex)) {
-                        angleDepth++;
-                    }
-                }
+                case String s when "<".equals(s) && startsGenericArgumentList(tokens, index, closeIndex) -> angleDepth++;
                 case ">" -> decreaseAngleDepth();
                 case "(" -> parenDepth++;
                 case ")" -> parenDepth = decreaseDepth(parenDepth);
@@ -1172,8 +1131,46 @@ public final class BytecodeSourceLinker {
                 case "[" -> bracketDepth++;
                 case "]" -> bracketDepth = decreaseDepth(bracketDepth);
                 default -> {
+                    // No nesting state change for other tokens.
                 }
             }
+        }
+
+        private boolean startsGenericArgumentList(List<Token> tokens, int openIndex, int limitIndex) {
+            Token previous = previousSignificant(tokens, openIndex);
+            Token next = nextSignificant(tokens, openIndex);
+            if (previous == null || next == null) {
+                return false;
+            }
+            String previousText = previous.text();
+            String nextText = next.text();
+            if (!".".equals(previousText)
+                && !isIdentifier(previousText)
+                && !"?".equals(previousText)
+                && !">".equals(previousText)
+                && !"]".equals(previousText)) {
+                return false;
+            }
+            if (!isIdentifier(nextText) && !"?".equals(nextText)) {
+                return false;
+            }
+            int closeIndex = findMatchingAngle(tokens, openIndex, limitIndex);
+            if (closeIndex < 0) {
+                return false;
+            }
+            Token after = nextSignificant(tokens, closeIndex);
+            String afterText = textOf(after);
+            if (".".equals(previousText)) {
+                return isIdentifier(afterText) || "(".equals(afterText);
+            }
+            return "(".equals(afterText)
+                || "[".equals(afterText)
+                || ")".equals(afterText)
+                || ",".equals(afterText)
+                || ".".equals(afterText)
+                || ";".equals(afterText)
+                || ":".equals(afterText)
+                || "}".equals(afterText);
         }
 
         private void decreaseAngleDepth() {
