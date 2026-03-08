@@ -104,7 +104,7 @@ public class FileLoader implements Loader {
         }
         Path classFile = classFilePath(key);
         if (!Files.isRegularFile(classFile)) {
-            return null;
+            return data;
         }
         data = Files.readAllBytes(classFile);
         map.put(key, data);

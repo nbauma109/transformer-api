@@ -6,6 +6,7 @@
 
 package com.heliosdecompiler.transformerapi.common;
 
+import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -664,22 +665,6 @@ public final class BytecodeSourceLinker {
         return count;
     }
 
-    private static int findMatchingAngle(List<Token> tokens, int openIndex, int limitIndex) {
-        int depth = 0;
-        for (int i = openIndex; i < limitIndex; i++) {
-            String text = tokens.get(i).text();
-            if ("<".equals(text)) {
-                depth++;
-            } else if (">".equals(text)) {
-                depth--;
-                if (depth == 0) {
-                    return i;
-                }
-            }
-        }
-        return -1;
-    }
-
     private static int findMatchingParen(List<Token> tokens, int openIndex) {
         int depth = 0;
         for (int i = openIndex; i < tokens.size(); i++) {
@@ -752,7 +737,7 @@ public final class BytecodeSourceLinker {
     }
 
     private static boolean isIdentifier(String text) {
-        return !text.isEmpty() && Character.isJavaIdentifierStart(text.charAt(0));
+        return StringUtils.isNotEmpty(text) && Character.isJavaIdentifierStart(text.charAt(0));
     }
 
     private static boolean isTypeKeyword(String text) {
@@ -1171,6 +1156,22 @@ public final class BytecodeSourceLinker {
                 || ";".equals(afterText)
                 || ":".equals(afterText)
                 || "}".equals(afterText);
+        }
+
+        private static int findMatchingAngle(List<Token> tokens, int openIndex, int limitIndex) {
+            int depth = 0;
+            for (int i = openIndex; i < limitIndex; i++) {
+                String text = tokens.get(i).text();
+                if ("<".equals(text)) {
+                    depth++;
+                } else if (">".equals(text)) {
+                    depth--;
+                    if (depth == 0) {
+                        return i;
+                    }
+                }
+            }
+            return -1;
         }
 
         private void decreaseAngleDepth() {

@@ -58,15 +58,15 @@ public class VineflowerTokenConsumer extends TextTokenVisitor {
 
     @Override
     public void visitLocal(TextRange range, boolean declaration, String className, String methodName, MethodDescriptor methodDescriptor, int index, String name) {
-        visitMethodBound(range, declaration, className, methodName, methodDescriptor, index, name, false);
+        visitMethodBound(range, declaration, className, methodName, methodDescriptor, index, false);
     }
 
     @Override
     public void visitParameter(TextRange range, boolean declaration, String className, String methodName, MethodDescriptor methodDescriptor, int index, String name) {
-        visitMethodBound(range, declaration, className, methodName, methodDescriptor, index, name, true);
+        visitMethodBound(range, declaration, className, methodName, methodDescriptor, index, true);
     }
 
-    private void visitMethodBound(TextRange range, boolean declaration, String className, String methodName, MethodDescriptor methodDescriptor, int index, String name, boolean isParameter) {
+    private void visitMethodBound(TextRange range, boolean declaration, String className, String methodName, MethodDescriptor methodDescriptor, int index, boolean isParameter) {
         String fakeDesc = methodDescriptor.toString() + '-' + (isParameter ? 'p' : 'l') + index;
         if (declaration) {
             DeclarationData data = new DeclarationData(range.start, range.length, className, methodName, fakeDesc);

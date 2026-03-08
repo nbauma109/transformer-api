@@ -16,13 +16,15 @@
 
 package com.heliosdecompiler.transformerapi.common;
 
+import org.jetbrains.java.decompiler.main.extern.IResultSaver;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.Manifest;
 
 import jd.core.DecompilationResult;
 
-public abstract class AbstractResultSaver {
+public abstract class AbstractResultSaver implements IResultSaver {
 
     private static final String UNEXPECTED = "Unexpected";
 
@@ -57,6 +59,7 @@ public abstract class AbstractResultSaver {
     public void copyFile(String source, String path, String entryName) {
     }
 
+    @Override
     public void saveClassFile(String path, String qualifiedName, String entryName, String content, int[] mapping) {
         if (mapping != null) {
             lineNumbers = true;

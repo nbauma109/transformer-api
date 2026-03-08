@@ -117,7 +117,7 @@ public class Loader implements IContextSource {
                 }
             }
         }
-        return null;
+        return classContents;
     }
 
     private static ZipFile openZipFile(String classpathEntry) throws IOException {

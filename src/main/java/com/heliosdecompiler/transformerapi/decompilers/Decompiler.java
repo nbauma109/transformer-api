@@ -117,15 +117,17 @@ public interface Decompiler<S> {
             return new IOutputSink() {
                 @Override
                 public void close() throws IOException {
+                    // not used
                 }
 
                 @Override
                 public void begin() {
+                    // not used
                 }
 
                 @Override
                 public void acceptOther(String path) {
-                 // not used
+                    // not used
                 }
 
                 @Override

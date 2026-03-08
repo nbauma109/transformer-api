@@ -40,6 +40,7 @@ public class CFRDataSource extends ClassFileSourceImpl {
 
     @Override
     public void informAnalysisRelativePathDetail(String usePath, String classFilePath) {
+        // not used
     }
 
     @Override
