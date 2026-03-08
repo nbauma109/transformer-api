@@ -9,9 +9,11 @@ package com.heliosdecompiler.transformerapi;
 public class BytecodeSourceLinkerRegressionCoverage {
 
     public void arrayTarget(String value) {
+        // Intentional no-op fixture method: linker tests only need a resolvable declaration target.
     }
 
     public void genericTarget(String value) {
+        // Intentional no-op fixture method: linker tests only need a resolvable declaration target.
     }
 
     public void nestedArrayArgument() {
@@ -30,6 +32,7 @@ public class BytecodeSourceLinkerRegressionCoverage {
     }
 
     private void escapedTarget() {
+        // Intentional no-op fixture method: linker tests only need a resolvable declaration target.
     }
 
     public void afterEscapedString() {
@@ -37,5 +40,6 @@ public class BytecodeSourceLinkerRegressionCoverage {
     }
 
     private void afterEscapedTarget() {
+        // Intentional no-op fixture method: linker tests only need a resolvable declaration target.
     }
 }

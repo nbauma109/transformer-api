@@ -652,32 +652,14 @@ public final class BytecodeSourceLinker {
         if (closeIndex < 0 || openIndex + 1 == closeIndex) {
             return 0;
         }
-        int parenDepth = 0;
-        int braceDepth = 0;
-        int bracketDepth = 0;
-        int angleDepth = 0;
+        CallArgumentNesting nesting = new CallArgumentNesting();
         int count = 1;
         for (int i = openIndex + 1; i < closeIndex; i++) {
-            String text = tokens.get(i).text();
-            if ("<".equals(text) && startsGenericArgumentList(tokens, i, closeIndex)) {
-                angleDepth++;
-            } else if (">".equals(text) && angleDepth > 0) {
-                angleDepth--;
-            } else if ("(".equals(text)) {
-                parenDepth++;
-            } else if (")".equals(text) && parenDepth > 0) {
-                parenDepth--;
-            } else if ("{".equals(text)) {
-                braceDepth++;
-            } else if ("}".equals(text) && braceDepth > 0) {
-                braceDepth--;
-            } else if ("[".equals(text)) {
-                bracketDepth++;
-            } else if ("]".equals(text) && bracketDepth > 0) {
-                bracketDepth--;
-            } else if (",".equals(text) && parenDepth == 0 && braceDepth == 0 && bracketDepth == 0 && angleDepth == 0) {
+            if (",".equals(tokens.get(i).text()) && nesting.isTopLevel()) {
                 count++;
+                continue;
             }
+            nesting.accept(tokens, i, closeIndex);
         }
         return count;
     }
@@ -1163,6 +1145,46 @@ public final class BytecodeSourceLinker {
             backslashCount++;
         }
         return (backslashCount & 1) == 1;
+    }
+
+    private static final class CallArgumentNesting {
+        private int parenDepth;
+        private int braceDepth;
+        private int bracketDepth;
+        private int angleDepth;
+
+        private boolean isTopLevel() {
+            return parenDepth == 0 && braceDepth == 0 && bracketDepth == 0 && angleDepth == 0;
+        }
+
+        private void accept(List<Token> tokens, int index, int closeIndex) {
+            switch (tokens.get(index).text()) {
+                case "<" -> {
+                    if (startsGenericArgumentList(tokens, index, closeIndex)) {
+                        angleDepth++;
+                    }
+                }
+                case ">" -> decreaseAngleDepth();
+                case "(" -> parenDepth++;
+                case ")" -> parenDepth = decreaseDepth(parenDepth);
+                case "{" -> braceDepth++;
+                case "}" -> braceDepth = decreaseDepth(braceDepth);
+                case "[" -> bracketDepth++;
+                case "]" -> bracketDepth = decreaseDepth(bracketDepth);
+                default -> {
+                }
+            }
+        }
+
+        private void decreaseAngleDepth() {
+            if (angleDepth > 0) {
+                angleDepth--;
+            }
+        }
+
+        private static int decreaseDepth(int depth) {
+            return depth > 0 ? depth - 1 : 0;
+        }
     }
 
     private static ResultLinkSupport.LinkTarget target(String typeName, String name, String descriptor) {
