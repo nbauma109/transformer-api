@@ -7,6 +7,7 @@
 package com.heliosdecompiler.transformerapi.common;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -1129,11 +1130,7 @@ public final class BytecodeSourceLinker {
             }
             String previousText = previous.text();
             String nextText = next.text();
-            if (!".".equals(previousText)
-                && !isIdentifier(previousText)
-                && !"?".equals(previousText)
-                && !">".equals(previousText)
-                && !"]".equals(previousText)) {
+            if (!Strings.CS.equalsAny(previousText, ".", "?", ">","]") && !isIdentifier(previousText)) {
                 return false;
             }
             if (!isIdentifier(nextText) && !"?".equals(nextText)) {
@@ -1148,14 +1145,7 @@ public final class BytecodeSourceLinker {
             if (".".equals(previousText)) {
                 return isIdentifier(afterText) || "(".equals(afterText);
             }
-            return "(".equals(afterText)
-                || "[".equals(afterText)
-                || ")".equals(afterText)
-                || ",".equals(afterText)
-                || ".".equals(afterText)
-                || ";".equals(afterText)
-                || ":".equals(afterText)
-                || "}".equals(afterText);
+            return Strings.CS.equalsAny(afterText, "(", "[", ")", ",", ".", ";", ":", "}");
         }
 
         private static int findMatchingAngle(List<Token> tokens, int openIndex, int limitIndex) {
