@@ -84,6 +84,9 @@ public interface Decompiler<S> {
                     }
                 }
             }
+            if (classNode.superName != null && !"java/lang/Object".equals(classNode.superName) && loader.canLoad(classNode.superName)) {
+                importantData.putAll(readClassAndInnerClasses(importantData, loader, classNode.superName).importantData);
+            }
         }
         return new ClassStruct(fullClassName, importantData);
     }

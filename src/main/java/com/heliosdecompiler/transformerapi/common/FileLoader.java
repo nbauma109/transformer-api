@@ -34,13 +34,15 @@ public class FileLoader implements Loader {
 
     protected static final Pattern CLASS_SUFFIX_PATTERN = Pattern.compile("\\.class$");
 
+    private final Path rootDirectory;
+
     private final HashMap<String, byte[]> map = new HashMap<>();
 
     public FileLoader(String rootLocation, String pkg, String className) throws IOException {
         Objects.requireNonNull(rootLocation, "rootLocation");
         Objects.requireNonNull(className, "className");
 
-        Path rootDirectory = Paths.get(rootLocation);
+        this.rootDirectory = Paths.get(rootLocation);
         Validate.isTrue(Files.isDirectory(rootDirectory), "Not a directory: " + rootDirectory);
 
         String topLevelTypeName = stripClassSuffix(className);
@@ -95,11 +97,27 @@ public class FileLoader implements Loader {
 
     @Override
     public byte[] load(String internalName) throws IOException {
-        return map.get(stripClassSuffix(internalName));
+        String key = stripClassSuffix(internalName);
+        byte[] data = map.get(key);
+        if (data != null) {
+            return data;
+        }
+        Path classFile = classFilePath(key);
+        if (!Files.isRegularFile(classFile)) {
+            return null;
+        }
+        data = Files.readAllBytes(classFile);
+        map.put(key, data);
+        return data;
     }
 
     @Override
     public boolean canLoad(String internalName) {
-        return map.containsKey(stripClassSuffix(internalName));
+        String key = stripClassSuffix(internalName);
+        return map.containsKey(key) || Files.isRegularFile(classFilePath(key));
+    }
+
+    protected Path classFilePath(String internalName) {
+        return rootDirectory.resolve(internalName + ".class");
     }
 }
