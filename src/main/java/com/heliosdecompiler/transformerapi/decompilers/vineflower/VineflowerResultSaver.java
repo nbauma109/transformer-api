@@ -16,10 +16,11 @@
 
 package com.heliosdecompiler.transformerapi.decompilers.vineflower;
 
-import jd.core.DecompilationResult;
 import org.vineflower.java.decompiler.main.extern.IResultSaver;
 
 import com.heliosdecompiler.transformerapi.common.AbstractResultSaver;
+
+import jd.core.DecompilationResult;
 
 public class VineflowerResultSaver extends AbstractResultSaver implements IResultSaver {
 

@@ -5,6 +5,7 @@ import org.jd.core.v1.loader.ClassPathLoader;
 import org.jd.core.v1.util.ZipLoader;
 import org.junit.Test;
 
+import com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers;
 import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 import com.heliosdecompiler.transformerapi.decompilers.cfr.CFRSettings;
@@ -57,6 +58,11 @@ public class StandardTransformersTest {
         assertEquals(JADX, valueOf(ENGINE_JADX));
     }
 
+    @Test
+    public void testGetDefault() {
+        assertEquals(VINEFLOWER, Decompilers.getDefault());
+    }
+    
     @Test
     public void testDecompileCFR() throws Exception {
         testDecompile("/TestCompactCFR.txt", ENGINE_CFR, CFRSettings.defaults(), "test/TestCompact", "/test-compact-expand-inline.jar");

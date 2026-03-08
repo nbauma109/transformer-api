@@ -84,6 +84,9 @@ public interface Decompiler<S> {
                     }
                 }
             }
+            if (classNode.superName != null && !"java/lang/Object".equals(classNode.superName) && loader.canLoad(classNode.superName)) {
+                importantData.putAll(readClassAndInnerClasses(importantData, loader, classNode.superName).importantData);
+            }
         }
         return new ClassStruct(fullClassName, importantData);
     }
@@ -114,15 +117,17 @@ public interface Decompiler<S> {
             return new IOutputSink() {
                 @Override
                 public void close() throws IOException {
+                    // not used
                 }
 
                 @Override
                 public void begin() {
+                    // not used
                 }
 
                 @Override
                 public void acceptOther(String path) {
-                 // not used
+                    // not used
                 }
 
                 @Override

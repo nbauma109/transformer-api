@@ -1,4 +1,5 @@
 /*
+ * Copyright 2026 Nicolas Baumann (@nbauma109)
  * Copyright 2017 Sam Sun <github-contact@samczsun.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +22,7 @@ import org.benf.cfr.reader.api.CfrDriver;
 import org.benf.cfr.reader.util.CfrVersionInfo;
 import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
+import com.heliosdecompiler.transformerapi.common.BytecodeSourceLinker;
 import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 
@@ -30,6 +32,9 @@ import java.util.Map;
 import java.util.Scanner;
 import jd.core.DecompilationResult;
 
+/**
+ * Provides a gateway to the CFR decompiler.
+ */
 public class CFRDecompiler extends Decompiler.AbstractDecompiler implements Decompiler<CFRSettings> {
 
     public CFRDecompiler(String name) {
@@ -39,6 +44,7 @@ public class CFRDecompiler extends Decompiler.AbstractDecompiler implements Deco
     @Override
     public DecompilationResult decompile(Loader loader, String internalName, CFRSettings settings) throws IOException {
         StopWatch stopWatch = StopWatch.createStarted();
+        ClassStruct classStruct = readClassAndInnerClasses(loader, internalName);
         CFROutputStreamFactory sink = new CFROutputStreamFactory();
         String entryPath = internalName + ".class";
         OptionsImpl options = new OptionsImpl(settings.getSettings());
@@ -55,6 +61,8 @@ public class CFRDecompiler extends Decompiler.AbstractDecompiler implements Deco
         }
         DecompilationResult decompilationResult = new DecompilationResult();
         decompilationResult.setDecompiledOutput(resultCode);
+        // CFR emits text only, so link metadata is reconstructed from the source after decompilation.
+        BytecodeSourceLinker.link(decompilationResult, resultCode, classStruct.fullClassName(), classStruct.importantData());
         time = stopWatch.getTime();
         return decompilationResult;
     }

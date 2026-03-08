@@ -1,4 +1,5 @@
 /*
+ * Copyright 2026 Nicolas Baumann (@nbauma109)
  * Copyright 2017 Sam Sun <github-contact@samczsun.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +24,7 @@ import org.jetbrains.java.decompiler.main.decompiler.PrintStreamLogger;
 import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
 import org.jetbrains.java.decompiler.struct.StructContext;
 
+import com.heliosdecompiler.transformerapi.common.BytecodeSourceLinker;
 import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
 
@@ -33,7 +35,7 @@ import java.util.Map;
 import jd.core.DecompilationResult;
 
 /**
- * Provides a gateway to the Fernflower decompiler
+ * Provides a gateway to the Fernflower decompiler.
  */
 public class FernflowerDecompiler extends Decompiler.AbstractDecompiler implements Decompiler<FernflowerSettings> {
 
@@ -63,7 +65,10 @@ public class FernflowerDecompiler extends Decompiler.AbstractDecompiler implemen
                 baseDecompiler.clearContext();
             }
             String key = classStruct.fullClassName();
-            decompilationResult.setDecompiledOutput(saver.getResults().get(key));
+            String source = saver.getResults().get(key);
+            decompilationResult.setDecompiledOutput(source);
+            // Fernflower does not expose token callbacks, so links are synthesized from source and bytecode.
+            BytecodeSourceLinker.link(decompilationResult, source, key, classStruct.importantData());
         }
         time = stopWatch.getTime();
         return decompilationResult;

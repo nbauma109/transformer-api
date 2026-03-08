@@ -92,7 +92,7 @@ public final class StandardTransformers {
          *
          * Gets the default decompiler (currently Vineflower)
          * @since 4.2.1
-         * @return the default decompiler (currently Vineflower)
+         * @return the default decompiler
          */
         public static Decompiler<?> getDefault() {
             return valueOf("");
