@@ -16,7 +16,7 @@
 
 package com.heliosdecompiler.transformerapi.decompilers.fernflower;
 
-import org.vineflower.java.decompiler.main.extern.IResultSaver;
+import org.jetbrains.java.decompiler.main.extern.IResultSaver;
 
 import com.heliosdecompiler.transformerapi.common.AbstractResultSaver;
 
