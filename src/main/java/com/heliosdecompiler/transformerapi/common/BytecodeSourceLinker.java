@@ -398,10 +398,8 @@ public final class BytecodeSourceLinker {
                 if (ownerScope != null) {
                     if (looksLikeMethodCall(tokens, index)) {
                         addMethodCallReference(result, references, index, token, ownerScope);
-                    } else {
-                        if (!addFieldReference(result, references, index, token, ownerScope)) {
-                            addTypeReference(result, references, token, ownerScope);
-                        }
+                    } else if (!addFieldReference(result, references, index, token, ownerScope)) {
+                        addTypeReference(result, references, token, ownerScope);
                     }
                 }
             }
@@ -941,16 +939,14 @@ public final class BytecodeSourceLinker {
             String tokenText = tokens.get(index).text();
             if (isAnnotation(tokenText)) {
                 index = skipAnnotation(tokens, index) + 1;
-            } else if ("[".equals(tokenText)) {
-                arrayDepth++;
-                index++;
-            } else if ("...".equals(tokenText)) {
-                varArgs = true;
-                index++;
-            } else if (!isModifier(tokenText)) {
-                typeTokens.add(tokenText);
-                index++;
             } else {
+                if ("[".equals(tokenText)) {
+                    arrayDepth++;
+                } else if ("...".equals(tokenText)) {
+                    varArgs = true;
+                } else if (!isModifier(tokenText)) {
+                    typeTokens.add(tokenText);
+                }
                 index++;
             }
         }
