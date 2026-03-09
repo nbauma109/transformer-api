@@ -50,7 +50,7 @@ public class FernflowerDecompiler extends Decompiler.AbstractDecompiler implemen
         ClassStruct classStruct = readClassAndInnerClasses(loader, internalName);
         if (!classStruct.importantData().isEmpty()) {
             IBytecodeProvider provider = new FernflowerBytecodeProvider(classStruct.importantData());
-            FernflowerResultSaver saver = new FernflowerResultSaver();
+            FernflowerResultSaver saver = new FernflowerResultSaver(decompilationResult);
             Fernflower baseDecompiler = new Fernflower(provider, saver, settings.getSettings(), new PrintStreamLogger(System.out));
             StructContext context;
             try {
@@ -67,6 +67,9 @@ public class FernflowerDecompiler extends Decompiler.AbstractDecompiler implemen
             String key = classStruct.fullClassName();
             String source = saver.getResults().get(key);
             decompilationResult.setDecompiledOutput(source);
+            if (!saver.hasLineRemapping()) {
+                putIdentityLineNumbers(decompilationResult, source);
+            }
             // Fernflower does not expose token callbacks, so links are synthesized from source and bytecode.
             BytecodeSourceLinker.link(decompilationResult, source, key, classStruct.importantData());
         }

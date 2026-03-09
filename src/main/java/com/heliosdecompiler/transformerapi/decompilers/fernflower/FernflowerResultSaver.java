@@ -22,6 +22,10 @@ import com.heliosdecompiler.transformerapi.common.AbstractResultSaver;
 
 public class FernflowerResultSaver extends AbstractResultSaver implements IResultSaver {
 
+    public FernflowerResultSaver(jd.core.DecompilationResult result) {
+        super(result);
+    }
+
     @Override
     public void saveClassFile(String path, String qualifiedName, String entryName, String content, int[] mapping) {
         saveClassFile(qualifiedName, content, mapping);

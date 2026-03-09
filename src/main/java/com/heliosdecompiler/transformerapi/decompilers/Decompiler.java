@@ -42,6 +42,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -211,6 +212,35 @@ public interface Decompiler<S> {
 
         public String getName() {
             return name;
+        }
+
+        protected static void putLineNumbers(DecompilationResult result, Map<Integer, Integer> lineNumbers) {
+            Objects.requireNonNull(lineNumbers, "lineNumbers");
+            int maxLineNumber = 0;
+            for (Map.Entry<Integer, Integer> entry : lineNumbers.entrySet()) {
+                Integer lineNumber = entry.getKey();
+                Integer sourceLineNumber = entry.getValue();
+                if (lineNumber == null || sourceLineNumber == null) {
+                    continue;
+                }
+                result.putLineNumber(lineNumber, sourceLineNumber);
+                if (sourceLineNumber > maxLineNumber) {
+                    maxLineNumber = sourceLineNumber;
+                }
+            }
+            if (maxLineNumber > 0) {
+                result.setMaxLineNumber(maxLineNumber);
+            }
+        }
+
+        protected static void putIdentityLineNumbers(DecompilationResult result, String source) {
+            if (StringUtils.isNotBlank(source)) {
+                int lineCount = source.split("\\R", -1).length;
+                result.setMaxLineNumber(lineCount);
+                for (int i = 1; i <= lineCount; i++) {
+                    result.putLineNumber(i, i);
+                }
+            }
         }
     }
 }

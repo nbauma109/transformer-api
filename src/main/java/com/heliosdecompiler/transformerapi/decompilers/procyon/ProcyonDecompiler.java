@@ -31,6 +31,8 @@ import com.strobel.decompiler.languages.Languages;
 import com.strobel.decompiler.languages.LineNumberPosition;
 import com.strobel.decompiler.languages.TypeDecompilationResults;
 
+import jadx.core.utils.Utils;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
@@ -68,9 +70,25 @@ public class ProcyonDecompiler extends Decompiler.AbstractDecompiler implements 
     public DecompilationResult decompile(Loader loader, String internalName, CommandLineOptions options) throws IOException {
         StopWatch stopWatch = StopWatch.createStarted();
         Map<String, byte[]> importantClasses = new HashMap<>();
+        DecompilerSettings settings = createSettings(options, importantClasses, loader);
+        StringWriter stringwriter = new StringWriter();
+        DecompilationResult result = new DecompilationResult();
+        Map<String, ReferenceData> referencesCache = new HashMap<>();
 
-        final DecompilerSettings settings = new DecompilerSettings();
+        PlainTextOutput plainTextOutput = new ProcyonLinkProvider(stringwriter, stringwriter, result, internalName, referencesCache);
+        TypeDecompilationResults typeDecompilationResults = com.strobel.decompiler.Decompiler.decompile(internalName, plainTextOutput, settings);
+        List<LineNumberPosition> lineNumberPositions = typeDecompilationResults.getLineNumberPositions();
+        putLineNumberPositions(result, lineNumberPositions);
+        result.setDecompiledOutput(formatOutput(options, stringwriter.toString(), lineNumberPositions));
+        if (Utils.isEmpty(lineNumberPositions)) {
+            putIdentityLineNumbers(result, result.getDecompiledOutput());
+        }
+        time = stopWatch.getTime();
+        return result;
+    }
 
+    private static DecompilerSettings createSettings(CommandLineOptions options, Map<String, byte[]> importantClasses, Loader loader) {
+        DecompilerSettings settings = new DecompilerSettings();
         settings.setFlattenSwitchBlocks(options.getFlattenSwitchBlocks());
         settings.setForceExplicitImports(!options.getCollapseImports());
         settings.setForceExplicitTypeArguments(options.getForceExplicitTypeArguments());
@@ -89,44 +107,63 @@ public class ProcyonDecompiler extends Decompiler.AbstractDecompiler implements 
         settings.setForcedCompilerTarget(options.getCompilerTargetOverride());
         settings.setTextBlockLineMinimum(options.getTextBlockLineMinimum());
         settings.setTypeLoader(new ProcyonFastTypeLoader(importantClasses, loader));
+        configureOutputMode(settings, options);
+        return settings;
+    }
 
+    private static void configureOutputMode(DecompilerSettings settings, CommandLineOptions options) {
         if (!options.getSuppressBanner()) {
             settings.setOutputFileHeaderText("\nDecompiled by Procyon v" + Procyon.version() + "\n");
         }
-
         if (options.isRawBytecode()) {
             settings.setLanguage(Languages.bytecode());
             settings.setBytecodeOutputOptions(createBytecodeFormattingOptions(options));
-        } else if (options.isBytecodeAst()) {
+            return;
+        }
+        if (options.isBytecodeAst()) {
             settings.setLanguage(options.isUnoptimized() ? Languages.bytecodeAstUnoptimized() : Languages.bytecodeAst());
         }
+    }
 
-        StringWriter stringwriter = new StringWriter();
-        DecompilationResult result = new DecompilationResult();
-        Map<String, ReferenceData> referencesCache = new HashMap<>();
-
-        PlainTextOutput plainTextOutput = new ProcyonLinkProvider(stringwriter, stringwriter, result, internalName, referencesCache);
-        TypeDecompilationResults typeDecompilationResults = com.strobel.decompiler.Decompiler.decompile(internalName, plainTextOutput, settings);
-        if (options.getIncludeLineNumbers() || options.getStretchLines()) {
-            List<LineNumberPosition> lineNumberPositions = typeDecompilationResults.getLineNumberPositions();
-            EnumSet<LineNumberOption> lineNumberOptions = EnumSet.noneOf(LineNumberOption.class);
-
-            if (options.getIncludeLineNumbers()) {
-                lineNumberOptions.add(LineNumberOption.LEADING_COMMENTS);
-            }
-
-            if (options.getStretchLines()) {
-                lineNumberOptions.add(LineNumberOption.STRETCHED);
-            }
-
-            InMemoryLineNumberFormatter lineFormatter = new InMemoryLineNumberFormatter(stringwriter.toString(), lineNumberPositions, lineNumberOptions);
-            String sourceWithLineNumbers = lineFormatter.reformatFile();
-            result.setDecompiledOutput(sourceWithLineNumbers);
-        } else {
-            result.setDecompiledOutput(stringwriter.toString());
+    private static void putLineNumberPositions(DecompilationResult result, List<LineNumberPosition> lineNumberPositions) {
+        if (Utils.isEmpty(lineNumberPositions)) {
+            return;
         }
-        time = stopWatch.getTime();
-        return result;
+        int maxLineNumber = 0;
+        for (LineNumberPosition lineNumberPosition : lineNumberPositions) {
+            int emittedLine = lineNumberPosition.getEmittedLine();
+            int originalLine = lineNumberPosition.getOriginalLine();
+            result.putLineNumber(emittedLine, originalLine);
+            if (originalLine > maxLineNumber) {
+                maxLineNumber = originalLine;
+            }
+        }
+        if (maxLineNumber > 0) {
+            result.setMaxLineNumber(maxLineNumber);
+        }
+    }
+
+    private static String formatOutput(CommandLineOptions options, String source, List<LineNumberPosition> lineNumberPositions) throws IOException {
+        if (!shouldFormatWithLineNumbers(options)) {
+            return source;
+        }
+        InMemoryLineNumberFormatter lineFormatter = new InMemoryLineNumberFormatter(source, lineNumberPositions, createLineNumberOptions(options));
+        return lineFormatter.reformatFile();
+    }
+
+    private static boolean shouldFormatWithLineNumbers(CommandLineOptions options) {
+        return options.getIncludeLineNumbers() || options.getStretchLines();
+    }
+
+    private static EnumSet<LineNumberOption> createLineNumberOptions(CommandLineOptions options) {
+        EnumSet<LineNumberOption> lineNumberOptions = EnumSet.noneOf(LineNumberOption.class);
+        if (options.getIncludeLineNumbers()) {
+            lineNumberOptions.add(LineNumberOption.LEADING_COMMENTS);
+        }
+        if (options.getStretchLines()) {
+            lineNumberOptions.add(LineNumberOption.STRETCHED);
+        }
+        return lineNumberOptions;
     }
 
 

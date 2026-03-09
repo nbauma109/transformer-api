@@ -79,7 +79,12 @@ public class JADXDecompiler extends Decompiler.AbstractDecompiler implements Dec
                         addLinks(decompilationResult, jadx, codeInfo);
                         // Supplement JADX's native annotations with bytecode-driven links for missed constructor cases.
                         BytecodeSourceLinker.link(decompilationResult, codeInfo.getCodeStr(), internalName, importantData);
-                        codeInfo.getCodeMetadata().getLineMapping().forEach(decompilationResult::putLineNumber);
+                        Map<Integer, Integer> lineMapping = codeInfo.getCodeMetadata().getLineMapping();
+                        if (lineMapping != null && !lineMapping.isEmpty()) {
+                            putLineNumbers(decompilationResult, lineMapping);
+                        } else {
+                            putIdentityLineNumbers(decompilationResult, codeInfo.getCodeStr());
+                        }
                         break;
                     }
                 }
