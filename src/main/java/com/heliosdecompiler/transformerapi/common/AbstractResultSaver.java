@@ -35,10 +35,6 @@ public abstract class AbstractResultSaver {
         this.result = result;
     }
 
-    protected AbstractResultSaver() {
-        this(new DecompilationResult());
-    }
-
     public Map<String, String> getResults() {
         return this.results;
     }
@@ -60,10 +56,17 @@ public abstract class AbstractResultSaver {
     public void saveClassFile(String qualifiedName, String content, int[] mapping) {
         if (mapping != null) {
             lineNumbers = true;
+            int maxLineNumber = 0;
             for (int i = 0; i < mapping.length; i += 2) {
                 int line = mapping[i + 1];
                 int actualLine = mapping[i];
                 result.putLineNumber(line, actualLine);
+                if (actualLine > maxLineNumber) {
+                    maxLineNumber = actualLine;
+                }
+            }
+            if (maxLineNumber > 0) {
+                result.setMaxLineNumber(maxLineNumber);
             }
         }
         results.put(qualifiedName, content);

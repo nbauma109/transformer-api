@@ -61,6 +61,11 @@ public class CFRDecompiler extends Decompiler.AbstractDecompiler implements Deco
         }
         DecompilationResult decompilationResult = new DecompilationResult();
         decompilationResult.setDecompiledOutput(resultCode);
+        if (!lineMapping.isEmpty()) {
+            putLineNumbers(decompilationResult, lineMapping);
+        } else {
+            putIdentityLineNumbers(decompilationResult, resultCode);
+        }
         // CFR emits text only, so link metadata is reconstructed from the source after decompilation.
         BytecodeSourceLinker.link(decompilationResult, resultCode, classStruct.fullClassName(), classStruct.importantData());
         time = stopWatch.getTime();

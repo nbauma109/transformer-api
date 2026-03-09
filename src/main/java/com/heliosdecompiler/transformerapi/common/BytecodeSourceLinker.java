@@ -94,7 +94,7 @@ public final class BytecodeSourceLinker {
      * Populate declarations and references after a decompiler has produced source text.
      */
     public static void link(DecompilationResult result, String source, String rootInternalName, Map<String, byte[]> importantData) {
-        if (source == null || source.isEmpty() || importantData.isEmpty()) {
+        if (StringUtils.isEmpty(source) || importantData.isEmpty()) {
             return;
         }
         BytecodeIndex index = BytecodeIndex.of(rootInternalName, importantData);

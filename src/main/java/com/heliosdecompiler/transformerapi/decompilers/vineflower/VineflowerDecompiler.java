@@ -63,11 +63,7 @@ public class VineflowerDecompiler extends Decompiler.AbstractDecompiler implemen
             String decompiledOutput = saver.getResults().get(key);
             decompilationResult.setDecompiledOutput(decompiledOutput);
             if (!saver.hasLineRemapping()) {
-                int lineCount = decompiledOutput.split("\n").length;
-                decompilationResult.setMaxLineNumber(lineCount);
-                for (int i = 1; i <= lineCount; i++) {
-                    decompilationResult.putLineNumber(i, i);
-                }
+                putIdentityLineNumbers(decompilationResult, decompiledOutput);
             }
         }
         time = stopWatch.getTime();
