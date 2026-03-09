@@ -40,6 +40,7 @@ import jadx.api.JavaNode;
 import jadx.api.JavaVariable;
 import jadx.core.Jadx;
 import jadx.core.codegen.TypeGen;
+import jadx.core.utils.Utils;
 import jadx.plugins.input.java.JavaClassReader;
 import jadx.plugins.input.java.JavaLoadResult;
 import jd.core.DecompilationResult;
@@ -80,7 +81,7 @@ public class JADXDecompiler extends Decompiler.AbstractDecompiler implements Dec
                         // Supplement JADX's native annotations with bytecode-driven links for missed constructor cases.
                         BytecodeSourceLinker.link(decompilationResult, codeInfo.getCodeStr(), internalName, importantData);
                         Map<Integer, Integer> lineMapping = codeInfo.getCodeMetadata().getLineMapping();
-                        if (lineMapping != null && !lineMapping.isEmpty()) {
+                        if (!Utils.isEmpty(lineMapping)) {
                             putLineNumbers(decompilationResult, lineMapping);
                         } else {
                             putIdentityLineNumbers(decompilationResult, codeInfo.getCodeStr());
