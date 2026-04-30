@@ -17,7 +17,7 @@ public abstract class TestCompact {
 
       try {
          this.log("Test.method2 try");
-      } catch (Exception var5) {
+      } catch (Exception e) {
          this.log("Test.method2 catch");
       } finally {
          this.log("Test.method2 finally");
@@ -114,6 +114,7 @@ public abstract class TestCompact {
 
       public void method1() {
          new Thread(new Runnable() {
+            @Override
             public void run() {
                TestCompact.this.log("Inner3.method1");
             }
@@ -145,14 +146,17 @@ public abstract class TestCompact {
          TestCompact.this.log("Inner4.method2");
       }
 
+      @Override
       public boolean equals(Object o) {
          throw new UnsupportedOperationException("equals");
       }
 
+      @Override
       public int hashCode() {
          throw new UnsupportedOperationException("hashCode");
       }
 
+      @Override
       public String toString() {
          throw new UnsupportedOperationException("toString");
       }
