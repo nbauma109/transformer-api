@@ -82,18 +82,21 @@ public class Throwable implements Serializable {
    public synchronized Throwable initCause(Throwable cause) {
       if (this.cause != this) {
          throw new IllegalStateException("Can't overwrite cause with " + Objects.toString(cause, "a null"), this);
-      } else if (cause == this) {
-         throw new IllegalArgumentException("Self-causation not permitted", this);
-      } else {
-         this.cause = cause;
-         return this;
       }
+
+      if (cause == this) {
+         throw new IllegalArgumentException("Self-causation not permitted", this);
+      }
+
+      this.cause = cause;
+      return this;
    }
 
    final void setCause(Throwable t) {
       this.cause = t;
    }
 
+   @Override
    public String toString() {
       String s = this.getClass().getName();
       String message = this.getLocalizedMessage();
@@ -126,7 +129,7 @@ public class Throwable implements Serializable {
    }
 
    private void lockedPrintStackTrace(Throwable.PrintStreamOrWriter s) {
-      Set<Throwable> dejaVu = Collections.newSetFromMap(new IdentityHashMap());
+      Set<Throwable> dejaVu = Collections.newSetFromMap(new IdentityHashMap<>());
       dejaVu.add(this);
       s.println(this);
       StackTraceElement[] trace = this.getOurStackTrace();
@@ -149,7 +152,6 @@ public class Throwable implements Serializable {
       Throwable.PrintStreamOrWriter s, StackTraceElement[] enclosingTrace, String caption, String prefix, Set<Throwable> dejaVu
    ) {
       assert s.isLockedByCurrentThread();
-
       if (dejaVu.contains(this)) {
          s.println(prefix + caption + "[CIRCULAR REFERENCE: " + this + "]");
       } else {
@@ -239,7 +241,7 @@ public class Throwable implements Serializable {
       if (candidateSuppressedExceptions != null) {
          int suppressedSize = this.validateSuppressedExceptionsList(candidateSuppressedExceptions);
          if (suppressedSize > 0) {
-            ArrayList<Throwable> suppList = new ArrayList(Math.min(100, suppressedSize));
+            ArrayList<Throwable> suppList = new ArrayList<>(Math.min(100, suppressedSize));
 
             for (Throwable t : candidateSuppressedExceptions) {
                Objects.requireNonNull(t, "Cannot suppress a null exception.");
@@ -303,21 +305,21 @@ public class Throwable implements Serializable {
    public final synchronized void addSuppressed(Throwable exception) {
       if (exception == this) {
          throw new IllegalArgumentException("Self-suppression not permitted", exception);
-      } else {
-         Objects.requireNonNull(exception, "Cannot suppress a null exception.");
-         if (this.suppressedExceptions != null) {
-            if (this.suppressedExceptions == SUPPRESSED_SENTINEL) {
-               this.suppressedExceptions = new ArrayList(1);
-            }
+      }
 
-            this.suppressedExceptions.add(exception);
+      Objects.requireNonNull(exception, "Cannot suppress a null exception.");
+      if (this.suppressedExceptions != null) {
+         if (this.suppressedExceptions == SUPPRESSED_SENTINEL) {
+            this.suppressedExceptions = new ArrayList<>(1);
          }
+
+         this.suppressedExceptions.add(exception);
       }
    }
 
    public final synchronized Throwable[] getSuppressed() {
       return this.suppressedExceptions != SUPPRESSED_SENTINEL && this.suppressedExceptions != null
-         ? (Throwable[])this.suppressedExceptions.toArray(EMPTY_THROWABLE_ARRAY)
+         ? this.suppressedExceptions.toArray(EMPTY_THROWABLE_ARRAY)
          : EMPTY_THROWABLE_ARRAY;
    }
 
