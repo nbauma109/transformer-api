@@ -1,5 +1,7 @@
 /*
- * Copyright 2017 Sam Sun <github-contact@samczsun.com>
+ * © 2017 Sam Sun (@samczsun)
+ * © 2022-2026 Nicolas Baumann (@nbauma109)
+ * © 2025 sschr15 (@sschr15)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

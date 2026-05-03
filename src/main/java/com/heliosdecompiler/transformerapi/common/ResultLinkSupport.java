@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 Nicolas Baumann (@nbauma109)
+ * © 2026 Nicolas Baumann (@nbauma109)
  *
  * Licensed under the Apache License, Version 2.0.
  */
