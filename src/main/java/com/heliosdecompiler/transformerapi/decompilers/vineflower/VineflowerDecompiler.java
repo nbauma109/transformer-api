@@ -50,7 +50,7 @@ public class VineflowerDecompiler extends Decompiler.AbstractDecompiler implemen
             VineflowerResultSaver saver = new VineflowerResultSaver(decompilationResult);
             Fernflower baseDecompiler = new Fernflower(saver, settings.getSettings(), new PrintStreamLogger(System.out));
             if (!"1".equals(settings.getSettings().getOrDefault(IFernflowerPreferences.DUMP_ORIGINAL_LINES, "0"))) {
-                TextTokenVisitor.addVisitor(next -> new VineflowerTokenConsumer(decompilationResult, next));
+                TextTokenVisitor.addVisitor(next -> new VineflowerTokenConsumer(decompilationResult, classStruct.fullClassName(), next));
             }
             baseDecompiler.addSource(classStruct);
             baseDecompiler.addLibrary(loader);

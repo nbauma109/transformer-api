@@ -18,8 +18,13 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import jd.core.DecompilationResult;
+import jd.core.links.HyperlinkData;
+import jd.core.links.HyperlinkReferenceData;
 import jd.core.links.ReferenceData;
 
 import static org.junit.Assert.assertFalse;
@@ -44,6 +49,27 @@ public class DecompilerLinksTest {
     @Test
     public void testJadxProvidesLinks() throws Exception {
         assertProvidesBasicLinks(Decompilers.JADX.decompile(loader("/test-compact-expand-inline.jar"), "test/TestCompact", new MapJadxArgs(MapJadxArgs.defaults())));
+    }
+
+    @Test
+    public void testVineflowerProvidesLinks() throws Exception {
+        assertProvidesBasicLinks(Decompilers.VINEFLOWER.decompile(loader("/test-compact-expand-inline.jar"), "test/TestCompact", Decompilers.VINEFLOWER.defaultSettings()));
+    }
+
+    @Test
+    public void testVineflowerKeepsAsmifierLinksOnAsmifierSource() throws Exception {
+        DecompilationResult result = Decompilers.VINEFLOWER.decompile(asmUtilLoader(), "org/objectweb/asm/util/ASMifier", Decompilers.VINEFLOWER.defaultSettings());
+        String source = result.getDecompiledOutput();
+        int visitStart = source.indexOf("public void visit(int version");
+        int visitEnd = source.indexOf("public void visitSource", visitStart);
+
+        assertTrue(visitStart > 0);
+        assertTrue(visitEnd > visitStart);
+        assertIdentifierHyperlinks(result, source, visitStart, visitEnd);
+        assertReferenceSpan(result, source, visitStart, visitEnd, "org/objectweb/asm/util/ASMifier", "stringBuilder", "Ljava/lang/StringBuilder;", "stringBuilder");
+        assertReferenceSpan(result, source, visitStart, visitEnd, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", "append");
+        assertReferenceSpan(result, source, visitStart, visitEnd, "org/objectweb/asm/util/ASMifier", "appendAccessFlags", "(I)V", "appendAccessFlags");
+        assertReferenceSpan(result, source, visitStart, visitEnd, "org/objectweb/asm/util/ASMifier", "appendConstant", "(Ljava/lang/Object;)V", "appendConstant");
     }
 
     @Test
@@ -172,11 +198,47 @@ public class DecompilerLinksTest {
             && "()V".equals(reference.getDescriptor());
     }
 
+    private static void assertIdentifierHyperlinks(DecompilationResult result, String source, int start, int end) {
+        for (HyperlinkData hyperlink : result.getHyperlinks().subMap(start, end).values()) {
+            int spanStart = hyperlink.getStartPosition();
+            int spanEnd = hyperlink.getEndPosition();
+            String span = source.substring(spanStart, spanEnd);
+            assertFalse("blank hyperlink span at " + spanStart, span.isBlank());
+            assertTrue("hyperlink should start on an identifier at " + spanStart + ": " + span, Character.isJavaIdentifierStart(span.charAt(0)));
+            assertTrue("hyperlink should end on an identifier at " + spanStart + ": " + span, Character.isJavaIdentifierPart(span.charAt(span.length() - 1)));
+        }
+    }
+
+    private static void assertReferenceSpan(DecompilationResult result, String source, int start, int end, String typeName, String name, String descriptor, String expectedText) {
+        assertTrue(
+            "missing reference span for " + typeName + "." + name,
+            result.getHyperlinks().subMap(start, end).values().stream()
+                .filter(HyperlinkReferenceData.class::isInstance)
+                .map(HyperlinkReferenceData.class::cast)
+                .anyMatch(hyperlink -> {
+                    ReferenceData reference = hyperlink.getReference();
+                    return typeName.equals(reference.getTypeName())
+                        && name.equals(reference.getName())
+                        && descriptor.equals(reference.getDescriptor())
+                        && expectedText.equals(source.substring(hyperlink.getStartPosition(), hyperlink.getEndPosition()));
+                })
+        );
+    }
+
     private static Loader loader(String resourcePath) throws Exception {
         try (InputStream in = DecompilerLinksTest.class.getResourceAsStream(resourcePath)) {
             byte[] data = IOUtils.toByteArray(in);
             ZipLoader zipLoader = new ZipLoader(new ByteArrayInputStream(data));
             return new Loader(zipLoader::canLoad, zipLoader::load, DecompilerLinksTest.class.getResource(resourcePath).toURI());
+        }
+    }
+
+    private static Loader asmUtilLoader() throws Exception {
+        Path path = Paths.get(org.objectweb.asm.util.ASMifier.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+        try (InputStream in = Files.newInputStream(path)) {
+            byte[] data = IOUtils.toByteArray(in);
+            ZipLoader zipLoader = new ZipLoader(new ByteArrayInputStream(data));
+            return new Loader(zipLoader::canLoad, zipLoader::load, path.toUri());
         }
     }
 }

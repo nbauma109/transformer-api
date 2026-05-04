@@ -16,6 +16,9 @@
  */
 package com.heliosdecompiler.transformerapi.decompilers.vineflower;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jd.core.DecompilationResult;
 import jd.core.links.DeclarationData;
 import jd.core.links.HyperlinkReferenceData;
@@ -27,20 +30,37 @@ import org.vineflower.java.decompiler.util.token.TextRange;
 
 public class VineflowerTokenConsumer extends TextTokenVisitor {
     private final DecompilationResult result;
+    private final String targetClass;
+    private final List<Runnable> pendingTokens = new ArrayList<>();
     private String currentClass;
+    private boolean targetSource;
 
-    public VineflowerTokenConsumer(DecompilationResult result, TextTokenVisitor next) {
+    public VineflowerTokenConsumer(DecompilationResult result, String targetClass, TextTokenVisitor next) {
         super(next);
         this.result = result;
+        this.targetClass = targetClass;
+    }
+
+    @Override
+    public void start(String content) {
+        currentClass = null;
+        targetSource = false;
+        pendingTokens.clear();
+        super.start(content);
     }
 
     @Override
     public void visitClass(TextRange range, boolean declaration, String name) {
         if (declaration) {
             currentClass = name;
+            if (targetClass.equals(name)) {
+                targetSource = true;
+            }
             DeclarationData data = new DeclarationData(range.start, range.length, name, null, null);
-            result.addDeclaration(toFragment(data, null), data);
-            result.addTypeDeclaration(range.start, data);
+            pendingTokens.add(() -> {
+                result.addDeclaration(toFragment(data, null), data);
+                result.addTypeDeclaration(range.start, data);
+            });
         } else {
             ReferenceData reference = new ReferenceData(name, null, null, currentClass);
             addRef(range, reference);
@@ -52,7 +72,7 @@ public class VineflowerTokenConsumer extends TextTokenVisitor {
     public void visitField(TextRange range, boolean declaration, String className, String name, FieldDescriptor descriptor) {
         if (declaration) {
             DeclarationData data = new DeclarationData(range.start, range.length, className, name, descriptor.descriptorString);
-            result.addDeclaration(toFragment(data, descriptor.descriptorString), data);
+            pendingTokens.add(() -> result.addDeclaration(toFragment(data, descriptor.descriptorString), data));
         } else {
             ReferenceData reference = new ReferenceData(className, name, descriptor.descriptorString, currentClass);
             addRef(range, reference);
@@ -64,7 +84,7 @@ public class VineflowerTokenConsumer extends TextTokenVisitor {
     public void visitMethod(TextRange range, boolean declaration, String className, String name, MethodDescriptor descriptor) {
         if (declaration) {
             DeclarationData data = new DeclarationData(range.start, range.length, className, name, descriptor.toString());
-            result.addDeclaration(toFragment(data, descriptor.toString()), data);
+            pendingTokens.add(() -> result.addDeclaration(toFragment(data, descriptor.toString()), data));
         } else {
             ReferenceData reference = new ReferenceData(className, name, descriptor.toString(), currentClass);
             addRef(range, reference);
@@ -86,7 +106,7 @@ public class VineflowerTokenConsumer extends TextTokenVisitor {
         String fakeDesc = methodDescriptor.toString() + '-' + (isParameter ? 'p' : 'l') + index;
         if (declaration) {
             DeclarationData data = new DeclarationData(range.start, range.length, className, methodName, fakeDesc);
-            result.addDeclaration(toFragment(data, fakeDesc), data);
+            pendingTokens.add(() -> result.addDeclaration(toFragment(data, fakeDesc), data));
         } else {
             ReferenceData reference = new ReferenceData(className, methodName, fakeDesc, currentClass);
             addRef(range, reference);
@@ -94,9 +114,20 @@ public class VineflowerTokenConsumer extends TextTokenVisitor {
     }
 
     private void addRef(TextRange range, ReferenceData reference) {
-        result.addReference(reference);
-        reference.setEnabled(true);
-        result.addHyperLink(range.start, new HyperlinkReferenceData(range.start, range.length, reference));
+        pendingTokens.add(() -> {
+            result.addReference(reference);
+            reference.setEnabled(true);
+            result.addHyperLink(range.start, new HyperlinkReferenceData(range.start, range.length, reference));
+        });
+    }
+
+    @Override
+    public void end() {
+        if (targetSource) {
+            pendingTokens.forEach(Runnable::run);
+        }
+        pendingTokens.clear();
+        super.end();
     }
 
     private static String toFragment(DeclarationData data, String desc) {
