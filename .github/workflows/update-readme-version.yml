@@ -62,12 +62,13 @@ jobs:
 
           updated_readme, replacements = re.subn(
               r"<!-- dependency-snippets:start -->.*?<!-- dependency-snippets:end -->",
-              replacement,
+              lambda _match: replacement,
               readme,
               flags=re.DOTALL,
           )
           if replacements != 1:
-              raise SystemExit("Could not update README dependency snippet block.")
+              print("::warning::Could not update README dependency snippet block; skipping README update.")
+              raise SystemExit(0)
 
           readme_path.write_text(updated_readme)
           PY
