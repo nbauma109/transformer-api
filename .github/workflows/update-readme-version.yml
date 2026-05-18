@@ -78,7 +78,7 @@ jobs:
       - name: Create pull request for README update
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
           add-paths: README.md
           base: ${{ github.event.repository.default_branch }}
           branch: automation/update-readme-version-${{ github.run_id }}
