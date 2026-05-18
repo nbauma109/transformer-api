@@ -9,6 +9,32 @@
 The Transformer API provides convenient access to different transformers (currently decompilers only) under a unified
 API. The API is still subject to major changes, but only with a major version bump.
 
+## Installation
+
+<!-- dependency-snippets:start -->
+### Maven
+
+```xml
+<dependency>
+  <groupId>io.github.nbauma109</groupId>
+  <artifactId>transformer-api</artifactId>
+  <version>4.2.5</version>
+</dependency>
+```
+
+### Gradle
+
+```groovy
+implementation 'io.github.nbauma109:transformer-api:4.2.5'
+```
+
+### Gradle Kotlin DSL
+
+```kotlin
+implementation("io.github.nbauma109:transformer-api:4.2.5")
+```
+<!-- dependency-snippets:end -->
+
 ## Usage
 
 Currently, this API supports the following decompilers :
