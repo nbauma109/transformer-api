@@ -36,7 +36,7 @@ jobs:
               text=True,
           ).stdout.strip()
           version = latest_tag.removeprefix("v")
-          if not re.fullmatch(r"\\d+\\.\\d+\\.\\d+", version):
+          if not re.fullmatch(r"\d+\.\d+\.\d+", version):
               print(f"::error::Expected a semantic version tag, got '{latest_tag}'.")
               raise SystemExit(1)
           readme_path = Path("README.md")
