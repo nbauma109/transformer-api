@@ -32,7 +32,7 @@ jobs:
 
           version = os.environ["RELEASE_VERSION"]
           readme_path = Path("README.md")
-          readme = readme_path.read_text()
+          readme = readme_path.read_text(encoding="utf-8")
 
           replacement = textwrap.dedent(
               f"""\
@@ -71,7 +71,7 @@ jobs:
               print("::error::Could not update README dependency snippet block; expected exactly one marker block in README.md.")
               raise SystemExit(1)
 
-          readme_path.write_text(updated_readme)
+          readme_path.write_text(updated_readme, encoding="utf-8")
           PY
 
       - name: Create pull request for README update
