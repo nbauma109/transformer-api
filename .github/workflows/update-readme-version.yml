@@ -68,8 +68,8 @@ jobs:
               flags=re.DOTALL,
           )
           if replacements != 1:
-              print("::warning::Could not update README dependency snippet block; skipping README update.")
-              raise SystemExit(0)
+              print("::error::Could not update README dependency snippet block; expected exactly one marker block in README.md.")
+              raise SystemExit(1)
 
           readme_path.write_text(updated_readme)
           PY
