@@ -1,0 +1,96 @@
+name: Update README version
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  update-readme:
+    name: Update dependency snippets
+    runs-on: ubuntu-latest
+    if: ${{ github.event.head_commit.message == '[maven-release-plugin] prepare for next development iteration' }}
+
+    steps:
+      - name: Check out default branch
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+
+      - name: Update README dependency version
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          import re
+          import subprocess
+          import textwrap
+
+          latest_tag = subprocess.run(
+              ["git", "describe", "--tags", "--abbrev=0"],
+              check=True,
+              capture_output=True,
+              text=True,
+          ).stdout.strip()
+          version = latest_tag.removeprefix("v")
+          if not re.fullmatch(r"\d+\.\d+\.\d+", version):
+              print(f"::error::Expected a semantic version tag, got '{latest_tag}'.")
+              raise SystemExit(1)
+          readme_path = Path("README.md")
+          readme = readme_path.read_text(encoding="utf-8")
+
+          replacement = textwrap.dedent(
+              f"""\
+              <!-- dependency-snippets:start -->
+              ### Maven
+
+              ```xml
+              <dependency>
+                <groupId>io.github.nbauma109</groupId>
+                <artifactId>transformer-api</artifactId>
+                <version>{version}</version>
+              </dependency>
+              ```
+
+              ### Gradle
+
+              ```groovy
+              implementation 'io.github.nbauma109:transformer-api:{version}'
+              ```
+
+              ### Gradle Kotlin DSL
+
+              ```kotlin
+              implementation("io.github.nbauma109:transformer-api:{version}")
+              ```
+              <!-- dependency-snippets:end -->"""
+          )
+
+          updated_readme, replacements = re.subn(
+              r"<!-- dependency-snippets:start -->.*?<!-- dependency-snippets:end -->",
+              lambda _match: replacement,
+              readme,
+              flags=re.DOTALL,
+          )
+          if replacements != 1:
+              print("::error::Could not update README dependency snippet block; expected exactly one marker block in README.md.")
+              raise SystemExit(1)
+
+          readme_path.write_text(updated_readme, encoding="utf-8")
+          PY
+
+      - name: Commit and push README update
+        run: |
+          if git diff --quiet -- README.md; then
+            echo "No README changes detected."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "update version in readme"
+          git push origin "HEAD:${{ github.event.repository.default_branch }}"
