@@ -35,11 +35,17 @@ jobs:
               raise SystemExit(1)
 
           snapshot_version = version_element.text.strip()
-          if not snapshot_version.endswith("-SNAPSHOT"):
-              print(f"::error::Expected a -SNAPSHOT version in pom.xml, got '{snapshot_version}'.")
+          match = re.fullmatch(r"(\\d+)\\.(\\d+)\\.(\\d+)-SNAPSHOT", snapshot_version)
+          if not match:
+              print(f"::error::Expected semantic -SNAPSHOT version in pom.xml, got '{snapshot_version}'.")
               raise SystemExit(1)
 
-          version = snapshot_version[:-9]
+          major, minor, patch = map(int, match.groups())
+          if patch == 0:
+              print(f"::error::Cannot infer released version from '{snapshot_version}' because patch is 0.")
+              raise SystemExit(1)
+
+          version = f"{major}.{minor}.{patch - 1}"
           readme_path = Path("README.md")
           readme = readme_path.read_text(encoding="utf-8")
 
