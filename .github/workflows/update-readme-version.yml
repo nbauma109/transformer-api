@@ -2,36 +2,40 @@ name: Update README version
 
 on:
   push:
-    tags:
-      - "[0-9]*.[0-9]*.[0-9]*"
+    branches:
+      - master
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   update-readme:
     name: Update dependency snippets
     runs-on: ubuntu-latest
+    if: ${{ github.event.head_commit.message == '[maven-release-plugin] prepare for next development iteration' }}
 
     steps:
       - name: Check out default branch
         uses: actions/checkout@v6
         with:
           ref: ${{ github.event.repository.default_branch }}
-          persist-credentials: false
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Update README dependency version
-        env:
-          RELEASE_VERSION: ${{ github.ref_name }}
         run: |
           python <<'PY'
           from pathlib import Path
-          import os
           import re
           import textwrap
+          import xml.etree.ElementTree as ET
 
-          version = os.environ["RELEASE_VERSION"]
+          pom_root = ET.parse("pom.xml").getroot()
+          version_element = pom_root.find("{http://maven.apache.org/POM/4.0.0}version")
+          if version_element is None or not version_element.text:
+              print("::error::Could not read project version from pom.xml.")
+              raise SystemExit(1)
+
+          version = version_element.text.strip()
           readme_path = Path("README.md")
           readme = readme_path.read_text(encoding="utf-8")
 
@@ -75,15 +79,15 @@ jobs:
           readme_path.write_text(updated_readme, encoding="utf-8")
           PY
 
-      - name: Create pull request for README update
-        uses: peter-evans/create-pull-request@v7
-        with:
-          token: ${{ secrets.PAT_TOKEN }}
-          add-paths: README.md
-          base: ${{ github.event.repository.default_branch }}
-          branch: automation/update-readme-version-${{ github.run_id }}
-          delete-branch: true
-          commit-message: Update README dependency version for ${{ github.ref_name }}
-          title: Update README dependency version for ${{ github.ref_name }}
-          body: |
-            Automated README dependency snippet update for tag `${{ github.ref_name }}`.
+      - name: Commit and push README update
+        run: |
+          if git diff --quiet -- README.md; then
+            echo "No README changes detected."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "update version in readme"
+          git push origin "HEAD:${{ github.event.repository.default_branch }}"
