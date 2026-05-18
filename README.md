@@ -109,10 +109,10 @@ This API will be updated as decompilers receive updates, which means fixes reach
 
 ## Software using transformer-api
 
-### [JD-GUI DUO](https://github.com/nbauma109/jd-gui-duo)
+### [JD-GUI DUO](https://github.com/nbauma109/jd-gui-duo) - Desktop GUI
 
 ![image](https://javadecompiler.org/jd-gui-duo/quick-outline.png)
 
-### [ECD++](https://github.com/nbauma109/ecd)
+### [ECD++](https://github.com/nbauma109/ecd) - Eclipse plugin
 
 ![image](https://javadecompiler.org/ecd/debug.png)
