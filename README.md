@@ -106,3 +106,13 @@ public class Sample {
 ## Updates
 
 This API will be updated as decompilers receive updates, which means fixes reach you faster.
+
+## Software using transformer-api
+
+### [JD-GUI DUO](https://github.com/nbauma109/jd-gui-duo)
+
+![image](https://javadecompiler.org/jd-gui-duo/quick-outline.png)
+
+### [ECD++](https://github.com/nbauma109/ecd)
+
+![image](https://javadecompiler.org/ecd/debug.png)
