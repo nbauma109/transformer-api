@@ -3,7 +3,7 @@ name: Update README version
 on:
   push:
     tags:
-      - "*"
+      - "[0-9]+.[0-9]+.[0-9]+"
 
 permissions:
   contents: write
@@ -30,7 +30,7 @@ jobs:
           import re
           import textwrap
 
-          version = os.environ["RELEASE_VERSION"].removeprefix("v")
+          version = os.environ["RELEASE_VERSION"]
           readme_path = Path("README.md")
           readme = readme_path.read_text()
 
