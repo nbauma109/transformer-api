@@ -34,7 +34,12 @@ jobs:
               print("::error::Could not read project version from pom.xml.")
               raise SystemExit(1)
 
-          version = version_element.text.strip()
+          snapshot_version = version_element.text.strip()
+          if not snapshot_version.endswith("-SNAPSHOT"):
+              print(f"::error::Expected a -SNAPSHOT version in pom.xml, got '{snapshot_version}'.")
+              raise SystemExit(1)
+
+          version = snapshot_version[:-9]
           readme_path = Path("README.md")
           readme = readme_path.read_text(encoding="utf-8")
 
