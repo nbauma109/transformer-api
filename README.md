@@ -119,4 +119,12 @@ This API will be updated as decompilers receive updates, which means fixes reach
 
 ### Third-party
 
-#### [JD Duo](https://mcpmarket.com/server/jd-duo) - [jd-mcp-duo](https://github.com/agelovito/jd-mcp-duo)
+By [AgeloVito](https://github.com/AgeloVito) :
+
+  * [JD Duo](https://mcpmarket.com/server/jd-duo)
+
+Provides a comprehensive multi-decompiler toolkit and MCP server for Java, enabling deep analysis of bytecode and source code.
+
+  * [jd-mcp-duo](https://github.com/agelovito/jd-mcp-duo)
+
+A multi-decompiler MCP server and CLI toolkit for Java, supporting JD-Core v0 & v1, CFR, Procyon, Fernflower, Vineflower & JADX.
