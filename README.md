@@ -116,3 +116,7 @@ This API will be updated as decompilers receive updates, which means fixes reach
 ### [ECD++](https://github.com/nbauma109/ecd) - Eclipse plugin
 
 ![image](https://javadecompiler.org/ecd/debug.png)
+
+### Third-party
+
+#### [JD Duo](https://mcpmarket.com/server/jd-duo) - [jd-mcp-duo](https://github.com/agelovito/jd-mcp-duo)
