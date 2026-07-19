@@ -61,7 +61,7 @@ public abstract class TestCompact {
    public String method5(int i) {
       this.log("Test.method5 start");// 77
 
-      String s = switch (i) {// 78
+      String s = switch (i) {// 78 84
          case 0 -> "Test.method4 case 0";// 79
          case 1 -> "Test.method4 case 1";// 80
          case 2 -> "Test.method4 case 2";// 81

@@ -35,6 +35,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 
@@ -334,7 +337,7 @@ public class StandardTransformersTest {
         ZipLoader zipLoader = new ZipLoader(resource.toURL().openStream());
         Loader loader = new Loader(zipLoader::canLoad, zipLoader::load, resource);
         DecompilationResult result = StandardTransformers.decompile(loader, internalName, preferences, engineName);
-        assertEqualsIgnoreEOL(getResourceAsString(path), result.getDecompiledOutput());
+        assertEqualsIgnoreEOL(path, result.getDecompiledOutput());
     }
     
     private void testDecompileFromArchive(String path, Decompiler<?> decompiler)
@@ -343,7 +346,7 @@ public class StandardTransformersTest {
         String pkg = "test";
         String className = "TestCompact.class";
         DecompilationResult result = decompiler.decompileFromArchive(archivePath, pkg, className);
-        assertEqualsIgnoreEOL(getResourceAsString(path), result.getDecompiledOutput());
+        assertEqualsIgnoreEOL(path, result.getDecompiledOutput());
     }
     
     private void testDecompileFromRootLocation(String path, Decompiler<?> decompiler)
@@ -352,7 +355,7 @@ public class StandardTransformersTest {
         String pkg = "com/heliosdecompiler/transformerapi";
         String className = "TestCompact.class";
         DecompilationResult result = decompiler.decompile(rootLocation, pkg, className);
-        assertEqualsIgnoreEOL(getResourceAsString(path), result.getDecompiledOutput());
+        assertEqualsIgnoreEOL(path, result.getDecompiledOutput());
     }
     
     private void testDecompileFromClassPath(String path, String engineName, Map<String, String> preferences)
@@ -361,11 +364,17 @@ public class StandardTransformersTest {
         Loader loader = new Loader(classPathLoader::canLoad, classPathLoader::load);
         String internalName = "java/lang/Throwable";
         DecompilationResult result = StandardTransformers.decompile(loader, internalName, preferences, engineName);
-        assertEqualsIgnoreEOL(getResourceAsString(path), result.getDecompiledOutput());
+        assertEqualsIgnoreEOL(path, result.getDecompiledOutput());
     }
 
-    private void assertEqualsIgnoreEOL(String expected, String actual) {
-        assertEquals(expected.replaceAll("\s*\r?\n", "\n"), actual.replaceAll("\s*\r?\n", "\n"));
+    private void assertEqualsIgnoreEOL(String path, String actual) throws IOException {
+        if (Boolean.getBoolean("updateExpectedOutputs")) {
+            Path resourcePath = Paths.get("src/test/resources" + path);
+            Files.writeString(resourcePath, actual);
+        } else {
+            String expected = getResourceAsString(path);
+            assertEquals(expected.replaceAll("\s*\r?\n", "\n"), actual.replaceAll("\s*\r?\n", "\n"));
+        }
     }
 
     private String getResourceAsString(String path) throws IOException {

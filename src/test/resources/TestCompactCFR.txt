@@ -1,5 +1,14 @@
 /*
  * Decompiled with CFR.
+ * 
+ * Could not load the following classes:
+ *  java.lang.Exception
+ *  java.lang.IllegalArgumentException
+ *  java.lang.Object
+ *  java.lang.Runnable
+ *  java.lang.String
+ *  java.lang.Thread
+ *  java.lang.UnsupportedOperationException
  */
 package test;
 
@@ -116,7 +125,6 @@ public abstract class TestCompact {
         public void method1() {
             new Thread(new Runnable(){
 
-                @Override
                 public void run() {
                     TestCompact.this.log("Inner3.method1");
                 }

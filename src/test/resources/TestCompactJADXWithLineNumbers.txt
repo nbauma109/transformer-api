@@ -1,5 +1,5 @@
             package test;
-
+            
             /* JADX INFO: loaded from: test/TestCompact */
 /* 4 */     public abstract class TestCompact {
                 public abstract void log(String str);

@@ -1,5 +1,7 @@
 package com.heliosdecompiler.transformerapi;
 
+import java.util.Objects;
+
 public abstract class TestCompact {
    public void method1(boolean flag) {
       this.log("Test.method1 start");// 6
@@ -57,10 +59,10 @@ public abstract class TestCompact {
          case 1 -> var10000 = "Test.method4 case 1";// 80
          case 2 -> var10000 = "Test.method4 case 2";// 81
          case 3 -> var10000 = "Test.method4 case 3";// 82
-         default -> throw new IllegalArgumentException();
+         default -> throw new IllegalArgumentException();// 83
       }
 
-      String s = var10000;// 83
+      String s = var10000;// 84
       return "return:" + s;// 85
    }
 
@@ -76,6 +78,8 @@ public abstract class TestCompact {
 
    class Inner1 {
       public Inner1() {
+         Objects.requireNonNull(TestCompact.this);// 28
+         super();
          TestCompact.this.log("Inner1 constructor");// 29
       }// 30
 
@@ -102,11 +106,17 @@ public abstract class TestCompact {
 
    class Inner3 {
       public Inner3() {
+         Objects.requireNonNull(TestCompact.this);// 90
+         super();
          TestCompact.this.log("Inner3 constructor");// 91
       }// 92
 
       public void method1() {
          (new Thread(new Runnable() {// 100
+            {
+               Objects.requireNonNull(Inner3.this);// 96
+            }
+
             public void run() {
                TestCompact.this.log("Inner3.method1");// 98
             }// 99
@@ -127,6 +137,8 @@ public abstract class TestCompact {
 
    class Inner4 {
       public Inner4() {
+         Objects.requireNonNull(TestCompact.this);// 117
+         super();
          TestCompact.this.log("Inner4 constructor");// 118
       }// 119
 
