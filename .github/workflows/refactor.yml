@@ -24,7 +24,7 @@ jobs:
         uses: nbauma109/refactoring-cleanup-action@v4
         with:
           project_root: src/main/java
-          source_level: "21"
+          source_level: "25"
 
           ######################################################################
           # Code Organizing
@@ -95,7 +95,7 @@ jobs:
           # Java Feature
           ######################################################################
 
-          # Java 21
+          # Java 25
           cleanup_switch_for_instanceof_pattern: false
   
           # Java 16
