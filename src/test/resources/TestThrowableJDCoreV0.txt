@@ -13,13 +13,13 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import jdk.internal.access.SharedSecrets;
-import jdk.internal.misc.InternalLock;
+import jdk.internal.event.ThrowableTracer;
 
 public class Throwable
   implements Serializable
 {
   private static final long serialVersionUID = -3042686055658047285L;
+  static boolean jfrTracing;
   private transient Object backtrace;
   private String detailMessage;
   private transient int depth;
@@ -43,12 +43,18 @@ public class Throwable
   public Throwable()
   {
     fillInStackTrace();
+    if (jfrTracing) {
+      ThrowableTracer.traceThrowable(getClass(), null);
+    }
   }
 
   public Throwable(String message)
   {
     fillInStackTrace();
     this.detailMessage = message;
+    if (jfrTracing) {
+      ThrowableTracer.traceThrowable(getClass(), message);
+    }
   }
 
   public Throwable(String message, Throwable cause)
@@ -56,6 +62,9 @@ public class Throwable
     fillInStackTrace();
     this.detailMessage = message;
     this.cause = cause;
+    if (jfrTracing) {
+      ThrowableTracer.traceThrowable(getClass(), message);
+    }
   }
 
   public Throwable(Throwable cause)
@@ -63,6 +72,9 @@ public class Throwable
     fillInStackTrace();
     this.detailMessage = cause == null ? null : cause.toString();
     this.cause = cause;
+    if (jfrTracing) {
+      ThrowableTracer.traceThrowable(getClass(), null);
+    }
   }
 
   protected Throwable(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
@@ -76,6 +88,9 @@ public class Throwable
     this.cause = cause;
     if (!enableSuppression) {
       this.suppressedExceptions = null;
+    }
+    if (jfrTracing) {
+      ThrowableTracer.traceThrowable(getClass(), message);
     }
   }
 
@@ -131,51 +146,28 @@ public class Throwable
 
   private void printStackTrace(PrintStreamOrWriter s)
   {
-    Object lock = s.lock();
-    if ((lock instanceof InternalLock))
-    {
-      InternalLock locker = (InternalLock)lock;
-      locker.lock();
-      try
-      {
-        lockedPrintStackTrace(s);
-      }
-      finally
-      {
-        locker.unlock();
-      }
-    }
-    else
-    {
-      synchronized (lock)
-      {
-        lockedPrintStackTrace(s);
-      }
-    }
-  }
-
-  private void lockedPrintStackTrace(PrintStreamOrWriter s)
-  {
     Set<Throwable> dejaVu = Collections.newSetFromMap(new IdentityHashMap<>());
     dejaVu.add(this);
-
-    s.println(this);
-    StackTraceElement[] trace = getOurStackTrace();
-    for (StackTraceElement traceElement : trace) {
-      s.println("\tat " + traceElement);
-    }
-    for (Throwable se : getSuppressed()) {
-      se.printEnclosedStackTrace(s, trace, "Suppressed: ", "\t", dejaVu);
-    }
-    Throwable ourCause = getCause();
-    if (ourCause != null) {
-      ourCause.printEnclosedStackTrace(s, trace, "Caused by: ", "", dejaVu);
+    synchronized (s.lock())
+    {
+      s.println(this);
+      StackTraceElement[] trace = getOurStackTrace();
+      for (StackTraceElement traceElement : trace) {
+        s.println("\tat " + traceElement);
+      }
+      for (Throwable se : getSuppressed()) {
+        se.printEnclosedStackTrace(s, trace, "Suppressed: ", "\t", dejaVu);
+      }
+      Throwable ourCause = getCause();
+      if (ourCause != null) {
+        ourCause.printEnclosedStackTrace(s, trace, "Caused by: ", "", dejaVu);
+      }
     }
   }
 
   private void printEnclosedStackTrace(PrintStreamOrWriter s, StackTraceElement[] enclosingTrace, String caption, String prefix, Set<Throwable> dejaVu)
   {
-    assert (s.isLockedByCurrentThread());
+    assert (Thread.holdsLock(s.lock()));
     if (dejaVu.contains(this))
     {
       s.println(prefix + caption + "[CIRCULAR REFERENCE: " + this + "]");
@@ -211,24 +203,6 @@ public class Throwable
     printStackTrace(new WrappedPrintWriter(s));
   }
 
-  private static abstract class PrintStreamOrWriter
-  {
-    abstract Object lock();
-
-    boolean isLockedByCurrentThread()
-    {
-      Object lock = lock();
-      if ((lock instanceof InternalLock))
-      {
-        InternalLock locker = (InternalLock)lock;
-        return locker.isHeldByCurrentThread();
-      }
-      return Thread.holdsLock(lock);
-    }
-
-    abstract void println(Object paramObject);
-  }
-
   private static class WrappedPrintStream
     extends Throwable.PrintStreamOrWriter
   {
@@ -242,7 +216,7 @@ public class Throwable
     @Override
     Object lock()
     {
-      return SharedSecrets.getJavaIOPrintStreamAccess().lock(this.printStream);
+      return this.printStream;
     }
 
     @Override
@@ -265,7 +239,7 @@ public class Throwable
     @Override
     Object lock()
     {
-      return SharedSecrets.getJavaIOPrintWriterAccess().lock(this.printWriter);
+      return this.printWriter;
     }
 
     @Override
@@ -430,5 +404,12 @@ public class Throwable
       return EMPTY_THROWABLE_ARRAY;
     }
     return (Throwable[])this.suppressedExceptions.toArray(EMPTY_THROWABLE_ARRAY);
+  }
+
+  private static abstract class PrintStreamOrWriter
+  {
+    abstract Object lock();
+
+    abstract void println(Object paramObject);
   }
 }

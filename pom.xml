@@ -28,8 +28,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>21</maven.compiler.source>
-    <maven.compiler.target>21</maven.compiler.target>
+    <maven.compiler.source>25</maven.compiler.source>
+    <maven.compiler.target>25</maven.compiler.target>
     <version.asm>9.10.1</version.asm>
     <version.jadx>1.5.6</version.jadx>
     <version.procyon>0.6.2</version.procyon>
@@ -81,6 +81,52 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default-testCompile</id>
+            <phase>test-compile</phase>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+            <configuration>
+              <testExcludes>
+                <testExclude>**/TestCompact.java</testExclude>
+              </testExcludes>
+            </configuration>
+          </execution>
+          <execution>
+            <!--
+              TestCompact is decompiled by the test suite and its expected outputs are
+              sensitive to the compiler that produced it: cross-compiling with a newer
+              javac using the release flag still emits a different LineNumberTable for
+              switch expressions than a genuine JDK 21 javac (confirmed by comparing
+              method5's bytecode across both). Route this file through the real JDK 21
+              toolchain so its class file stays byte-comparable to the checked-in
+              test-*.jar fixtures. Requires a toolchains.xml with a jdk/21 entry; CI
+              generates one automatically by passing multiple java-version entries to
+              actions/setup-java. Falls back to the current JDK with a warning if no
+              matching toolchain is registered.
+            -->
+            <id>compile-test-compact-jdk21</id>
+            <phase>test-compile</phase>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+            <configuration>
+              <release>21</release>
+              <jdkToolchain>
+                <version>21</version>
+              </jdkToolchain>
+              <testIncludes>
+                <testInclude>**/TestCompact.java</testInclude>
+              </testIncludes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
