@@ -13,11 +13,12 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import jdk.internal.access.SharedSecrets;
-import jdk.internal.misc.InternalLock;
+import jdk.internal.event.ThrowableTracer;
 
 public class Throwable implements Serializable {
   private static final long serialVersionUID = -3042686055658047285L;
+
+  static boolean jfrTracing;
 
   private transient Object backtrace;
 
@@ -51,23 +52,31 @@ public class Throwable implements Serializable {
 
   public Throwable() {
     fillInStackTrace();
+    if (jfrTracing)
+      ThrowableTracer.traceThrowable(getClass(), null);
   }
 
   public Throwable(String message) {
     fillInStackTrace();
     this.detailMessage = message;
+    if (jfrTracing)
+      ThrowableTracer.traceThrowable(getClass(), message);
   }
 
   public Throwable(String message, Throwable cause) {
     fillInStackTrace();
     this.detailMessage = message;
     this.cause = cause;
+    if (jfrTracing)
+      ThrowableTracer.traceThrowable(getClass(), message);
   }
 
   public Throwable(Throwable cause) {
     fillInStackTrace();
     this.detailMessage = (cause == null) ? null : cause.toString();
     this.cause = cause;
+    if (jfrTracing)
+      ThrowableTracer.traceThrowable(getClass(), null);
   }
 
   protected Throwable(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
@@ -79,6 +88,8 @@ public class Throwable implements Serializable {
     this.cause = cause;
     if (!enableSuppression)
       this.suppressedExceptions = null;
+    if (jfrTracing)
+      ThrowableTracer.traceThrowable(getClass(), message);
   }
 
   public String getMessage() {
@@ -122,37 +133,23 @@ public class Throwable implements Serializable {
   }
 
   private void printStackTrace(PrintStreamOrWriter s) {
-    Object lock = s.lock();
-    if (lock instanceof InternalLock) {
-      InternalLock locker = (InternalLock)lock;
-      locker.lock();
-      try {
-        lockedPrintStackTrace(s);
-      } finally {
-        locker.unlock();
-      }
-    } else
-      synchronized (lock) {
-        lockedPrintStackTrace(s);
-      }
-  }
-
-  private void lockedPrintStackTrace(PrintStreamOrWriter s) {
     Set<Throwable> dejaVu = Collections.newSetFromMap(new IdentityHashMap<>());
     dejaVu.add(this);
-    s.println(this);
-    StackTraceElement[] trace = getOurStackTrace();
-    for (StackTraceElement traceElement : trace)
-      s.println("\tat " + traceElement);
-    for (Throwable se : getSuppressed())
-      se.printEnclosedStackTrace(s, trace, "Suppressed: ", "\t", dejaVu);
-    Throwable ourCause = getCause();
-    if (ourCause != null)
-      ourCause.printEnclosedStackTrace(s, trace, "Caused by: ", "", dejaVu);
+    synchronized (s.lock()) {
+      s.println(this);
+      StackTraceElement[] trace = getOurStackTrace();
+      for (StackTraceElement traceElement : trace)
+        s.println("\tat " + traceElement);
+      for (Throwable se : getSuppressed())
+        se.printEnclosedStackTrace(s, trace, "Suppressed: ", "\t", dejaVu);
+      Throwable ourCause = getCause();
+      if (ourCause != null)
+        ourCause.printEnclosedStackTrace(s, trace, "Caused by: ", "", dejaVu);
+    }
   }
 
   private void printEnclosedStackTrace(PrintStreamOrWriter s, StackTraceElement[] enclosingTrace, String caption, String prefix, Set<Throwable> dejaVu) {
-    assert s.isLockedByCurrentThread();
+    assert Thread.holdsLock(s.lock());
     if (dejaVu.contains(this)) {
       s.println(prefix + caption + "[CIRCULAR REFERENCE: " + this + "]");
     } else {
@@ -185,15 +182,6 @@ public class Throwable implements Serializable {
   private static abstract class PrintStreamOrWriter {
     abstract Object lock();
 
-    boolean isLockedByCurrentThread() {
-      Object lock = lock();
-      if (lock instanceof InternalLock) {
-        InternalLock locker = (InternalLock)lock;
-        return locker.isHeldByCurrentThread();
-      }
-      return Thread.holdsLock(lock);
-    }
-
     abstract void println(Object param1Object);
   }
 
@@ -205,7 +193,7 @@ public class Throwable implements Serializable {
     }
 
     Object lock() {
-      return SharedSecrets.getJavaIOPrintStreamAccess().lock(this.printStream);
+      return this.printStream;
     }
 
     void println(Object o) {
@@ -221,7 +209,7 @@ public class Throwable implements Serializable {
     }
 
     Object lock() {
-      return SharedSecrets.getJavaIOPrintWriterAccess().lock(this.printWriter);
+      return this.printWriter;
     }
 
     void println(Object o) {

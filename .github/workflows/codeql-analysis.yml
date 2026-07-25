@@ -42,8 +42,10 @@ jobs:
     - name: Setup JAVA
       uses: actions/setup-java@v5
       with:
-        java-version: 21
-        distribution: 'temurin'
+        java-version: |
+          21
+          25
+        distribution: 'zulu'
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
