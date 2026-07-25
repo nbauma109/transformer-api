@@ -23,7 +23,7 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v5
         with:
-          distribution: temurin
+          distribution: zulu
           java-version: |
             21
             25

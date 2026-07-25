@@ -24,7 +24,7 @@ jobs:
         java-version: |
           21
           25
-        distribution: 'temurin'
+        distribution: 'zulu'
         cache: maven
     - name: Create maven settings
       uses: s4u/maven-settings-action@v4.0.0
