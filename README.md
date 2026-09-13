@@ -18,20 +18,20 @@ API. The API is still subject to major changes, but only with a major version bu
 <dependency>
   <groupId>io.github.nbauma109</groupId>
   <artifactId>transformer-api</artifactId>
-  <version>5.0.1</version>
+  <version>5.0.2</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-implementation 'io.github.nbauma109:transformer-api:5.0.1'
+implementation 'io.github.nbauma109:transformer-api:5.0.2'
 ```
 
 ### Gradle Kotlin DSL
 
 ```kotlin
-implementation("io.github.nbauma109:transformer-api:5.0.1")
+implementation("io.github.nbauma109:transformer-api:5.0.2")
 ```
 <!-- dependency-snippets:end -->
 
