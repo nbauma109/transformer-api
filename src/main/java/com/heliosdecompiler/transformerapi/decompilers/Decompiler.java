@@ -19,7 +19,9 @@
 package com.heliosdecompiler.transformerapi.decompilers;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jd.core.v1.parser.ParseException;
 import org.jd.core.v1.service.converter.classfiletojavasyntax.util.ExceptionUtil;
+import org.jd.core.v1.util.ParserRealigner;
 import org.jd.core.v1.util.ZipLoader;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
@@ -203,6 +205,29 @@ public interface Decompiler<S> {
     String getName();
 
     boolean supportsRealignment();
+
+    /**
+     * Realigns decompiled source so that line numbers match the original ones. The same call
+     * can be used with any decompiler: when the decompiler supports realignment natively the
+     * source is returned untouched, otherwise it is parsed and realigned.
+     *
+     * @param source the decompiled source code
+     * @return the realigned source, with the way it was obtained; on parse error the source is
+     *         returned unchanged and the exception is available in the result
+     */
+    default RealignResult realign(String source) {
+        if (supportsRealignment()) {
+            return new RealignResult(source, RealignStatus.NATIVELY_REALIGNED, null);
+        }
+        try {
+            return new RealignResult(new ParserRealigner().realign(source), RealignStatus.PARSED_AND_REALIGNED, null);
+        } catch (ParseException e) {
+            return new RealignResult(source, RealignStatus.PARSE_ERROR, e);
+        }
+    }
+
+    record RealignResult(String source, RealignStatus status, ParseException error) {
+    }
 
     abstract class AbstractDecompiler {
         protected long time;

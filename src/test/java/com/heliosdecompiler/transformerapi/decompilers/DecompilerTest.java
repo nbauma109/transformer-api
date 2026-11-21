@@ -19,7 +19,10 @@ import org.junit.Test;
 
 import com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -34,6 +37,33 @@ public class DecompilerTest {
         assertFalse(Decompilers.VINEFLOWER.supportsRealignment());
         assertFalse(Decompilers.CFR.supportsRealignment());
         assertFalse(Decompilers.JADX.supportsRealignment());
+    }
+
+    @Test
+    public void testRealignNativelySupported() {
+        String source = "class A {}";
+        Decompiler.RealignResult result = Decompilers.JD_CORE_V1.realign(source);
+        assertEquals(RealignStatus.NATIVELY_REALIGNED, result.status());
+        assertSame(source, result.source());
+        assertNull(result.error());
+    }
+
+    @Test
+    public void testRealignParsed() {
+        String source = "public class A {\n    int f() {\n        return 1;\n    }\n}\n";
+        Decompiler.RealignResult result = Decompilers.CFR.realign(source);
+        assertEquals(RealignStatus.PARSED_AND_REALIGNED, result.status());
+        assertNotNull(result.source());
+        assertNull(result.error());
+    }
+
+    @Test
+    public void testRealignParseError() {
+        String source = "this is not java {{{";
+        Decompiler.RealignResult result = Decompilers.CFR.realign(source);
+        assertEquals(RealignStatus.PARSE_ERROR, result.status());
+        assertSame(source, result.source());
+        assertNotNull(result.error());
     }
 
     @Test
