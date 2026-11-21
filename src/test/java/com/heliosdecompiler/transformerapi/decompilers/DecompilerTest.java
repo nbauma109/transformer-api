@@ -43,7 +43,7 @@ public class DecompilerTest {
     public void testRealignNativelySupported() {
         String source = "class A {}";
         Decompiler.RealignResult result = Decompilers.JD_CORE_V1.realign(source);
-        assertEquals(Decompiler.RealignResult.Status.NATIVELY_REALIGNED, result.status());
+        assertEquals(RealignStatus.NATIVELY_REALIGNED, result.status());
         assertSame(source, result.source());
         assertNull(result.error());
     }
@@ -52,7 +52,7 @@ public class DecompilerTest {
     public void testRealignParsed() {
         String source = "public class A {\n    int f() {\n        return 1;\n    }\n}\n";
         Decompiler.RealignResult result = Decompilers.CFR.realign(source);
-        assertEquals(Decompiler.RealignResult.Status.PARSED_AND_REALIGNED, result.status());
+        assertEquals(RealignStatus.PARSED_AND_REALIGNED, result.status());
         assertNotNull(result.source());
         assertNull(result.error());
     }
@@ -61,7 +61,7 @@ public class DecompilerTest {
     public void testRealignParseError() {
         String source = "this is not java {{{";
         Decompiler.RealignResult result = Decompilers.CFR.realign(source);
-        assertEquals(Decompiler.RealignResult.Status.PARSE_ERROR, result.status());
+        assertEquals(RealignStatus.PARSE_ERROR, result.status());
         assertSame(source, result.source());
         assertNotNull(result.error());
     }

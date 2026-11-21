@@ -217,19 +217,16 @@ public interface Decompiler<S> {
      */
     default RealignResult realign(String source) {
         if (supportsRealignment()) {
-            return new RealignResult(source, RealignResult.Status.NATIVELY_REALIGNED, null);
+            return new RealignResult(source, RealignStatus.NATIVELY_REALIGNED, null);
         }
         try {
-            return new RealignResult(new ParserRealigner().realign(source), RealignResult.Status.PARSED_AND_REALIGNED, null);
+            return new RealignResult(new ParserRealigner().realign(source), RealignStatus.PARSED_AND_REALIGNED, null);
         } catch (ParseException e) {
-            return new RealignResult(source, RealignResult.Status.PARSE_ERROR, e);
+            return new RealignResult(source, RealignStatus.PARSE_ERROR, e);
         }
     }
 
-    record RealignResult(String source, Status status, ParseException error) {
-        public enum Status {
-            NATIVELY_REALIGNED, PARSED_AND_REALIGNED, PARSE_ERROR
-        }
+    record RealignResult(String source, RealignStatus status, ParseException error) {
     }
 
     abstract class AbstractDecompiler {
