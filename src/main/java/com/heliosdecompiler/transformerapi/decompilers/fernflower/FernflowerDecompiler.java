@@ -20,13 +20,13 @@ package com.heliosdecompiler.transformerapi.decompilers.fernflower;
 import org.apache.commons.lang3.time.StopWatch;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.Fernflower;
-import org.jetbrains.java.decompiler.main.decompiler.PrintStreamLogger;
 import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
 import org.jetbrains.java.decompiler.struct.StructContext;
 
 import com.heliosdecompiler.transformerapi.common.BytecodeSourceLinker;
 import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
+import com.heliosdecompiler.transformerapi.decompilers.DecompilerLoggers;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,7 +51,7 @@ public class FernflowerDecompiler extends Decompiler.AbstractDecompiler implemen
         if (!classStruct.importantData().isEmpty()) {
             IBytecodeProvider provider = new FernflowerBytecodeProvider(classStruct.importantData());
             FernflowerResultSaver saver = new FernflowerResultSaver(decompilationResult);
-            Fernflower baseDecompiler = new Fernflower(provider, saver, settings.getSettings(), new PrintStreamLogger(System.out));
+            Fernflower baseDecompiler = new Fernflower(provider, saver, settings.getSettings(), DecompilerLoggers.fernflower());
             StructContext context;
             try {
                 context = DecompilerContext.getStructContext();
