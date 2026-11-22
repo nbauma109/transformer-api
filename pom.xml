@@ -81,6 +81,22 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>io.github.nbauma109</groupId>
+        <artifactId>static-analysis-maven-plugin</artifactId>
+        <version>0.1.0</version>
+        <configuration>
+          <profile>sonar-way</profile>
+          <failOnViolation>true</failOnViolation>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <executions>
