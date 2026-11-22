@@ -16,8 +16,6 @@
 
 package com.heliosdecompiler.transformerapi.decompilers;
 
-import com.heliosdecompiler.transformerapi.decompilers.fernflower.FernflowerDecompiler;
-import com.heliosdecompiler.transformerapi.decompilers.vineflower.VineflowerDecompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +48,7 @@ public final class DecompilerLoggers {
     private static final class FernflowerLogger
             extends org.jetbrains.java.decompiler.main.extern.IFernflowerLogger {
 
-        private static final Logger LOGGER = LoggerFactory.getLogger(FernflowerDecompiler.class);
+        private static final Logger LOGGER = LoggerFactory.getLogger(FernflowerLogger.class);
 
         @Override
         public void writeMessage(String message, Severity severity) {
@@ -66,7 +64,7 @@ public final class DecompilerLoggers {
     private static final class VineflowerLogger
             extends org.vineflower.java.decompiler.main.extern.IFernflowerLogger {
 
-        private static final Logger LOGGER = LoggerFactory.getLogger(VineflowerDecompiler.class);
+        private static final Logger LOGGER = LoggerFactory.getLogger(VineflowerLogger.class);
 
         @Override
         public void writeMessage(String message, Severity severity) {
