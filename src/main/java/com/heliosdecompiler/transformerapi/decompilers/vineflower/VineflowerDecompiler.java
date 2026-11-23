@@ -26,7 +26,6 @@ import org.vineflower.java.decompiler.main.extern.TextTokenVisitor;
 
 import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
-import com.heliosdecompiler.transformerapi.decompilers.DecompilerLoggers;
 
 import java.io.IOException;
 
@@ -48,7 +47,7 @@ public class VineflowerDecompiler extends Decompiler.AbstractDecompiler implemen
         ClassStruct classStruct = readClassAndInnerClasses(loader, internalName);
         if (!classStruct.importantData().isEmpty()) {
             VineflowerResultSaver saver = new VineflowerResultSaver(decompilationResult);
-            Fernflower baseDecompiler = new Fernflower(saver, settings.getSettings(), DecompilerLoggers.vineflower());
+            Fernflower baseDecompiler = new Fernflower(saver, settings.getSettings(), new VineflowerLogger());
             if (!"1".equals(settings.getSettings().getOrDefault(IFernflowerPreferences.DUMP_ORIGINAL_LINES, "0"))) {
                 TextTokenVisitor.addVisitor(next -> new VineflowerTokenConsumer(decompilationResult, classStruct.fullClassName(), next));
             }
