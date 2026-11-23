@@ -16,6 +16,8 @@
 
 package com.heliosdecompiler.transformerapi.decompilers.vineflower;
 
+import com.heliosdecompiler.transformerapi.decompilers.DecompilerLogSupport;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,12 +35,6 @@ public final class VineflowerLogger extends org.vineflower.java.decompiler.main.
 
     @Override
     public void writeMessage(String message, Severity severity, Throwable failure) {
-        switch (severity.name()) {
-            case "TRACE" -> LOGGER.trace(message, failure);
-            case "INFO" -> LOGGER.info(message, failure);
-            case "WARN" -> LOGGER.warn(message, failure);
-            case "ERROR" -> LOGGER.error(message, failure);
-            default -> LOGGER.info(message, failure);
-        }
+        DecompilerLogSupport.log(LOGGER, message, severity.name(), failure);
     }
 }
