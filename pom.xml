@@ -83,7 +83,7 @@
       <plugin>
         <groupId>io.github.nbauma109</groupId>
         <artifactId>static-analysis-maven-plugin</artifactId>
-        <version>0.1.0</version>
+        <version>0.1.1</version>
         <configuration>
           <profile>sonar-way</profile>
           <failOnViolation>true</failOnViolation>
