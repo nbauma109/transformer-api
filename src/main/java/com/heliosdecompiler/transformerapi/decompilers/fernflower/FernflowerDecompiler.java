@@ -26,7 +26,6 @@ import org.jetbrains.java.decompiler.struct.StructContext;
 import com.heliosdecompiler.transformerapi.common.BytecodeSourceLinker;
 import com.heliosdecompiler.transformerapi.common.Loader;
 import com.heliosdecompiler.transformerapi.decompilers.Decompiler;
-import com.heliosdecompiler.transformerapi.decompilers.DecompilerLoggers;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,7 +50,7 @@ public class FernflowerDecompiler extends Decompiler.AbstractDecompiler implemen
         if (!classStruct.importantData().isEmpty()) {
             IBytecodeProvider provider = new FernflowerBytecodeProvider(classStruct.importantData());
             FernflowerResultSaver saver = new FernflowerResultSaver(decompilationResult);
-            Fernflower baseDecompiler = new Fernflower(provider, saver, settings.getSettings(), DecompilerLoggers.fernflower());
+            Fernflower baseDecompiler = new Fernflower(provider, saver, settings.getSettings(), new FernflowerLogger());
             StructContext context;
             try {
                 context = DecompilerContext.getStructContext();
