@@ -365,7 +365,7 @@ public class StandardTransformersTest {
     }
 
     private void assertEqualsIgnoreEOL(String expected, String actual) {
-        assertEquals(expected.replaceAll("\s*\r?\n", "\n"), actual.replaceAll("\s*\r?\n", "\n"));
+        assertEquals(expected.replaceAll("[\\t ]*\\r?\\n", "\n"), actual.replaceAll("[\\t ]*\\r?\\n", "\n"));
     }
 
     private String getResourceAsString(String path) throws IOException {
