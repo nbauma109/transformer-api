@@ -45,7 +45,7 @@ public class FileLoader implements Loader {
         this.rootDirectory = Paths.get(rootLocation);
         Validate.isTrue(Files.isDirectory(rootDirectory), "Not a directory: " + rootDirectory);
 
-        String packagePath = Objects.toString(pkg, "");
+        String packagePath = pkg == null ? "" : pkg;
         String topLevelTypeName = stripClassSuffix(className);
         String primaryInternalName = buildInternalName(packagePath, topLevelTypeName);
 
