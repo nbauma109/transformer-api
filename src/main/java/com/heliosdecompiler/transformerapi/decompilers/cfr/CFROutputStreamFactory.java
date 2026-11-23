@@ -29,8 +29,8 @@ import java.util.Map.Entry;
 
 public class CFROutputStreamFactory implements OutputSinkFactory {
 
-    private StringBuilder sb = new StringBuilder();
-    private NavigableMap<Integer, Integer> lineMapping = new TreeMap<>();
+    private final StringBuilder sb = new StringBuilder();
+    private final NavigableMap<Integer, Integer> lineMapping = new TreeMap<>();
 
     @Override
     public List<SinkClass> getSupportedSinks(SinkType sinkType, Collection<SinkClass> collection) {
