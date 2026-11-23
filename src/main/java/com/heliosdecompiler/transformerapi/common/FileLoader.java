@@ -41,6 +41,7 @@ public class FileLoader implements Loader {
     public FileLoader(String rootLocation, String pkg, String className) throws IOException {
         Objects.requireNonNull(rootLocation, "rootLocation");
         Objects.requireNonNull(className, "className");
+        Objects.requireNonNull(pkg, "pkg");
 
         this.rootDirectory = Paths.get(rootLocation);
         Validate.isTrue(Files.isDirectory(rootDirectory), "Not a directory: " + rootDirectory);
