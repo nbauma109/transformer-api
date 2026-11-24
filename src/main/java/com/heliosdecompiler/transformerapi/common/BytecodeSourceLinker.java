@@ -304,6 +304,15 @@ public final class BytecodeSourceLinker {
             int inner = internalName.lastIndexOf('$');
             return inner >= 0 ? internalName.substring(0, inner) : null;
         }
+
+        private static String simpleName(String internalName) {
+            int inner = internalName.lastIndexOf('$');
+            if (inner >= 0) {
+                return internalName.substring(inner + 1);
+            }
+            int pkg = internalName.lastIndexOf('/');
+            return pkg >= 0 ? internalName.substring(pkg + 1) : internalName;
+        }
     }
 
     private record SourceIndex(
@@ -1085,15 +1094,6 @@ public final class BytecodeSourceLinker {
 
     private static boolean isIdentifier(String text) {
         return StringUtils.isNotEmpty(text) && Character.isJavaIdentifierStart(text.charAt(0));
-    }
-
-    private static String simpleName(String internalName) {
-        int inner = internalName.lastIndexOf('$');
-        if (inner >= 0) {
-            return internalName.substring(inner + 1);
-        }
-        int pkg = internalName.lastIndexOf('/');
-        return pkg >= 0 ? internalName.substring(pkg + 1) : internalName;
     }
 
     private static final class CallArgumentNesting {
