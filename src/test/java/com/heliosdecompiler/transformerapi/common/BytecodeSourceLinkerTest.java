@@ -201,6 +201,30 @@ public class BytecodeSourceLinkerTest {
         assertTrue(result.getReferences().stream().anyMatch(BytecodeSourceLinkerTest::isRegressionAfterEscapedTargetReference));
     }
 
+    @Test
+    public void testLinkHandlesComparisonsAndNestedExpressionsInCallArguments() {
+        DecompilationResult result = new DecompilationResult();
+
+        BytecodeSourceLinker.link(result, """
+                class BytecodeSourceLinkerRegressionCoverage {
+                    void nestedArrayArgument() {
+                        arrayTarget(1 < 2 ? "first" : "second");
+                        arrayTarget(2 > 1 ? "first" : "second");
+                        arrayTarget(String.valueOf((1 + 2)));
+                        arrayTarget(new String[]{"first", "second"}[0]);
+                        genericTarget(java.util.Collections.<String>emptyList().toString());
+                    }
+                }
+                """,
+                "com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage",
+                importantData("com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage"));
+
+        assertNotNull(result.getDeclarations().get(
+                "com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage-nestedArrayArgument-()V"));
+        assertTrue(result.getReferences().stream().anyMatch(BytecodeSourceLinkerTest::isRegressionArrayTargetReference));
+        assertTrue(result.getReferences().stream().anyMatch(BytecodeSourceLinkerTest::isRegressionGenericTargetReference));
+    }
+
     private static boolean isInnerCallReference(ReferenceData reference) {
         return "com/heliosdecompiler/transformerapi/TestLinkCoverage$Inner".equals(reference.getTypeName())
             && "innerCall".equals(reference.getName())

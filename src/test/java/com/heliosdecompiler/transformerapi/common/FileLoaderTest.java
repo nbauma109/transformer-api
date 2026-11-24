@@ -6,8 +6,15 @@
 
 package com.heliosdecompiler.transformerapi.common;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -15,6 +22,9 @@ import static org.junit.Assert.assertTrue;
  * Regression coverage for on-demand class loading from a compiled test output directory.
  */
 public class FileLoaderTest {
+
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Test
     public void testLoadReadsSiblingSuperclassOnDemand() throws Exception {
