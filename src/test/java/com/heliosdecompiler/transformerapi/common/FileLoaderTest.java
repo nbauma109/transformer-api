@@ -41,4 +41,18 @@ public class FileLoaderTest {
 
         assertNull(loader.load("com/heliosdecompiler/transformerapi/DoesNotExist"));
     }
+
+    @Test
+    public void testLoadAcceptsNullAndEmptyPackage() throws IOException {
+        Path root = temporaryFolder.getRoot().toPath();
+        byte[] classBytes = Files.readAllBytes(Path.of("target/test-classes",
+                "com/heliosdecompiler/transformerapi/TestLinkCoverage.class"));
+        Files.write(root.resolve("TestLinkCoverage.class"), classBytes);
+
+        FileLoader nullPackageLoader = new FileLoader(root.toString(), null, "TestLinkCoverage.class");
+        FileLoader emptyPackageLoader = new FileLoader(root.toString(), "", "TestLinkCoverage");
+
+        assertArrayEquals(classBytes, nullPackageLoader.load("TestLinkCoverage"));
+        assertArrayEquals(classBytes, emptyPackageLoader.load("TestLinkCoverage.class"));
+    }
 }
