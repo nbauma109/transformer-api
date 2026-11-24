@@ -18,7 +18,10 @@ package com.heliosdecompiler.transformerapi;
 import org.apache.commons.io.IOUtils;
 import org.jd.core.v1.loader.ClassPathLoader;
 import org.jd.core.v1.util.ZipLoader;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers;
 import com.heliosdecompiler.transformerapi.common.Loader;
@@ -31,12 +34,18 @@ import com.heliosdecompiler.transformerapi.decompilers.procyon.MapDecompilerSett
 import com.heliosdecompiler.transformerapi.decompilers.vineflower.VineflowerSettings;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers.CFR;
 import static com.heliosdecompiler.transformerapi.StandardTransformers.Decompilers.ENGINE_CFR;
@@ -59,6 +68,36 @@ import static org.junit.Assert.assertEquals;
 import jd.core.DecompilationResult;
 
 public class StandardTransformersTest {
+
+    @ClassRule
+    public static final TemporaryFolder LEGACY_ROOT = new TemporaryFolder();
+
+    @BeforeClass
+    public static void unpackLegacyRootFixture() throws IOException {
+        Path root = LEGACY_ROOT.getRoot().toPath();
+        String prefix = "BOOT-INF/classes/";
+        try (JarFile archive = new JarFile("src/test/resources/test-boot-inf-classes.jar")) {
+            Enumeration<JarEntry> entries = archive.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                if (!entry.isDirectory() && entry.getName().startsWith(prefix)) {
+                    extractFixtureEntry(archive, entry, root, prefix);
+                }
+            }
+        }
+    }
+
+    private static void extractFixtureEntry(JarFile archive, JarEntry entry, Path root,
+            String prefix) throws IOException {
+        Path destination = root.resolve(entry.getName().substring(prefix.length())).normalize();
+        if (!destination.startsWith(root)) {
+            throw new IOException("Invalid fixture entry: " + entry.getName());
+        }
+        Files.createDirectories(destination.getParent());
+        try (InputStream input = archive.getInputStream(entry)) {
+            Files.copy(input, destination);
+        }
+    }
 
     @Test
     public void testValueOf() {
@@ -348,7 +387,7 @@ public class StandardTransformersTest {
     
     private void testDecompileFromRootLocation(String path, Decompiler<?> decompiler)
             throws IOException, IllegalAccessException, InvocationTargetException {
-        String rootLocation = "target/test-classes";
+        String rootLocation = LEGACY_ROOT.getRoot().getAbsolutePath();
         String pkg = "com/heliosdecompiler/transformerapi";
         String className = "TestCompact.class";
         DecompilationResult result = decompiler.decompile(rootLocation, pkg, className);
