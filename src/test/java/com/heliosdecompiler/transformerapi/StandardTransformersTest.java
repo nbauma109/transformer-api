@@ -100,6 +100,17 @@ public class StandardTransformersTest {
     }
 
     @Test
+    public void testNormalizeLineEndings() {
+        assertEquals("first\n\nsecond\nlast \t", normalizeLineEndings("first \t\r\n \t\nsecond\nlast \t"));
+        assertEquals("first \rsecond\u00a0\n", normalizeLineEndings("first \rsecond\u00a0\r\n"));
+        assertEquals("\r\n", normalizeLineEndings("\r\r\n"));
+        assertEquals("", normalizeLineEndings(""));
+        assertEquals(" \t", normalizeLineEndings(" \t"));
+        assertEquals("first\n" + "\t".repeat(100_000),
+                normalizeLineEndings("first" + " ".repeat(100_000) + "\r\n" + "\t".repeat(100_000)));
+    }
+
+    @Test
     public void testValueOf() {
         assertEquals(VINEFLOWER, valueOf(""));
         assertEquals(VINEFLOWER, valueOf(ENGINE_VINEFLOWER));
@@ -404,7 +415,34 @@ public class StandardTransformersTest {
     }
 
     private void assertEqualsIgnoreEOL(String expected, String actual) {
-        assertEquals(expected.replaceAll("[\\t ]*\\r?\\n", "\n"), actual.replaceAll("[\\t ]*\\r?\\n", "\n"));
+        assertEquals(normalizeLineEndings(expected), normalizeLineEndings(actual));
+    }
+
+    private static String normalizeLineEndings(String value) {
+        StringBuilder normalized = new StringBuilder(value.length());
+        for (int index = 0; index < value.length(); index++) {
+            char character = value.charAt(index);
+            if (character == '\n') {
+                trimBeforeLineFeed(normalized);
+            }
+            normalized.append(character);
+        }
+        return normalized.toString();
+    }
+
+    private static void trimBeforeLineFeed(StringBuilder normalized) {
+        int end = normalized.length();
+        if (end > 0 && normalized.charAt(end - 1) == '\r') {
+            end--;
+        }
+        while (end > 0 && isHorizontalWhitespace(normalized.charAt(end - 1))) {
+            end--;
+        }
+        normalized.setLength(end);
+    }
+
+    private static boolean isHorizontalWhitespace(char character) {
+        return character == ' ' || character == '\t';
     }
 
     private String getResourceAsString(String path) throws IOException {
