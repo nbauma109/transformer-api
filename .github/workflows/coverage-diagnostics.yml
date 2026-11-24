@@ -1,0 +1,78 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Coverage diagnostics
+
+on:
+  push:
+    branches:
+      - diagnostics/coverage-244
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 25 ]
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+    - uses: actions/cache@v6
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+    - name: Set up JDK ${{ matrix.java }}
+      uses: actions/setup-java@v6
+      with:
+        distribution: 'zulu'
+        java-version: ${{ matrix.java }}
+    - name: Check out static analysis parity candidate
+      uses: actions/checkout@v7
+      with:
+        repository: nbauma109/static-analysis-maven-plugin
+        ref: fe565f032e67d5bdefd823e511159526a7002eb4
+        path: static-analysis-candidate
+        persist-credentials: false
+    - name: Install static analysis parity candidate
+      run: mvn -B -ntp -f static-analysis-candidate/pom.xml -DskipTests install
+    - name: Build with Maven
+      run: mvn -B test jacoco:report --no-transfer-progress -Dstatic-analysis.version=0.1.4-SNAPSHOT
+
+    - name: List missed and partial lines in changed source files
+      run: |
+        python3 - <<'PY'
+        import xml.etree.ElementTree as ET
+        from pathlib import Path
+        root = ET.parse("target/site/jacoco/jacoco.xml").getroot()
+        for package in root.findall("package"):
+            for source in package.findall("sourcefile"):
+                if source.attrib["name"] not in {"BytecodeSourceLinker.java", "FileLoader.java"}:
+                    continue
+                path = Path("src/main/java") / package.attrib["name"] / source.attrib["name"]
+                lines = path.read_text().splitlines()
+                print(path)
+                for line in source.findall("line"):
+                    number = int(line.attrib["nr"])
+                    if int(line.attrib["mi"]) or int(line.attrib["mb"]):
+                        print(number, "instructions", line.attrib["mi"], line.attrib["ci"], "branches", line.attrib["mb"], line.attrib["cb"], lines[number-1].strip())
+        PY
