@@ -95,6 +95,11 @@
               <goal>check</goal>
             </goals>
           </execution>
+          <execution>
+            <goals>
+              <goal>check-tests</goal>
+            </goals>
+          </execution>
         </executions>
       </plugin>
       <plugin>
