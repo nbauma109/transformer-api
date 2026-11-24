@@ -43,8 +43,17 @@ jobs:
       with:
         distribution: 'zulu'
         java-version: ${{ matrix.java }}
+    - name: Check out static analysis parity candidate
+      uses: actions/checkout@v7
+      with:
+        repository: nbauma109/static-analysis-maven-plugin
+        ref: e0410188de9aef240c8ada462c9e34d438c21b22
+        path: static-analysis-candidate
+        persist-credentials: false
+    - name: Install static analysis parity candidate
+      run: mvn -B -ntp -f static-analysis-candidate/pom.xml -DskipTests install
     - name: Build with Maven
-      run: mvn -B test jacoco:report --no-transfer-progress
+      run: mvn -B test jacoco:report --no-transfer-progress -Dstatic-analysis.version=0.1.4-SNAPSHOT
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v7
