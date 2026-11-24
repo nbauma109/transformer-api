@@ -96,6 +96,7 @@
             </goals>
           </execution>
           <execution>
+            <id>check-test-sources</id>
             <goals>
               <goal>check-tests</goal>
             </goals>
