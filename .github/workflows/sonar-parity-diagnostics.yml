@@ -1,0 +1,28 @@
+name: Sonar parity diagnostics
+
+on:
+  push:
+    branches:
+      - diagnostics/sonar-parity-244
+
+permissions:
+  checks: read
+  contents: read
+
+jobs:
+  annotations:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read SonarCloud check annotations
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/nbauma109/transformer-api/check-runs/138699085064/annotations \
+            --jq '.[] | {path, start_line, end_line, title, message}'
+      - name: Read public SonarCloud issues
+        run: |
+          curl --fail --silent --show-error --get 'https://sonarcloud.io/api/issues/search' \
+            --data-urlencode 'componentKeys=nbauma109_transformer-api' \
+            --data-urlencode 'pullRequest=244' \
+            --data-urlencode 'resolved=false' \
+            | jq '{total, issues: [.issues[] | {rule, component, line, message, status}]}'
