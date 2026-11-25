@@ -87,7 +87,7 @@ jobs:
       uses: actions/checkout@v7
       with:
         repository: nbauma109/static-analysis-maven-plugin
-        ref: 7fcb8bc93e06dc1196ac73dfc603edfaafabeabe
+        ref: 831aa6d4fbf8a116e9c3b0f715c7cf3c37c4ac05
         path: static-analysis-candidate
         persist-credentials: false
 
