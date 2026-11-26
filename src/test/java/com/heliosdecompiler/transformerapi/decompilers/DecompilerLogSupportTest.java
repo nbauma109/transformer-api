@@ -32,7 +32,7 @@ import static org.junit.Assert.assertSame;
 public class DecompilerLogSupportTest {
 
     @Test
-    public void testSeverityMappingPreservesMessageAndFailure() {
+    public void testSeverityMappingAndFernflowerLogging() {
         String message = "Decompiler diagnostic";
         Throwable failure = new IllegalStateException(message);
         List<String> methods = new ArrayList<>();
@@ -49,10 +49,10 @@ public class DecompilerLogSupportTest {
         }
 
         assertEquals(List.of("trace", "info", "warn", "error", "info"), methods);
+        verifyFernflowerLoggerAcceptsAllSeveritiesWithAndWithoutFailure();
     }
 
-    @Test
-    public void testFernflowerLoggerAcceptsAllSeveritiesWithAndWithoutFailure() {
+    private static void verifyFernflowerLoggerAcceptsAllSeveritiesWithAndWithoutFailure() {
         FernflowerLogger logger = new FernflowerLogger();
         Throwable failure = new IllegalStateException("Decompiler diagnostic");
 
