@@ -47,7 +47,7 @@ jobs:
       uses: actions/checkout@v7
       with:
         repository: nbauma109/static-analysis-maven-plugin
-        ref: fe565f032e67d5bdefd823e511159526a7002eb4
+        ref: eff5c2c8a857b22f680a0641badc2d464f58f7da
         path: static-analysis-candidate
         persist-credentials: false
     - name: Install static analysis parity candidate
@@ -87,7 +87,7 @@ jobs:
       uses: actions/checkout@v7
       with:
         repository: nbauma109/static-analysis-maven-plugin
-        ref: 831aa6d4fbf8a116e9c3b0f715c7cf3c37c4ac05
+        ref: eff5c2c8a857b22f680a0641badc2d464f58f7da
         path: static-analysis-candidate
         persist-credentials: false
 
