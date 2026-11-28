@@ -43,17 +43,8 @@ jobs:
       with:
         distribution: 'zulu'
         java-version: ${{ matrix.java }}
-    - name: Check out static analysis parity candidate
-      uses: actions/checkout@v7
-      with:
-        repository: nbauma109/static-analysis-maven-plugin
-        ref: eff5c2c8a857b22f680a0641badc2d464f58f7da
-        path: static-analysis-candidate
-        persist-credentials: false
-    - name: Install static analysis parity candidate
-      run: mvn -B -ntp -f static-analysis-candidate/pom.xml -DskipTests install
     - name: Build with Maven
-      run: mvn -B test jacoco:report --no-transfer-progress -Dstatic-analysis.version=0.1.4-SNAPSHOT
+      run: mvn -B test jacoco:report --no-transfer-progress
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v7
@@ -82,17 +73,6 @@ jobs:
         java-version: |
           21
           25
-
-    - name: Check out latest static analysis parity candidate
-      uses: actions/checkout@v7
-      with:
-        repository: nbauma109/static-analysis-maven-plugin
-        ref: eff5c2c8a857b22f680a0641badc2d464f58f7da
-        path: static-analysis-candidate
-        persist-credentials: false
-
-    - name: Install static analysis parity candidate
-      run: mvn -B -ntp -f static-analysis-candidate/pom.xml -DskipTests install
 
     - name: Retrieve public SonarCloud inventories
       continue-on-error: true
@@ -175,11 +155,11 @@ jobs:
         git -C sonar-parity-baseline rev-parse HEAD | tee "$RUNNER_TEMP/sonar-parity/local-revision.txt"
         mvn -B -ntp -f sonar-parity-baseline/pom.xml \
           -Dgpg.skip=true -DstaticAnalysis.profile=sonar-way -DstaticAnalysis.failOnViolation=false \
-          test-compile io.github.nbauma109:static-analysis-maven-plugin:0.1.4-SNAPSHOT:check \
+          test-compile io.github.nbauma109:static-analysis-maven-plugin:0.1.4:check \
           | tee "$RUNNER_TEMP/sonar-parity/local.log"
         mvn -B -ntp -f sonar-parity-baseline/pom.xml \
           -Dgpg.skip=true -DstaticAnalysis.profile=sonar-way -DstaticAnalysis.failOnViolation=false \
-          io.github.nbauma109:static-analysis-maven-plugin:0.1.4-SNAPSHOT:check-tests \
+          io.github.nbauma109:static-analysis-maven-plugin:0.1.4:check-tests \
           | tee "$RUNNER_TEMP/sonar-parity/local-tests.log"
 
     - name: Upload parity inventories
