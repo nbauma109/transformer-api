@@ -27,9 +27,9 @@ import java.io.IOException;
 import jd.core.ClassUtil;
 
 public class CFRDataSource extends ClassFileSourceImpl {
-    private Loader loader;
-    private byte[] data;
-    private String name;
+    private final Loader loader;
+    private final byte[] data;
+    private final String name;
 
     public CFRDataSource(Loader loader, byte[] data, String name, Options options) {
         super(options);

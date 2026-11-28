@@ -31,7 +31,7 @@ import static org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences.R
  * Since Fernflower has its own internal settings layout, that will be used here. See {@link org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences}
  */
 public class FernflowerSettings {
-    private Map<String, Object> internalSettings;
+    private final Map<String, Object> internalSettings;
 
     public FernflowerSettings() {
         this.internalSettings = new HashMap<>();

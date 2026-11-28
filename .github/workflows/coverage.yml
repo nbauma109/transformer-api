@@ -42,9 +42,7 @@ jobs:
       uses: actions/setup-java@v6
       with:
         distribution: 'zulu'
-        java-version: |
-          21
-          ${{ matrix.java }}
+        java-version: ${{ matrix.java }}
     - name: Build with Maven
       run: mvn -B test jacoco:report --no-transfer-progress
 
@@ -54,3 +52,119 @@ jobs:
         fail_ci_if_error: true
         files: ./target/site/jacoco/jacoco.xml
         verbose: true
+
+  sonar-parity:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+    - name: Check out master baseline for parity comparison
+      uses: actions/checkout@v7
+      with:
+        ref: ${{ github.event.pull_request.base.sha }}
+        path: sonar-parity-baseline
+        persist-credentials: false
+
+    - name: Set up JDKs 21 and 25
+      uses: actions/setup-java@v6
+      with:
+        distribution: zulu
+        java-version: |
+          21
+          25
+
+    - name: Retrieve public SonarCloud inventories
+      continue-on-error: true
+      env:
+        PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+      run: |
+        mkdir -p "$RUNNER_TEMP/sonar-parity"
+        python3 - <<'PY'
+        import json
+        import os
+        from pathlib import Path
+        import subprocess
+        from urllib.parse import urlencode
+
+        directory = Path(os.environ["RUNNER_TEMP"]) / "sonar-parity"
+        project = "nbauma109_transformer-api"
+
+        def fetch(endpoint, parameters):
+            url = "https://sonarcloud.io/api/" + endpoint + "?" + urlencode(parameters)
+            return json.loads(subprocess.check_output(
+                ["curl", "--fail", "--silent", "--show-error", "--location",
+                 "--retry", "2", "--max-time", "60", url], text=True))
+
+        def inventory(name, scope):
+            issues = []
+            page = 1
+            while True:
+                result = fetch("issues/search", {
+                    "componentKeys": project, "ps": 500, "p": page, **scope
+                })
+                total = result.get("paging", {}).get("total", result.get("total"))
+                if total is None:
+                    raise ValueError("SonarCloud did not return an issue count")
+                batch = result["issues"]
+                issues.extend(batch)
+                if len(issues) >= total:
+                    break
+                if not batch:
+                    raise ValueError("SonarCloud returned an incomplete inventory")
+                page += 1
+            if len(issues) != total or len({issue["key"] for issue in issues}) != total:
+                raise ValueError("SonarCloud inventory changed during pagination")
+            (directory / (name + ".json")).write_text(
+                json.dumps({"total": total, "issues": issues}, indent=2), encoding="utf-8")
+            print(name + ": " + str(total) + " issues")
+            for issue in issues:
+                print(json.dumps({key: issue.get(key) for key in (
+                    "rule", "component", "line", "textRange", "status", "resolution", "message"
+                )}))
+
+        failures = []
+        for name, scope in (
+            ("cloud-master", {"branch": "master"}),
+            ("cloud-pull-request", {"pullRequest": os.environ["PULL_REQUEST_NUMBER"]}),
+        ):
+            try:
+                inventory(name, scope)
+            except (ValueError, KeyError, subprocess.CalledProcessError) as error:
+                failures.append(name + ": " + str(error))
+
+        try:
+            analyses = fetch("project_analyses/search", {
+                "project": project, "branch": "master", "ps": 1
+            })
+            (directory / "cloud-master-analyses.json").write_text(
+                json.dumps(analyses, indent=2), encoding="utf-8")
+            for analysis in analyses["analyses"]:
+                print(json.dumps({key: analysis.get(key) for key in ("key", "date", "revision")}))
+        except (ValueError, KeyError, subprocess.CalledProcessError) as error:
+            failures.append("master revision: " + str(error))
+
+        if failures:
+            raise SystemExit("\n".join(failures))
+        PY
+
+    - name: Analyze unchanged master with the local plugin
+      continue-on-error: true
+      run: |
+        mkdir -p "$RUNNER_TEMP/sonar-parity"
+        git -C sonar-parity-baseline rev-parse HEAD | tee "$RUNNER_TEMP/sonar-parity/local-revision.txt"
+        mvn -B -ntp -f sonar-parity-baseline/pom.xml \
+          -Dgpg.skip=true -DstaticAnalysis.profile=sonar-way -DstaticAnalysis.failOnViolation=false \
+          test-compile io.github.nbauma109:static-analysis-maven-plugin:0.1.4:check \
+          | tee "$RUNNER_TEMP/sonar-parity/local.log"
+        mvn -B -ntp -f sonar-parity-baseline/pom.xml \
+          -Dgpg.skip=true -DstaticAnalysis.profile=sonar-way -DstaticAnalysis.failOnViolation=false \
+          io.github.nbauma109:static-analysis-maven-plugin:0.1.4:check-tests \
+          | tee "$RUNNER_TEMP/sonar-parity/local-tests.log"
+
+    - name: Upload parity inventories
+      if: '!cancelled()'
+      uses: actions/upload-artifact@v7
+      with:
+        name: sonar-parity-baseline
+        path: ${{ runner.temp }}/sonar-parity/

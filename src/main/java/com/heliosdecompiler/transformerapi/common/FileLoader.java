@@ -45,16 +45,17 @@ public class FileLoader implements Loader {
         this.rootDirectory = Paths.get(rootLocation);
         Validate.isTrue(Files.isDirectory(rootDirectory), "Not a directory: " + rootDirectory);
 
+        String packagePath = pkg == null ? "" : pkg;
         String topLevelTypeName = stripClassSuffix(className);
-        String primaryInternalName = buildInternalName(pkg, topLevelTypeName);
+        String primaryInternalName = buildInternalName(packagePath, topLevelTypeName);
 
-        Path classDirectory = pkg.isEmpty() ? rootDirectory : rootDirectory.resolve(pkg);
+        Path classDirectory = packagePath.isEmpty() ? rootDirectory : rootDirectory.resolve(packagePath);
         Path primaryClassFile = classDirectory.resolve(toClassFileName(topLevelTypeName));
 
         Validate.isTrue(Files.isRegularFile(primaryClassFile), "Class file not found: " + primaryClassFile);
 
         map.put(primaryInternalName, Files.readAllBytes(primaryClassFile));
-        loadInnerClasses(classDirectory, pkg, topLevelTypeName);
+        loadInnerClasses(classDirectory, packagePath, topLevelTypeName);
     }
 
     protected void loadInnerClasses(Path classDirectory, String packagePath, String topLevelTypeName) throws IOException {

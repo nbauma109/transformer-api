@@ -7,6 +7,8 @@
 package com.heliosdecompiler.transformerapi.common;
 
 import org.junit.Test;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,6 +18,7 @@ import java.util.Map;
 import jd.core.DecompilationResult;
 import jd.core.links.ReferenceData;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -199,6 +202,57 @@ public class BytecodeSourceLinkerTest {
         assertNotNull(result.getDeclarations().get("com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage-afterEscapedTarget-()V"));
         assertTrue(result.getReferences().stream().anyMatch(BytecodeSourceLinkerTest::isRegressionEscapedTargetReference));
         assertTrue(result.getReferences().stream().anyMatch(BytecodeSourceLinkerTest::isRegressionAfterEscapedTargetReference));
+    }
+
+    @Test
+    public void testLinkHandlesComparisonsAndNestedExpressionsInCallArguments() {
+        DecompilationResult result = new DecompilationResult();
+
+        BytecodeSourceLinker.link(result, """
+                class BytecodeSourceLinkerRegressionCoverage {
+                    void nestedArrayArgument() {
+                        arrayTarget(1 < 2 ? "first" : "second");
+                        arrayTarget(2 > 1 ? "first" : "second");
+                        arrayTarget(String.valueOf((1 + 2)));
+                        arrayTarget(new String[]{"first", "second"}[0]);
+                        genericTarget(java.util.Collections.<String>emptyList().toString());
+                    }
+                }
+                """,
+                "com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage",
+                importantData("com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage"));
+
+        assertNotNull(result.getDeclarations().get(
+                "com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage-nestedArrayArgument-()V"));
+        assertTrue(result.getReferences().stream().anyMatch(BytecodeSourceLinkerTest::isRegressionArrayTargetReference));
+        assertTrue(result.getReferences().stream().anyMatch(BytecodeSourceLinkerTest::isRegressionGenericTargetReference));
+    }
+
+    @Test
+    public void testLinkSupportsDefaultPackageTypes() {
+        ClassWriter writer = new ClassWriter(0);
+        writer.visit(Opcodes.V17, Opcodes.ACC_PUBLIC, "Standalone", null, "java/lang/Object", null);
+        writer.visitEnd();
+        DecompilationResult result = new DecompilationResult();
+
+        BytecodeSourceLinker.link(result, "class Standalone {}", "Standalone",
+                Map.of("Standalone", writer.toByteArray()));
+
+        assertNotNull(result.getDeclarations().get("Standalone"));
+        assertEquals(1, result.getDeclarations().size());
+    }
+
+    @Test
+    public void testLinkPreservesKnownTypeWhenSourceContainsIncompleteDeclarations() {
+        String internalName = "com/heliosdecompiler/transformerapi/BytecodeSourceLinkerRegressionCoverage";
+        DecompilationResult result = new DecompilationResult();
+
+        BytecodeSourceLinker.link(result,
+                "class BytecodeSourceLinkerRegressionCoverage { void incomplete( } class",
+                internalName, importantData(internalName));
+
+        assertNotNull(result.getDeclarations().get(internalName));
+        assertEquals(1, result.getDeclarations().size());
     }
 
     private static boolean isInnerCallReference(ReferenceData reference) {

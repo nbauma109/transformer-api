@@ -77,6 +77,8 @@ public final class StandardTransformers {
         public static final JDCoreV1Decompiler JD_CORE_V1 = new JDCoreV1Decompiler(ENGINE_JD_CORE_V1);
         public static final JADXDecompiler JADX = new JADXDecompiler(ENGINE_JADX);
 
+        // The registry contains decompilers with different settings types; a concrete return type is not possible.
+        @SuppressWarnings("java:S1452")
         public static Decompiler<?> valueOf(String engineName) {
             return switch (engineName) {
                 case ENGINE_JD_CORE_V0 -> JD_CORE_V0;
@@ -95,6 +97,7 @@ public final class StandardTransformers {
          * @since 4.2.1
          * @return the default decompiler
          */
+        @SuppressWarnings("java:S1452")
         public static Decompiler<?> getDefault() {
             return valueOf("");
         }

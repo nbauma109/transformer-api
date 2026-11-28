@@ -32,7 +32,7 @@ import static org.vineflower.java.decompiler.main.extern.IFernflowerPreferences.
  * Since Fernflower has its own internal settings layout, that will be used here. See {@link org.vineflower.java.decompiler.main.extern.IFernflowerPreferences}
  */
 public class VineflowerSettings {
-    private Map<String, Object> internalSettings;
+    private final Map<String, Object> internalSettings;
 
     public VineflowerSettings() {
         this.internalSettings = new HashMap<>();

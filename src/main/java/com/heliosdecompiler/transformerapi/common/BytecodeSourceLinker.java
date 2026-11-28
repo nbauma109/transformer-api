@@ -295,6 +295,24 @@ public final class BytecodeSourceLinker {
             }
             return parameterCount;
         }
+
+        private static String displayMethodName(String internalName, String name) {
+            return CONSTRUCTOR_NAME.equals(name) ? simpleName(internalName) : name;
+        }
+
+        private static String parentInternalName(String internalName) {
+            int inner = internalName.lastIndexOf('$');
+            return inner >= 0 ? internalName.substring(0, inner) : null;
+        }
+
+        private static String simpleName(String internalName) {
+            int inner = internalName.lastIndexOf('$');
+            if (inner >= 0) {
+                return internalName.substring(inner + 1);
+            }
+            int pkg = internalName.lastIndexOf('/');
+            return pkg >= 0 ? internalName.substring(pkg + 1) : internalName;
+        }
     }
 
     private record SourceIndex(
@@ -514,6 +532,515 @@ public final class BytecodeSourceLinker {
                 ResultLinkSupport.addReference(result, references, token.start(), token.end() - token.start(), target(typeInfo.internalName(), null, null), ownerScope.internalName());
             }
         }
+
+        private static boolean looksLikeMethodCall(List<Token> tokens, int index) {
+            Token next = nextSignificant(tokens, index);
+            if (next == null || !"(".equals(next.text())) {
+                return false;
+            }
+            Token previous = previousSignificant(tokens, index);
+            return previous == null || !isTypeKeyword(previous.text());
+        }
+
+        private static int countCallArguments(List<Token> tokens, int nameIndex) {
+            int openIndex = nameIndex + 1;
+            if (openIndex >= tokens.size() || !"(".equals(tokens.get(openIndex).text())) {
+                return 0;
+            }
+            int closeIndex = findMatchingParen(tokens, openIndex);
+            if (closeIndex < 0 || openIndex + 1 == closeIndex) {
+                return 0;
+            }
+            CallArgumentNesting nesting = new CallArgumentNesting();
+            int count = 1;
+            for (int i = openIndex + 1; i < closeIndex; i++) {
+                if (",".equals(tokens.get(i).text()) && nesting.isTopLevel()) {
+                    count++;
+                    continue;
+                }
+                nesting.accept(tokens, i, closeIndex);
+            }
+            return count;
+        }
+
+        private static List<Token> tokenize(String source) {
+            List<Token> tokens = new ArrayList<>();
+            int i = 0;
+            while (i < source.length()) {
+                TokenMatch match = nextToken(source, i);
+                if (match.token() != null) {
+                    tokens.add(match.token());
+                }
+                i = match.nextIndex();
+            }
+            return tokens;
+        }
+
+        private static String maskNonCode(String source) {
+            char[] chars = source.toCharArray();
+            MaskState state = MaskState.CODE;
+            /*
+             * Blank comments and literals so token offsets stay aligned with the original source while
+             * the token scanner only sees structural Java syntax.
+             */
+            for (int i = 0; i < chars.length; i++) {
+                state = switch (state) {
+                    case CODE -> handleCodeState(chars, i);
+                    case LINE_COMMENT -> handleLineCommentState(chars, i);
+                    case BLOCK_COMMENT -> handleBlockCommentState(chars, i);
+                    case STRING -> handleQuotedState(chars, i, '"', MaskState.STRING);
+                    case CHAR -> handleQuotedState(chars, i, '\'', MaskState.CHAR);
+                };
+            }
+            return new String(chars);
+        }
+
+        private static int handleBuildToken(List<Token> tokens, int index, BytecodeIndex bytecodeIndex, BuildState buildState, int braceDepth) {
+            Token token = tokens.get(index);
+            String tokenText = token.text();
+            if (isTypeKeyword(tokenText)) {
+                registerTypeDeclaration(tokens, index, bytecodeIndex, buildState);
+                return braceDepth;
+            }
+            if ("{".equals(tokenText)) {
+                openPendingClass(token, braceDepth, buildState);
+                return braceDepth + 1;
+            }
+            if ("}".equals(tokenText)) {
+                closeClassScope(token, braceDepth, buildState);
+                return braceDepth - 1;
+            }
+            registerMethodDeclaration(tokens, index, bytecodeIndex, buildState, braceDepth);
+            registerFieldDeclaration(tokens, index, bytecodeIndex, buildState, braceDepth);
+            return braceDepth;
+        }
+
+        private static boolean isMoreSpecificScope(ClassScope currentMatch, ClassScope candidate) {
+            return currentMatch == null || (candidate.bodyStart() >= currentMatch.bodyStart() && candidate.bodyEnd() <= currentMatch.bodyEnd());
+        }
+
+        private static ResultLinkSupport.LinkTarget target(String typeName, String name, String descriptor) {
+            return new ResultLinkSupport.LinkTarget(typeName, name, descriptor);
+        }
+
+        private static boolean isTypeKeyword(String text) {
+            return "class".equals(text) || "interface".equals(text) || "enum".equals(text) || "record".equals(text);
+        }
+
+        private static void registerTypeDeclaration(List<Token> tokens, int index, BytecodeIndex bytecodeIndex, BuildState buildState) {
+            Token nameToken = nextIdentifier(tokens, index + 1);
+            if (nameToken != null) {
+                String parentInternalName = buildState.openClasses().isEmpty() ? null : buildState.openClasses().peek().internalName();
+                TypeInfo typeInfo = bytecodeIndex.resolveDeclaredType(nameToken.text(), parentInternalName);
+                if (typeInfo != null) {
+                    buildState.declarationLengths().put(nameToken.start(), nameToken.end() - nameToken.start());
+                    buildState.pendingClasses().push(new PendingClass(typeInfo.internalName(), typeInfo.simpleName(), nameToken.start(), nameToken.end() - nameToken.start()));
+                }
+            }
+        }
+
+        private static Token nextIdentifier(List<Token> tokens, int startIndex) {
+            for (int i = startIndex; i < tokens.size(); i++) {
+                if (isIdentifier(tokens.get(i).text())) {
+                    return tokens.get(i);
+                }
+            }
+            return null;
+        }
+
+        private static void openPendingClass(Token token, int braceDepth, BuildState buildState) {
+            if (!buildState.pendingClasses().isEmpty()) {
+                PendingClass pending = buildState.pendingClasses().pop();
+                buildState.openClasses().push(new OpenClass(pending.internalName(), pending.simpleName(), pending.declarationStart(), pending.declarationLength(), token.end(), braceDepth + 1));
+            }
+        }
+
+        private static void closeClassScope(Token token, int braceDepth, BuildState buildState) {
+            if (!buildState.openClasses().isEmpty() && buildState.openClasses().peek().bodyDepth() == braceDepth) {
+                OpenClass open = buildState.openClasses().pop();
+                buildState.classScopes().add(new ClassScope(open.internalName(), open.simpleName(), open.declarationStart(), open.declarationLength(), open.bodyStart(), token.start(), open.bodyDepth()));
+            }
+        }
+
+        private static void registerMethodDeclaration(List<Token> tokens, int index, BytecodeIndex bytecodeIndex, BuildState buildState, int braceDepth) {
+            if (!buildState.openClasses().isEmpty() && braceDepth == buildState.openClasses().peek().bodyDepth() && isIdentifier(tokens.get(index).text())) {
+                MethodDeclaration declaration = tryCreateMethodDeclaration(tokens, index, buildState.openClasses().peek(), bytecodeIndex, buildState.declarationLengths());
+                if (declaration != null) {
+                    buildState.methodDeclarationsByStart().put(declaration.start(), declaration);
+                }
+            }
+        }
+
+        private static MethodDeclaration tryCreateMethodDeclaration(List<Token> tokens, int index, OpenClass currentClass, BytecodeIndex bytecodeIndex, Map<Integer, Integer> declarationLengths) {
+            Token nameToken = tokens.get(index);
+            if (!startsMethodDeclaration(tokens, index)) {
+                return null;
+            }
+            if (isQualifiedMethodName(tokens, index)) {
+                return null;
+            }
+            int closeIndex = findMatchingParen(tokens, index + 1);
+            Token after = declarationTerminator(tokens, closeIndex);
+            if (after == null || (!"{".equals(after.text()) && !";".equals(after.text()))) {
+                return null;
+            }
+            String signature = buildDescriptor(tokens, index + 1, closeIndex, currentClass.internalName(), bytecodeIndex);
+            MethodInfo methodInfo = signature == null ? null : bytecodeIndex.resolveMethod(currentClass.internalName(), nameToken.text(), signature);
+            if (methodInfo == null) {
+                methodInfo = bytecodeIndex.resolveMethod(currentClass.internalName(), currentClass.simpleName().equals(nameToken.text()) ? CONSTRUCTOR_NAME : nameToken.text(), countParameters(tokens, index + 1, closeIndex));
+            }
+            if (methodInfo == null) {
+                return null;
+            }
+            declarationLengths.put(nameToken.start(), nameToken.end() - nameToken.start());
+            return new MethodDeclaration(methodInfo.ownerInternalName(), nameToken.text(), methodInfo.jvmName(), methodInfo.descriptor(), nameToken.start(), nameToken.end() - nameToken.start());
+        }
+
+        private static String buildDescriptor(List<Token> tokens, int openParenIndex, int closeParenIndex, String currentInternalName, BytecodeIndex bytecodeIndex) {
+            List<String> parameterDescriptors = new ArrayList<>();
+            List<Token> current = new ArrayList<>();
+            int genericDepth = 0;
+            for (int i = openParenIndex + 1; i < closeParenIndex; i++) {
+                genericDepth = consumeParameterToken(tokens.get(i), current, genericDepth, parameterDescriptors, currentInternalName, bytecodeIndex);
+            }
+            addParameterDescriptor(current, parameterDescriptors, currentInternalName, bytecodeIndex);
+            StringBuilder descriptor = new StringBuilder();
+            descriptor.append('(');
+            for (String parameterDescriptor : parameterDescriptors) {
+                descriptor.append(parameterDescriptor);
+            }
+            descriptor.append(')');
+            descriptor.append('V');
+            return descriptor.toString();
+        }
+
+        private static int countParameters(List<Token> tokens, int openParenIndex, int closeParenIndex) {
+            if (openParenIndex + 1 == closeParenIndex) {
+                return 0;
+            }
+            int count = 1;
+            int genericDepth = 0;
+            for (int i = openParenIndex + 1; i < closeParenIndex; i++) {
+                String text = tokens.get(i).text();
+                if ("<".equals(text)) {
+                    genericDepth++;
+                } else if (">".equals(text) && genericDepth > 0) {
+                    genericDepth--;
+                } else if (",".equals(text) && genericDepth == 0) {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        private static void registerFieldDeclaration(List<Token> tokens, int index, BytecodeIndex bytecodeIndex, BuildState buildState, int braceDepth) {
+            if (!buildState.openClasses().isEmpty() && braceDepth == buildState.openClasses().peek().bodyDepth() && isIdentifier(tokens.get(index).text())) {
+                FieldDeclaration declaration = tryCreateFieldDeclaration(tokens, index, buildState.openClasses().peek(), bytecodeIndex, buildState.declarationLengths());
+                if (declaration != null) {
+                    buildState.fieldDeclarationsByStart().put(declaration.start(), declaration);
+                }
+            }
+        }
+
+        private static FieldDeclaration tryCreateFieldDeclaration(List<Token> tokens, int index, OpenClass currentClass, BytecodeIndex bytecodeIndex, Map<Integer, Integer> declarationLengths) {
+            Token nameToken = tokens.get(index);
+            if (startsMethodDeclaration(tokens, index) || isQualifiedFieldName(tokens, index) || !hasFieldTerminator(tokens, index)) {
+                return null;
+            }
+            FieldInfo fieldInfo = bytecodeIndex.resolveField(currentClass.internalName(), nameToken.text());
+            if (fieldInfo == null) {
+                return null;
+            }
+            declarationLengths.put(nameToken.start(), nameToken.end() - nameToken.start());
+            return new FieldDeclaration(fieldInfo.ownerInternalName(), fieldInfo.name(), fieldInfo.descriptor(), nameToken.start(), nameToken.end() - nameToken.start());
+        }
+
+        private static boolean startsMethodDeclaration(List<Token> tokens, int index) {
+            Token next = nextSignificant(tokens, index);
+            return next != null && "(".equals(next.text());
+        }
+
+        private static boolean isQualifiedMethodName(List<Token> tokens, int index) {
+            String previousText = textOf(previousSignificant(tokens, index));
+            return "new".equals(previousText) || ".".equals(previousText);
+        }
+
+        private static boolean isQualifiedFieldName(List<Token> tokens, int index) {
+            return ".".equals(textOf(previousSignificant(tokens, index)));
+        }
+
+        private static boolean hasFieldTerminator(List<Token> tokens, int index) {
+            Token next = nextSignificant(tokens, index);
+            return next != null && ";".equals(next.text());
+        }
+
+        private static Token declarationTerminator(List<Token> tokens, int closeIndex) {
+            if (closeIndex < 0) {
+                return null;
+            }
+            Token after = nextSignificant(tokens, closeIndex);
+            while (after != null && "throws".equals(after.text())) {
+                after = nextTypeBoundary(tokens, tokens.indexOf(after));
+            }
+            return after;
+        }
+
+        private static Token nextTypeBoundary(List<Token> tokens, int startIndex) {
+            for (int i = startIndex + 1; i < tokens.size(); i++) {
+                Token candidate = tokens.get(i);
+                if ("{".equals(candidate.text()) || ";".equals(candidate.text())) {
+                    return candidate;
+                }
+            }
+            return null;
+        }
+
+        private static int consumeParameterToken(Token token, List<Token> current, int genericDepth, List<String> parameterDescriptors, String currentInternalName, BytecodeIndex bytecodeIndex) {
+            String tokenText = token.text();
+            if ("<".equals(tokenText)) {
+                current.add(token);
+                return genericDepth + 1;
+            }
+            if (">".equals(tokenText) && genericDepth > 0) {
+                current.add(token);
+                return genericDepth - 1;
+            }
+            if (",".equals(tokenText) && genericDepth == 0) {
+                addParameterDescriptor(current, parameterDescriptors, currentInternalName, bytecodeIndex);
+                return genericDepth;
+            }
+            current.add(token);
+            return genericDepth;
+        }
+
+        private static void addParameterDescriptor(List<Token> current, List<String> parameterDescriptors, String currentInternalName, BytecodeIndex bytecodeIndex) {
+            if (!current.isEmpty()) {
+                parameterDescriptors.add(toParameterDescriptor(current, currentInternalName, bytecodeIndex));
+                current.clear();
+            }
+        }
+
+        private static String toParameterDescriptor(List<Token> tokens, String currentInternalName, BytecodeIndex bytecodeIndex) {
+            ParameterType parameterType = parameterType(tokens);
+            int arrayDepth = parameterType.arrayDepth() + (parameterType.varArgs() ? 1 : 0);
+            return "[".repeat(arrayDepth) + typeDescriptor(parameterType.rawType(), currentInternalName, bytecodeIndex);
+        }
+
+        private static String typeDescriptor(String rawType, String currentInternalName, BytecodeIndex bytecodeIndex) {
+            String primitive = PRIMITIVES.get(rawType);
+            if (primitive != null) {
+                return primitive;
+            }
+            TypeInfo typeInfo = resolveKnownType(rawType, currentInternalName, bytecodeIndex);
+            if (typeInfo != null) {
+                return 'L' + typeInfo.internalName() + ';';
+            }
+            if (rawType.contains(".")) {
+                return 'L' + rawType.replace('.', '/') + ';';
+            }
+            return 'L' + rawType + ';';
+        }
+
+        private static TypeInfo resolveKnownType(String rawType, String currentInternalName, BytecodeIndex bytecodeIndex) {
+            TypeInfo typeInfo = bytecodeIndex.resolveTypeReference(rawType, currentInternalName);
+            if (typeInfo != null) {
+                return typeInfo;
+            }
+            int separator = rawType.lastIndexOf('.');
+            if (separator < 0) {
+                return null;
+            }
+            return bytecodeIndex.resolveTypeReference(rawType.substring(separator + 1), currentInternalName);
+        }
+
+        private static ParameterType parameterType(List<Token> tokens) {
+            List<String> typeTokens = new ArrayList<>();
+            int arrayDepth = 0;
+            boolean varArgs = false;
+            int index = 0;
+            while (index < tokens.size()) {
+                String tokenText = tokens.get(index).text();
+                if (isAnnotation(tokenText)) {
+                    index = skipAnnotation(tokens, index) + 1;
+                } else {
+                    if ("[".equals(tokenText)) {
+                        arrayDepth++;
+                    } else if ("...".equals(tokenText)) {
+                        varArgs = true;
+                    } else if (!isModifier(tokenText)) {
+                        typeTokens.add(tokenText);
+                    }
+                    index++;
+                }
+            }
+            return new ParameterType(rawParameterType(typeTokens), arrayDepth, varArgs);
+        }
+
+        private static boolean isAnnotation(String text) {
+            return "@".equals(text) || text.startsWith("@");
+        }
+
+        private static boolean isModifier(String text) {
+            return switch (text) {
+                case "public", "protected", "private", "static", "final", "abstract", "synchronized", "native", "strictfp", "default", "transient", "volatile" -> true;
+                default -> false;
+            };
+        }
+
+        private static int skipAnnotation(List<Token> tokens, int index) {
+            int currentIndex = index + 1;
+            while (currentIndex < tokens.size()) {
+                String tokenText = tokens.get(currentIndex).text();
+                if (!".".equals(tokenText) && !isIdentifier(tokenText)) {
+                    break;
+                }
+                currentIndex++;
+            }
+            if (currentIndex < tokens.size() && "(".equals(tokens.get(currentIndex).text())) {
+                int closeIndex = findMatchingParen(tokens, currentIndex);
+                return closeIndex >= 0 ? closeIndex : tokens.size() - 1;
+            }
+            return currentIndex - 1;
+        }
+
+        private static int findMatchingParen(List<Token> tokens, int openIndex) {
+            int depth = 0;
+            for (int i = openIndex; i < tokens.size(); i++) {
+                String text = tokens.get(i).text();
+                if ("(".equals(text)) {
+                    depth++;
+                } else if (")".equals(text)) {
+                    depth--;
+                    if (depth == 0) {
+                        return i;
+                    }
+                }
+            }
+            return -1;
+        }
+
+        private static String rawParameterType(List<String> typeTokens) {
+            if (typeTokens.size() < 2) {
+                return "java.lang.Object";
+            }
+            StringBuilder rawType = new StringBuilder();
+            int genericDepth = 0;
+            for (int i = 0; i < typeTokens.size() - 1; i++) {
+                String tokenText = typeTokens.get(i);
+                if ("<".equals(tokenText)) {
+                    genericDepth++;
+                } else if (">".equals(tokenText) && genericDepth > 0) {
+                    genericDepth--;
+                } else if (genericDepth == 0) {
+                    if (".".equals(tokenText)) {
+                        rawType.append('.');
+                    } else {
+                        rawType.append(tokenText);
+                    }
+                }
+            }
+            return rawType.isEmpty() ? "java.lang.Object" : rawType.toString();
+        }
+
+        private static TokenMatch nextToken(String source, int index) {
+            char current = source.charAt(index);
+            if (Character.isWhitespace(current)) {
+                return new TokenMatch(null, index + 1);
+            }
+            if (Character.isJavaIdentifierStart(current)) {
+                return identifierToken(source, index);
+            }
+            if (isVarArgs(source, index)) {
+                return new TokenMatch(new Token("...", index, index + 3), index + 3);
+            }
+            return new TokenMatch(new Token(String.valueOf(current), index, index + 1), index + 1);
+        }
+
+        private static TokenMatch identifierToken(String source, int index) {
+            int end = index + 1;
+            while (end < source.length() && Character.isJavaIdentifierPart(source.charAt(end))) {
+                end++;
+            }
+            return new TokenMatch(new Token(source.substring(index, end), index, end), end);
+        }
+
+        private static boolean isVarArgs(String source, int index) {
+            return source.charAt(index) == '.' && index + 2 < source.length() && source.charAt(index + 1) == '.' && source.charAt(index + 2) == '.';
+        }
+
+        private static MaskState handleCodeState(char[] chars, int index) {
+            if (startsLineComment(chars, index)) {
+                blankPair(chars, index);
+                return MaskState.LINE_COMMENT;
+            }
+            if (startsBlockComment(chars, index)) {
+                blankPair(chars, index);
+                return MaskState.BLOCK_COMMENT;
+            }
+            if (chars[index] == '"') {
+                chars[index] = ' ';
+                return MaskState.STRING;
+            }
+            if (chars[index] == '\'') {
+                chars[index] = ' ';
+                return MaskState.CHAR;
+            }
+            return MaskState.CODE;
+        }
+
+        private static MaskState handleLineCommentState(char[] chars, int index) {
+            if (chars[index] == '\n') {
+                return MaskState.CODE;
+            }
+            chars[index] = ' ';
+            return MaskState.LINE_COMMENT;
+        }
+
+        private static MaskState handleBlockCommentState(char[] chars, int index) {
+            if (endsBlockComment(chars, index)) {
+                blankPair(chars, index);
+                return MaskState.CODE;
+            }
+            if (chars[index] != '\n') {
+                chars[index] = ' ';
+            }
+            return MaskState.BLOCK_COMMENT;
+        }
+
+        private static MaskState handleQuotedState(char[] chars, int index, char quote, MaskState quotedState) {
+            boolean closingQuote = chars[index] == quote && !isEscaped(chars, index);
+            if (chars[index] != '\n') {
+                chars[index] = ' ';
+            }
+            return closingQuote ? MaskState.CODE : quotedState;
+        }
+
+        private static boolean startsLineComment(char[] chars, int index) {
+            return chars[index] == '/' && index + 1 < chars.length && chars[index + 1] == '/';
+        }
+
+        private static boolean startsBlockComment(char[] chars, int index) {
+            return chars[index] == '/' && index + 1 < chars.length && chars[index + 1] == '*';
+        }
+
+        private static boolean endsBlockComment(char[] chars, int index) {
+            return chars[index] == '*' && index + 1 < chars.length && chars[index + 1] == '/';
+        }
+
+        private static void blankPair(char[] chars, int index) {
+            chars[index] = ' ';
+            if (index + 1 < chars.length) {
+                chars[index + 1] = ' ';
+            }
+        }
+
+        private static boolean isEscaped(char[] chars, int index) {
+            int backslashCount = 0;
+            for (int i = index - 1; i >= 0 && chars[i] == '\\'; i--) {
+                backslashCount++;
+            }
+            return (backslashCount & 1) == 1;
+        }
     }
 
     private record PendingClass(
@@ -551,144 +1078,6 @@ public final class BytecodeSourceLinker {
     ) {
     }
 
-    private static MethodDeclaration tryCreateMethodDeclaration(List<Token> tokens, int index, OpenClass currentClass, BytecodeIndex bytecodeIndex, Map<Integer, Integer> declarationLengths) {
-        Token nameToken = tokens.get(index);
-        if (!startsMethodDeclaration(tokens, index)) {
-            return null;
-        }
-        if (isQualifiedMethodName(tokens, index)) {
-            return null;
-        }
-        int closeIndex = findMatchingParen(tokens, index + 1);
-        Token after = declarationTerminator(tokens, closeIndex);
-        if (after == null || (!"{".equals(after.text()) && !";".equals(after.text()))) {
-            return null;
-        }
-        String signature = buildDescriptor(tokens, index + 1, closeIndex, currentClass.internalName(), bytecodeIndex);
-        MethodInfo methodInfo = signature == null ? null : bytecodeIndex.resolveMethod(currentClass.internalName(), nameToken.text(), signature);
-        if (methodInfo == null) {
-            methodInfo = bytecodeIndex.resolveMethod(currentClass.internalName(), currentClass.simpleName().equals(nameToken.text()) ? CONSTRUCTOR_NAME : nameToken.text(), countParameters(tokens, index + 1, closeIndex));
-        }
-        if (methodInfo == null) {
-            return null;
-        }
-        declarationLengths.put(nameToken.start(), nameToken.end() - nameToken.start());
-        return new MethodDeclaration(methodInfo.ownerInternalName(), nameToken.text(), methodInfo.jvmName(), methodInfo.descriptor(), nameToken.start(), nameToken.end() - nameToken.start());
-    }
-
-    private static String buildDescriptor(List<Token> tokens, int openParenIndex, int closeParenIndex, String currentInternalName, BytecodeIndex bytecodeIndex) {
-        List<String> parameterDescriptors = new ArrayList<>();
-        List<Token> current = new ArrayList<>();
-        int genericDepth = 0;
-        for (int i = openParenIndex + 1; i < closeParenIndex; i++) {
-            genericDepth = consumeParameterToken(tokens.get(i), current, genericDepth, parameterDescriptors, currentInternalName, bytecodeIndex);
-        }
-        addParameterDescriptor(current, parameterDescriptors, currentInternalName, bytecodeIndex);
-        StringBuilder descriptor = new StringBuilder();
-        descriptor.append('(');
-        for (String parameterDescriptor : parameterDescriptors) {
-            descriptor.append(parameterDescriptor);
-        }
-        descriptor.append(')');
-        descriptor.append('V');
-        return descriptor.toString();
-    }
-
-    private static String toParameterDescriptor(List<Token> tokens, String currentInternalName, BytecodeIndex bytecodeIndex) {
-        ParameterType parameterType = parameterType(tokens);
-        int arrayDepth = parameterType.arrayDepth() + (parameterType.varArgs() ? 1 : 0);
-        return "[".repeat(arrayDepth) + typeDescriptor(parameterType.rawType(), currentInternalName, bytecodeIndex);
-    }
-
-    private static String typeDescriptor(String rawType, String currentInternalName, BytecodeIndex bytecodeIndex) {
-        String primitive = PRIMITIVES.get(rawType);
-        if (primitive != null) {
-            return primitive;
-        }
-        TypeInfo typeInfo = resolveKnownType(rawType, currentInternalName, bytecodeIndex);
-        if (typeInfo != null) {
-            return 'L' + typeInfo.internalName() + ';';
-        }
-        if (rawType.contains(".")) {
-            return 'L' + rawType.replace('.', '/') + ';';
-        }
-        return 'L' + rawType + ';';
-    }
-
-    private static int countParameters(List<Token> tokens, int openParenIndex, int closeParenIndex) {
-        if (openParenIndex + 1 == closeParenIndex) {
-            return 0;
-        }
-        int count = 1;
-        int genericDepth = 0;
-        for (int i = openParenIndex + 1; i < closeParenIndex; i++) {
-            String text = tokens.get(i).text();
-            if ("<".equals(text)) {
-                genericDepth++;
-            } else if (">".equals(text) && genericDepth > 0) {
-                genericDepth--;
-            } else if (",".equals(text) && genericDepth == 0) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    private static boolean looksLikeMethodCall(List<Token> tokens, int index) {
-        Token next = nextSignificant(tokens, index);
-        if (next == null || !"(".equals(next.text())) {
-            return false;
-        }
-        Token previous = previousSignificant(tokens, index);
-        return previous == null || !isTypeKeyword(previous.text());
-    }
-
-    private static int countCallArguments(List<Token> tokens, int nameIndex) {
-        int openIndex = nameIndex + 1;
-        if (openIndex >= tokens.size() || !"(".equals(tokens.get(openIndex).text())) {
-            return 0;
-        }
-        int closeIndex = findMatchingParen(tokens, openIndex);
-        if (closeIndex < 0 || openIndex + 1 == closeIndex) {
-            return 0;
-        }
-        CallArgumentNesting nesting = new CallArgumentNesting();
-        int count = 1;
-        for (int i = openIndex + 1; i < closeIndex; i++) {
-            if (",".equals(tokens.get(i).text()) && nesting.isTopLevel()) {
-                count++;
-                continue;
-            }
-            nesting.accept(tokens, i, closeIndex);
-        }
-        return count;
-    }
-
-    private static int findMatchingParen(List<Token> tokens, int openIndex) {
-        int depth = 0;
-        for (int i = openIndex; i < tokens.size(); i++) {
-            String text = tokens.get(i).text();
-            if ("(".equals(text)) {
-                depth++;
-            } else if (")".equals(text)) {
-                depth--;
-                if (depth == 0) {
-                    return i;
-                }
-            }
-        }
-        return -1;
-    }
-
-    private static Token nextIdentifier(List<Token> tokens, int startIndex) {
-        for (int i = startIndex; i < tokens.size(); i++) {
-            if (isIdentifier(tokens.get(i).text())) {
-                return tokens.get(i);
-            }
-        }
-        return null;
-    }
-
     private static Token nextSignificant(List<Token> tokens, int index) {
         int nextIndex = index + 1;
         return nextIndex < tokens.size() ? tokens.get(nextIndex) : null;
@@ -703,393 +1092,8 @@ public final class BytecodeSourceLinker {
         return token == null ? null : token.text();
     }
 
-    private static List<Token> tokenize(String source) {
-        List<Token> tokens = new ArrayList<>();
-        int i = 0;
-        while (i < source.length()) {
-            TokenMatch match = nextToken(source, i);
-            if (match.token() != null) {
-                tokens.add(match.token());
-            }
-            i = match.nextIndex();
-        }
-        return tokens;
-    }
-
-    private static String maskNonCode(String source) {
-        char[] chars = source.toCharArray();
-        MaskState state = MaskState.CODE;
-        /*
-         * Blank comments and literals so token offsets stay aligned with the original source while
-         * the token scanner only sees structural Java syntax.
-         */
-        for (int i = 0; i < chars.length; i++) {
-            state = switch (state) {
-                case CODE -> handleCodeState(chars, i);
-                case LINE_COMMENT -> handleLineCommentState(chars, i);
-                case BLOCK_COMMENT -> handleBlockCommentState(chars, i);
-                case STRING -> handleQuotedState(chars, i, '"', MaskState.STRING);
-                case CHAR -> handleQuotedState(chars, i, '\'', MaskState.CHAR);
-            };
-        }
-        return new String(chars);
-    }
-
     private static boolean isIdentifier(String text) {
         return StringUtils.isNotEmpty(text) && Character.isJavaIdentifierStart(text.charAt(0));
-    }
-
-    private static boolean isTypeKeyword(String text) {
-        return "class".equals(text) || "interface".equals(text) || "enum".equals(text) || "record".equals(text);
-    }
-
-    private static boolean isAnnotation(String text) {
-        return "@".equals(text) || text.startsWith("@");
-    }
-
-    private static boolean isModifier(String text) {
-        return switch (text) {
-            case "public", "protected", "private", "static", "final", "abstract", "synchronized", "native", "strictfp", "default", "transient", "volatile" -> true;
-            default -> false;
-        };
-    }
-
-    private static String displayMethodName(String internalName, String name) {
-        return CONSTRUCTOR_NAME.equals(name) ? simpleName(internalName) : name;
-    }
-
-    private static String simpleName(String internalName) {
-        int inner = internalName.lastIndexOf('$');
-        if (inner >= 0) {
-            return internalName.substring(inner + 1);
-        }
-        int pkg = internalName.lastIndexOf('/');
-        return pkg >= 0 ? internalName.substring(pkg + 1) : internalName;
-    }
-
-    private static String parentInternalName(String internalName) {
-        int inner = internalName.lastIndexOf('$');
-        return inner >= 0 ? internalName.substring(0, inner) : null;
-    }
-
-    private static int handleBuildToken(List<Token> tokens, int index, BytecodeIndex bytecodeIndex, BuildState buildState, int braceDepth) {
-        Token token = tokens.get(index);
-        String tokenText = token.text();
-        if (isTypeKeyword(tokenText)) {
-            registerTypeDeclaration(tokens, index, bytecodeIndex, buildState);
-            return braceDepth;
-        }
-        if ("{".equals(tokenText)) {
-            openPendingClass(token, braceDepth, buildState);
-            return braceDepth + 1;
-        }
-        if ("}".equals(tokenText)) {
-            closeClassScope(token, braceDepth, buildState);
-            return braceDepth - 1;
-        }
-        registerMethodDeclaration(tokens, index, bytecodeIndex, buildState, braceDepth);
-        registerFieldDeclaration(tokens, index, bytecodeIndex, buildState, braceDepth);
-        return braceDepth;
-    }
-
-    private static void registerTypeDeclaration(List<Token> tokens, int index, BytecodeIndex bytecodeIndex, BuildState buildState) {
-        Token nameToken = nextIdentifier(tokens, index + 1);
-        if (nameToken != null) {
-            String parentInternalName = buildState.openClasses().isEmpty() ? null : buildState.openClasses().peek().internalName();
-            TypeInfo typeInfo = bytecodeIndex.resolveDeclaredType(nameToken.text(), parentInternalName);
-            if (typeInfo != null) {
-                buildState.declarationLengths().put(nameToken.start(), nameToken.end() - nameToken.start());
-                buildState.pendingClasses().push(new PendingClass(typeInfo.internalName(), typeInfo.simpleName(), nameToken.start(), nameToken.end() - nameToken.start()));
-            }
-        }
-    }
-
-    private static void openPendingClass(Token token, int braceDepth, BuildState buildState) {
-        if (!buildState.pendingClasses().isEmpty()) {
-            PendingClass pending = buildState.pendingClasses().pop();
-            buildState.openClasses().push(new OpenClass(pending.internalName(), pending.simpleName(), pending.declarationStart(), pending.declarationLength(), token.end(), braceDepth + 1));
-        }
-    }
-
-    private static void closeClassScope(Token token, int braceDepth, BuildState buildState) {
-        if (!buildState.openClasses().isEmpty() && buildState.openClasses().peek().bodyDepth() == braceDepth) {
-            OpenClass open = buildState.openClasses().pop();
-            buildState.classScopes().add(new ClassScope(open.internalName(), open.simpleName(), open.declarationStart(), open.declarationLength(), open.bodyStart(), token.start(), open.bodyDepth()));
-        }
-    }
-
-    private static void registerMethodDeclaration(List<Token> tokens, int index, BytecodeIndex bytecodeIndex, BuildState buildState, int braceDepth) {
-        if (!buildState.openClasses().isEmpty() && braceDepth == buildState.openClasses().peek().bodyDepth() && isIdentifier(tokens.get(index).text())) {
-            MethodDeclaration declaration = tryCreateMethodDeclaration(tokens, index, buildState.openClasses().peek(), bytecodeIndex, buildState.declarationLengths());
-            if (declaration != null) {
-                buildState.methodDeclarationsByStart().put(declaration.start(), declaration);
-            }
-        }
-    }
-
-    private static void registerFieldDeclaration(List<Token> tokens, int index, BytecodeIndex bytecodeIndex, BuildState buildState, int braceDepth) {
-        if (!buildState.openClasses().isEmpty() && braceDepth == buildState.openClasses().peek().bodyDepth() && isIdentifier(tokens.get(index).text())) {
-            FieldDeclaration declaration = tryCreateFieldDeclaration(tokens, index, buildState.openClasses().peek(), bytecodeIndex, buildState.declarationLengths());
-            if (declaration != null) {
-                buildState.fieldDeclarationsByStart().put(declaration.start(), declaration);
-            }
-        }
-    }
-
-    private static FieldDeclaration tryCreateFieldDeclaration(List<Token> tokens, int index, OpenClass currentClass, BytecodeIndex bytecodeIndex, Map<Integer, Integer> declarationLengths) {
-        Token nameToken = tokens.get(index);
-        if (startsMethodDeclaration(tokens, index) || isQualifiedFieldName(tokens, index) || !hasFieldTerminator(tokens, index)) {
-            return null;
-        }
-        FieldInfo fieldInfo = bytecodeIndex.resolveField(currentClass.internalName(), nameToken.text());
-        if (fieldInfo == null) {
-            return null;
-        }
-        declarationLengths.put(nameToken.start(), nameToken.end() - nameToken.start());
-        return new FieldDeclaration(fieldInfo.ownerInternalName(), fieldInfo.name(), fieldInfo.descriptor(), nameToken.start(), nameToken.end() - nameToken.start());
-    }
-
-    private static boolean isMoreSpecificScope(ClassScope currentMatch, ClassScope candidate) {
-        return currentMatch == null || (candidate.bodyStart() >= currentMatch.bodyStart() && candidate.bodyEnd() <= currentMatch.bodyEnd());
-    }
-
-    private static boolean startsMethodDeclaration(List<Token> tokens, int index) {
-        Token next = nextSignificant(tokens, index);
-        return next != null && "(".equals(next.text());
-    }
-
-    private static boolean isQualifiedMethodName(List<Token> tokens, int index) {
-        String previousText = textOf(previousSignificant(tokens, index));
-        return "new".equals(previousText) || ".".equals(previousText);
-    }
-
-    private static boolean isQualifiedFieldName(List<Token> tokens, int index) {
-        return ".".equals(textOf(previousSignificant(tokens, index)));
-    }
-
-    private static boolean hasFieldTerminator(List<Token> tokens, int index) {
-        Token next = nextSignificant(tokens, index);
-        return next != null && ";".equals(next.text());
-    }
-
-    private static Token declarationTerminator(List<Token> tokens, int closeIndex) {
-        if (closeIndex < 0) {
-            return null;
-        }
-        Token after = nextSignificant(tokens, closeIndex);
-        while (after != null && "throws".equals(after.text())) {
-            after = nextTypeBoundary(tokens, tokens.indexOf(after));
-        }
-        return after;
-    }
-
-    private static void addParameterDescriptor(List<Token> current, List<String> parameterDescriptors, String currentInternalName, BytecodeIndex bytecodeIndex) {
-        if (!current.isEmpty()) {
-            parameterDescriptors.add(toParameterDescriptor(current, currentInternalName, bytecodeIndex));
-            current.clear();
-        }
-    }
-
-    private static Token nextTypeBoundary(List<Token> tokens, int startIndex) {
-        for (int i = startIndex + 1; i < tokens.size(); i++) {
-            Token candidate = tokens.get(i);
-            if ("{".equals(candidate.text()) || ";".equals(candidate.text())) {
-                return candidate;
-            }
-        }
-        return null;
-    }
-
-    private static int consumeParameterToken(Token token, List<Token> current, int genericDepth, List<String> parameterDescriptors, String currentInternalName, BytecodeIndex bytecodeIndex) {
-        String tokenText = token.text();
-        if ("<".equals(tokenText)) {
-            current.add(token);
-            return genericDepth + 1;
-        }
-        if (">".equals(tokenText) && genericDepth > 0) {
-            current.add(token);
-            return genericDepth - 1;
-        }
-        if (",".equals(tokenText) && genericDepth == 0) {
-            addParameterDescriptor(current, parameterDescriptors, currentInternalName, bytecodeIndex);
-            return genericDepth;
-        }
-        current.add(token);
-        return genericDepth;
-    }
-
-    private static TypeInfo resolveKnownType(String rawType, String currentInternalName, BytecodeIndex bytecodeIndex) {
-        TypeInfo typeInfo = bytecodeIndex.resolveTypeReference(rawType, currentInternalName);
-        if (typeInfo != null) {
-            return typeInfo;
-        }
-        int separator = rawType.lastIndexOf('.');
-        if (separator < 0) {
-            return null;
-        }
-        return bytecodeIndex.resolveTypeReference(rawType.substring(separator + 1), currentInternalName);
-    }
-
-    private static ParameterType parameterType(List<Token> tokens) {
-        List<String> typeTokens = new ArrayList<>();
-        int arrayDepth = 0;
-        boolean varArgs = false;
-        int index = 0;
-        while (index < tokens.size()) {
-            String tokenText = tokens.get(index).text();
-            if (isAnnotation(tokenText)) {
-                index = skipAnnotation(tokens, index) + 1;
-            } else {
-                if ("[".equals(tokenText)) {
-                    arrayDepth++;
-                } else if ("...".equals(tokenText)) {
-                    varArgs = true;
-                } else if (!isModifier(tokenText)) {
-                    typeTokens.add(tokenText);
-                }
-                index++;
-            }
-        }
-        return new ParameterType(rawParameterType(typeTokens), arrayDepth, varArgs);
-    }
-
-    private static int skipAnnotation(List<Token> tokens, int index) {
-        int currentIndex = index + 1;
-        while (currentIndex < tokens.size()) {
-            String tokenText = tokens.get(currentIndex).text();
-            if (!".".equals(tokenText) && !isIdentifier(tokenText)) {
-                break;
-            }
-            currentIndex++;
-        }
-        if (currentIndex < tokens.size() && "(".equals(tokens.get(currentIndex).text())) {
-            int closeIndex = findMatchingParen(tokens, currentIndex);
-            return closeIndex >= 0 ? closeIndex : tokens.size() - 1;
-        }
-        return currentIndex - 1;
-    }
-
-    private static String rawParameterType(List<String> typeTokens) {
-        if (typeTokens.size() < 2) {
-            return "java.lang.Object";
-        }
-        StringBuilder rawType = new StringBuilder();
-        int genericDepth = 0;
-        for (int i = 0; i < typeTokens.size() - 1; i++) {
-            String tokenText = typeTokens.get(i);
-            if ("<".equals(tokenText)) {
-                genericDepth++;
-            } else if (">".equals(tokenText) && genericDepth > 0) {
-                genericDepth--;
-            } else if (genericDepth == 0) {
-                if (".".equals(tokenText)) {
-                    rawType.append('.');
-                } else {
-                    rawType.append(tokenText);
-                }
-            }
-        }
-        return rawType.isEmpty() ? "java.lang.Object" : rawType.toString();
-    }
-
-    private static TokenMatch nextToken(String source, int index) {
-        char current = source.charAt(index);
-        if (Character.isWhitespace(current)) {
-            return new TokenMatch(null, index + 1);
-        }
-        if (Character.isJavaIdentifierStart(current)) {
-            return identifierToken(source, index);
-        }
-        if (isVarArgs(source, index)) {
-            return new TokenMatch(new Token("...", index, index + 3), index + 3);
-        }
-        return new TokenMatch(new Token(String.valueOf(current), index, index + 1), index + 1);
-    }
-
-    private static TokenMatch identifierToken(String source, int index) {
-        int end = index + 1;
-        while (end < source.length() && Character.isJavaIdentifierPart(source.charAt(end))) {
-            end++;
-        }
-        return new TokenMatch(new Token(source.substring(index, end), index, end), end);
-    }
-
-    private static boolean isVarArgs(String source, int index) {
-        return source.charAt(index) == '.' && index + 2 < source.length() && source.charAt(index + 1) == '.' && source.charAt(index + 2) == '.';
-    }
-
-    private static MaskState handleCodeState(char[] chars, int index) {
-        if (startsLineComment(chars, index)) {
-            blankPair(chars, index);
-            return MaskState.LINE_COMMENT;
-        }
-        if (startsBlockComment(chars, index)) {
-            blankPair(chars, index);
-            return MaskState.BLOCK_COMMENT;
-        }
-        if (chars[index] == '"') {
-            chars[index] = ' ';
-            return MaskState.STRING;
-        }
-        if (chars[index] == '\'') {
-            chars[index] = ' ';
-            return MaskState.CHAR;
-        }
-        return MaskState.CODE;
-    }
-
-    private static MaskState handleLineCommentState(char[] chars, int index) {
-        if (chars[index] == '\n') {
-            return MaskState.CODE;
-        }
-        chars[index] = ' ';
-        return MaskState.LINE_COMMENT;
-    }
-
-    private static MaskState handleBlockCommentState(char[] chars, int index) {
-        if (endsBlockComment(chars, index)) {
-            blankPair(chars, index);
-            return MaskState.CODE;
-        }
-        if (chars[index] != '\n') {
-            chars[index] = ' ';
-        }
-        return MaskState.BLOCK_COMMENT;
-    }
-
-    private static MaskState handleQuotedState(char[] chars, int index, char quote, MaskState quotedState) {
-        boolean closingQuote = chars[index] == quote && !isEscaped(chars, index);
-        if (chars[index] != '\n') {
-            chars[index] = ' ';
-        }
-        return closingQuote ? MaskState.CODE : quotedState;
-    }
-
-    private static boolean startsLineComment(char[] chars, int index) {
-        return chars[index] == '/' && index + 1 < chars.length && chars[index + 1] == '/';
-    }
-
-    private static boolean startsBlockComment(char[] chars, int index) {
-        return chars[index] == '/' && index + 1 < chars.length && chars[index + 1] == '*';
-    }
-
-    private static boolean endsBlockComment(char[] chars, int index) {
-        return chars[index] == '*' && index + 1 < chars.length && chars[index + 1] == '/';
-    }
-
-    private static void blankPair(char[] chars, int index) {
-        chars[index] = ' ';
-        if (index + 1 < chars.length) {
-            chars[index + 1] = ' ';
-        }
-    }
-
-    private static boolean isEscaped(char[] chars, int index) {
-        int backslashCount = 0;
-        for (int i = index - 1; i >= 0 && chars[i] == '\\'; i--) {
-            backslashCount++;
-        }
-        return (backslashCount & 1) == 1;
     }
 
     private static final class CallArgumentNesting {
@@ -1169,10 +1173,6 @@ public final class BytecodeSourceLinker {
         private static int decreaseDepth(int depth) {
             return depth > 0 ? depth - 1 : 0;
         }
-    }
-
-    private static ResultLinkSupport.LinkTarget target(String typeName, String name, String descriptor) {
-        return new ResultLinkSupport.LinkTarget(typeName, name, descriptor);
     }
 
     private enum MaskState {

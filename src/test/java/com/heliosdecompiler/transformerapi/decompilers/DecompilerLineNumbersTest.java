@@ -31,6 +31,8 @@ import com.heliosdecompiler.transformerapi.decompilers.vineflower.VineflowerSett
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.lang.classfile.ClassFile;
+import java.nio.file.Path;
 import java.util.TreeMap;
 
 import jd.core.DecompilationResult;
@@ -46,6 +48,12 @@ public class DecompilerLineNumbersTest {
     private static final String PACKAGE_NAME = "com/heliosdecompiler/transformerapi";
     private static final String CLASS_NAME = "TestCompact.class";
     private static final String INTERNAL_NAME = "test/TestCompact";
+
+    @Test
+    public void testLiveFixtureIsCompiledForJava25() throws Exception {
+        Path fixture = Path.of(ROOT_LOCATION, PACKAGE_NAME, CLASS_NAME);
+        assertEquals(69, ClassFile.of().parse(fixture).majorVersion());
+    }
 
     @Test
     public void testAllDecompilersPopulateLineNumbersWithLineNumberSettings() throws Exception {

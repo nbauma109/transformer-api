@@ -15,7 +15,7 @@ public abstract class TestCompact
     log("Test.method2 start");
     try {
       log("Test.method2 try");
-    } catch (Exception e) {
+    } catch (Exception _) {
       log("Test.method2 catch");
     } finally {
       log("Test.method2 finally");
